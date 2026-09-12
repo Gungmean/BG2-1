@@ -23,7 +23,9 @@ import {
 } from './services/syncService';
 import {
   calculateDDay,
-  getLocalDateString
+  getLocalDateString,
+  getSessionMonitorStatus,
+  setSessionMonitorStatus
 } from './services/storageService';
 
 const AiUploadModal = React.lazy(() => import('./components/AiUploadModal'));
@@ -40,7 +42,11 @@ function LoadingPanel({ label = '화면을 불러오는 중입니다...' }) {
 
 export default function App() {
   const [notices, setNotices] = useState([]);
-  const [isMonitor, setIsMonitor] = useState(false);
+  const [isMonitor, setIsMonitorState] = useState(() => getSessionMonitorStatus());
+  const setIsMonitor = (val) => {
+    setIsMonitorState(val);
+    setSessionMonitorStatus(val);
+  };
   const [activeBottomNav, setActiveBottomNav] = useState('board'); // 'board' | 'suggestion' | 'calendar'
   const [calendarSubTab, setCalendarSubTab] = useState('monthCalendar'); // 'schedule' | 'monthCalendar'
 

@@ -289,41 +289,96 @@ function pureSha256(ascii) {
   return result;
 }
 
-async function hashPin(pin) {
-  try {
-    if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === 'function') {
-      const bytes = new TextEncoder().encode(pin);
-      const digest = await window.crypto.subtle.digest('SHA-256', bytes);
-      return Array.from(new Uint8Array(digest))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
+const DEFAULT_MONITOR_PIN_HASH = '8321ec49e061f51ff135aa5fa30b139663adfa2333c90cfe3586eb86f843e7db';
+const MONITOR_PIN_SALT = 'BG2-1_Class_Monitor_Auth_2026_Secure_Salt_!@#';
+const SESSION_KEY_IS_MONITOR = 'classboard_is_monitor_session_v1';
+
+export async function hashMonitorPin(pin) {
+  const cleanPin = String(pin || '').trim();
+  const enc = new TextEncoder();
+  if (
+    typeof window !== 'undefined' &&
+    window.crypto &&
+    window.crypto.subtle &&
+    typeof window.crypto.subtle.importKey === 'function'
+  ) {
+    try {
+      const keyMaterial = await window.crypto.subtle.importKey(
+        'raw',
+        enc.encode(cleanPin),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveBits']
+      );
+      const derivedBits = await window.crypto.subtle.deriveBits(
+        {
+          name: 'PBKDF2',
+          salt: enc.encode(MONITOR_PIN_SALT),
+          iterations: 50000,
+          hash: 'SHA-256'
+        },
+        keyMaterial,
+        256
+      );
+      return Array.from(new Uint8Array(derivedBits))
+        .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
+    } catch (e) {
+      console.warn('SubtleCrypto PBKDF2 failed, using fallback', e);
     }
-  } catch (e) {
-    console.warn('SubtleCrypto unavailable or failed, using pure JS SHA-256 fallback', e);
   }
-  const utf8 = unescape(encodeURIComponent(String(pin)));
-  return pureSha256(utf8);
+  // Pure JS fallback with stretching
+  let h = pureSha256(unescape(encodeURIComponent(cleanPin + MONITOR_PIN_SALT)));
+  for (let i = 0; i < 1000; i++) {
+    h = pureSha256(h + MONITOR_PIN_SALT);
+  }
+  return h;
 }
 
 export function hasMonitorPin() {
-  return Boolean(localStorage.getItem(STORAGE_KEY_MONITOR_PIN_HASH));
+  return true;
 }
 
 export async function setMonitorPin(pin) {
-  const hash = await hashPin(pin);
+  const hash = await hashMonitorPin(pin);
   localStorage.setItem(STORAGE_KEY_MONITOR_PIN_HASH, hash);
   return hash;
 }
 
 export async function verifyMonitorPin(pin) {
-  const storedHash = localStorage.getItem(STORAGE_KEY_MONITOR_PIN_HASH);
-  if (!storedHash) return false;
-  const currentHash = await hashPin(pin);
-  return storedHash === currentHash;
+  if (!pin) return false;
+  const targetHash =
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_MONITOR_PIN_HASH) ||
+    localStorage.getItem(STORAGE_KEY_MONITOR_PIN_HASH) ||
+    DEFAULT_MONITOR_PIN_HASH;
+  const currentHash = await hashMonitorPin(pin);
+  return currentHash === targetHash;
 }
 
 export function resetMonitorPin() {
   localStorage.removeItem(STORAGE_KEY_MONITOR_PIN_HASH);
+}
+
+export function getSessionMonitorStatus() {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) return false;
+    return sessionStorage.getItem(SESSION_KEY_IS_MONITOR) === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
+export function setSessionMonitorStatus(status) {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) return;
+    if (status) {
+      sessionStorage.setItem(SESSION_KEY_IS_MONITOR, 'true');
+    } else {
+      sessionStorage.removeItem(SESSION_KEY_IS_MONITOR);
+    }
+  } catch (e) {
+    // Ignore storage quota or security errors
+  }
 }
 
 export function exportDataJSON() {
