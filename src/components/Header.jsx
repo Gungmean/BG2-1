@@ -111,7 +111,7 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
             <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shadow-sm flex items-center justify-center bg-slate-100 flex-shrink-0">
               <img
                 src="/symbol.jpg"
-                alt="부광스쿨 심볼"
+                alt="부광이일 심볼"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -121,9 +121,9 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
             <span 
               className="font-extrabold font-nalsun text-slate-900 text-lg tracking-tight cursor-pointer select-none"
               onDoubleClick={onOpenPinModal}
-              title="부광스쿨"
+              title="부광이일"
             >
-              부광스쿨
+              부광이일
             </span>
           </div>
           <span className="hidden sm:inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
