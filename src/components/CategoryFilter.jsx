@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal, Clock, CheckCircle2 } from 'lucide-react';
 
 export const CATEGORIES = [
   { id: 'all', label: '전체' },
+  { id: '학사일정', label: '학사일정' },
   { id: '수행평가', label: '수행평가' },
   { id: '학교행사', label: '학교행사' },
   { id: '외부활동', label: '외부활동' },

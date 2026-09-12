@@ -19,7 +19,8 @@ import {
   updateNotice,
   deleteNotice,
   togglePinNotice,
-  calculateDDay
+  calculateDDay,
+  getLocalDateString
 } from './services/storageService';
 
 const AiUploadModal = React.lazy(() => import('./components/AiUploadModal'));
@@ -89,6 +90,21 @@ export default function App() {
   const handleTogglePin = (id) => {
     const updated = togglePinNotice(id);
     setNotices(updated);
+  };
+
+  const handleOpenAddNoticeFromCalendar = (dateStr) => {
+    const defaultDate = dateStr || getLocalDateString();
+    setEditingNotice({
+      title: '',
+      content: '',
+      category: '학사일정',
+      dateType: 'single',
+      date: defaultDate,
+      startDate: defaultDate,
+      endDate: defaultDate
+    });
+    setAiModalInitialMode('manual');
+    setIsAiModalOpen(true);
   };
 
   // Category & Status Counts Calculation
@@ -311,7 +327,10 @@ export default function App() {
             {calendarSubTab === 'monthCalendar' ? (
               <NoticeCalendarView
                 notices={notices}
+                isMonitor={isMonitor}
                 onSelectNotice={(n) => setSelectedNotice(n)}
+                onAddSchedule={handleOpenAddNoticeFromCalendar}
+                onOpenPinModal={() => setIsPinModalOpen(true)}
               />
             ) : (
               <ScheduleInfo />

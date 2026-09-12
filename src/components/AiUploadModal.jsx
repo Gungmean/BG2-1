@@ -10,8 +10,9 @@ export default function AiUploadModal({
   editNoticeData = null,
   initialMode = 'ai' // 'ai' | 'manual'
 }) {
+  const isEdit = Boolean(editNoticeData && editNoticeData.id);
   const [step, setStep] = useState(
-    editNoticeData ? 'review' : initialMode === 'manual' ? 'manual' : 'upload'
+    isEdit ? 'review' : initialMode === 'manual' ? 'manual' : 'upload'
   );
   const [selectedImage, setSelectedImage] = useState(editNoticeData?.imageUrl || null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -25,25 +26,25 @@ export default function AiUploadModal({
   const [formData, setFormData] = useState({
     title: editNoticeData?.title || '',
     content: editNoticeData?.content || '',
-    dateType: editNoticeData?.dateType || (editNoticeData?.startDate ? 'range' : 'single'), // 'single' | 'range'
+    dateType: editNoticeData?.dateType || (editNoticeData?.startDate && editNoticeData?.endDate && editNoticeData.startDate !== editNoticeData.endDate ? 'range' : 'single'),
     date: editNoticeData?.date || getTodayDate(),
-    startDate: editNoticeData?.startDate || getTodayDate(),
-    endDate: editNoticeData?.endDate || getTodayDate(),
-    category: editNoticeData?.category || '수행평가'
+    startDate: editNoticeData?.startDate || editNoticeData?.date || getTodayDate(),
+    endDate: editNoticeData?.endDate || editNoticeData?.date || getTodayDate(),
+    category: editNoticeData?.category || '학사일정'
   });
 
   useEffect(() => {
     if (isOpen) {
       setInlineApiKey(getStoredApiKey());
-      setStep(editNoticeData ? 'review' : initialMode === 'manual' ? 'manual' : 'upload');
+      setStep(isEdit ? 'review' : initialMode === 'manual' ? 'manual' : 'upload');
       setFormData({
         title: editNoticeData?.title || '',
         content: editNoticeData?.content || '',
-        dateType: editNoticeData?.dateType || (editNoticeData?.startDate ? 'range' : 'single'),
+        dateType: editNoticeData?.dateType || (editNoticeData?.startDate && editNoticeData?.endDate && editNoticeData.startDate !== editNoticeData.endDate ? 'range' : 'single'),
         date: editNoticeData?.date || getTodayDate(),
-        startDate: editNoticeData?.startDate || getTodayDate(),
-        endDate: editNoticeData?.endDate || getTodayDate(),
-        category: editNoticeData?.category || '수행평가'
+        startDate: editNoticeData?.startDate || editNoticeData?.date || getTodayDate(),
+        endDate: editNoticeData?.endDate || editNoticeData?.date || getTodayDate(),
+        category: editNoticeData?.category || '학사일정'
       });
       setSelectedImage(editNoticeData?.imageUrl || null);
     }
@@ -143,10 +144,10 @@ export default function AiUploadModal({
             </div>
             <div>
               <h2 className="font-bold text-slate-900 text-base">
-                {editNoticeData
+                {isEdit
                   ? '📝 게시물 수정'
                   : step === 'manual'
-                  ? '✏️ 직접 수동 게시물 작성'
+                  ? '✏️ 직접 수동 게시물/일정 작성'
                   : '📸 AI 사진으로 게시물 등록'}
               </h2>
               <p className="text-xs text-slate-500">
@@ -374,6 +375,7 @@ export default function AiUploadModal({
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-slate-400 focus:outline-none cursor-pointer"
                     >
+                      <option value="학사일정">📅 학사일정</option>
                       <option value="수행평가">📝 수행평가</option>
                       <option value="학교행사">🏫 학교행사</option>
                       <option value="외부활동">🏃 외부활동</option>
