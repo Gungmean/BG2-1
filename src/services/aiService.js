@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createWorker } from 'tesseract.js';
 import { getLocalDateString } from './storageService';
 
-const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 
 /**
  * Analyzes an image of a classroom notice using Gemini API or Tesseract OCR + Smart Date & Text Summarizer.
