@@ -239,7 +239,7 @@ export default function App() {
             {/* Notice Cards Grid with motion layout */}
             {filteredNotices.length > 0 ? (
               <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence>
                   {filteredNotices.map((notice) => (
                     <NoticeCard
                       key={notice.id}

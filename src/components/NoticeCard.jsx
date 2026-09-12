@@ -40,15 +40,20 @@ const NoticeCard = forwardRef(function NoticeCard({
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      whileHover={{ y: -3, transition: { duration: 0.15 } }}
+      layout="position"
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+      transition={{
+        layout: { type: 'spring', stiffness: 260, damping: 28 },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.2 },
+        y: { type: 'spring', stiffness: 400, damping: 25 }
+      }}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white rounded-2xl border transition-all cursor-pointer overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md ${
+      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow transition-colors duration-200 ${
         notice.pinned
           ? 'border-blue-400/90 ring-1 ring-blue-500/20'
           : 'border-slate-200/90 hover:border-blue-300'
