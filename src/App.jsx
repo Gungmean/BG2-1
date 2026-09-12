@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect, useMemo } from 'react';
+﻿import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera, Plus } from 'lucide-react';
 import Header from './components/Header';
@@ -172,7 +172,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 pt-4 sm:pt-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-4 sm:pt-6">
         {/* Today's Daily Report & Briefing Card */}
         <TodayReportCard
           notices={notices}
@@ -222,7 +222,7 @@ export default function App() {
 
             {/* Notice Cards Grid with motion layout */}
             {filteredNotices.length > 0 ? (
-              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
                 <AnimatePresence mode="popLayout">
                   {filteredNotices.map((notice) => (
                     <NoticeCard
