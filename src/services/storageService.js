@@ -100,7 +100,30 @@ export function saveNotices(notices) {
     const clean = deduplicateNotices(notices);
     localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(clean));
   } catch (e) {
-    console.error('Failed to save notices to localStorage', e);
+    console.warn('Failed to save notices to localStorage (QuotaExceeded), recovering...', e);
+    try {
+      // Quota exceeded: trim large base64 image strings from older notices in localStorage
+      const clean = deduplicateNotices(notices).map((item, idx) => {
+        if (idx > 1 && item.imageUrl && item.imageUrl.startsWith('data:image')) {
+          return { ...item, imageUrl: '' };
+        }
+        return item;
+      });
+      localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(clean));
+    } catch (err2) {
+      console.error('Final fallback: stripping all base64 images from localStorage cache', err2);
+      try {
+        const minimal = deduplicateNotices(notices).map((item) => {
+          if (item.imageUrl && item.imageUrl.startsWith('data:image')) {
+            return { ...item, imageUrl: '' };
+          }
+          return item;
+        });
+        localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(minimal));
+      } catch (e3) {
+        console.error('localStorage completely full', e3);
+      }
+    }
   }
 }
 
