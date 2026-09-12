@@ -2,14 +2,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createWorker } from 'tesseract.js';
 import { getLocalDateString } from './storageService';
 
-const GEMINI_MODEL = 'gemini-3.8-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 
 /**
  * Analyzes an image of a classroom notice using Gemini API or Tesseract OCR + Smart Date & Text Summarizer.
  * Returns summarized JSON data: { title, content, date, category }
  */
 export async function analyzeNoticeImage(imageBase64, apiKey = '', mimeType = 'image/jpeg') {
-  const activeKey = apiKey?.trim() || '';
+  const activeKey = apiKey?.trim() || import.meta.env.VITE_GEMINI_API_KEY?.trim() || '';
   const currentYear = new Date().getFullYear();
 
   // 1. Primary Option: Google Gemini Vision AI
