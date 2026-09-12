@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Key, Download, Upload, RefreshCw, CheckCircle2, Sparkles, Database, RotateCcw } from 'lucide-react';
-import { getLocalDateString, getStoredApiKey, setStoredApiKey, exportDataJSON, importDataJSON, resetNoticesToDefault, getNotices } from '../services/storageService';
+import { getLocalDateString, getStoredApiKey, setStoredApiKey, exportDataJSON, importDataJSON, resetNoticesToDefault } from '../services/storageService';
+import { isSupabaseEnabled } from '../services/syncService';
 
 export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
   const [apiKey, setApiKey] = useState('');
@@ -59,8 +60,8 @@ export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100 p-5 sm:p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
               <Database className="w-5 h-5" />
@@ -120,10 +121,21 @@ export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
             웹 & 모바일 게시물 데이터 백업 및 동기화
           </label>
           <p className="text-xs text-slate-500">
-            다른 기기(PC, 휴대폰)로 게시물 데이터를 이동하거나 백업 파일을 복원할 수 있습니다.
+            {isSupabaseEnabled
+              ? 'Supabase 자동 동기화가 활성화되어 PC와 휴대폰에서 같은 데이터를 사용합니다.'
+              : '현재는 로컬 저장 모드입니다. Supabase 환경변수를 설정하면 자동 동기화가 활성화됩니다.'}
           </p>
+          <div
+            className={`p-3 rounded-xl border text-xs font-bold ${
+              isSupabaseEnabled
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200'
+            }`}
+          >
+            {isSupabaseEnabled ? '자동 동기화: 켜짐' : '자동 동기화: 꺼짐 (로컬 저장만 사용 중)'}
+          </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
               onClick={handleExport}

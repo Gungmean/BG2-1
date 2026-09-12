@@ -435,7 +435,7 @@ export default function NoticeCalendarView({
               <motion.button
                 whileTap={{ scale: 0.94 }}
                 onClick={() => onAddSchedule?.(formatDateStr(new Date(year, month, 1)))}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all ml-1"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all ml-1"
                 title="새 학급 일정 등록"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -790,7 +790,7 @@ export default function NoticeCalendarView({
                         setSelectedDayNotices(null);
                         onAddSchedule?.(targetDate);
                       }}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-colors"
+                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>일정 등록</span>
@@ -808,7 +808,7 @@ export default function NoticeCalendarView({
               <div className="space-y-3 overflow-y-auto flex-1 pr-1">
                 {selectedDayNotices.notices.length === 0 ? (
                   <div className="py-10 text-center space-y-3">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-sm">
                       <CalendarIcon className="w-6 h-6" />
                     </div>
                     <div>
@@ -856,7 +856,7 @@ export default function NoticeCalendarView({
                       return (
                         <div
                           key={n.id}
-                          className="p-4 rounded-2xl border border-purple-200 bg-purple-50/40 space-y-2.5 shadow-xs"
+                          className="p-4 rounded-2xl border border-purple-200 bg-purple-50/40 space-y-2.5 shadow-sm"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full border bg-purple-100 text-purple-800 border-purple-200 flex items-center gap-1.5">
@@ -874,7 +874,7 @@ export default function NoticeCalendarView({
                           <h4 className="font-extrabold text-purple-950 text-sm flex items-center gap-2">
                             <span>{n.title}</span>
                             {n.isExam && (
-                              <span className="px-2 py-0.5 rounded text-[10px] bg-indigo-600 text-white font-black shadow-xs">
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-indigo-600 text-white font-black shadow-sm">
                                 지필평가
                               </span>
                             )}

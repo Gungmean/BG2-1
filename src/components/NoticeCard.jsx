@@ -53,7 +53,7 @@ const NoticeCard = forwardRef(function NoticeCard({
         y: { type: 'spring', stiffness: 400, damping: 25 }
       }}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow transition-colors duration-200 ${
+      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow transition-colors duration-200 ${
         notice.pinned
           ? 'border-blue-400/90 ring-1 ring-blue-500/20'
           : 'border-slate-200/90 hover:border-blue-300'
@@ -88,7 +88,7 @@ const NoticeCard = forwardRef(function NoticeCard({
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none">
           {/* Category Badge */}
           <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold shadow-xs backdrop-blur-md ${catStyle.bg}/95 ${catStyle.text} border ${catStyle.border}`}
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold shadow-sm backdrop-blur-md ${catStyle.bg}/95 ${catStyle.text} border ${catStyle.border}`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${catStyle.dot}`} />
             {notice.category}
@@ -96,20 +96,20 @@ const NoticeCard = forwardRef(function NoticeCard({
 
           {/* D-Day Counter */}
           {dday.isExpired ? (
-            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-900/70 text-white backdrop-blur-xs flex items-center gap-0.5 shadow-xs">
+            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-900/70 text-white backdrop-blur-xs flex items-center gap-0.5 shadow-sm">
               <Clock className="w-2.5 h-2.5" />
               {dday.text}
             </span>
           ) : dday.days === 0 ? (
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-600 text-white shadow-xs animate-pulse">
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-600 text-white shadow-sm animate-pulse">
               오늘 마감
             </span>
           ) : dday.days <= 3 ? (
-            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-xs">
+            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-sm">
               {dday.text}
             </span>
           ) : (
-            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-600 text-white shadow-xs">
+            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-blue-600 text-white shadow-sm">
               {dday.text}
             </span>
           )}

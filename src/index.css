@@ -14,27 +14,6 @@
 /* ── Paperlogy (기본 폰트 – 전 굵기) ── */
 @font-face {
   font-family: 'Paperlogy';
-  src: url('./assets/fonts/Paperlogy/Paperlogy-1Thin.ttf') format('truetype');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Paperlogy';
-  src: url('./assets/fonts/Paperlogy/Paperlogy-2ExtraLight.ttf') format('truetype');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Paperlogy';
-  src: url('./assets/fonts/Paperlogy/Paperlogy-3Light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Paperlogy';
   src: url('./assets/fonts/Paperlogy/Paperlogy-4Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
@@ -86,5 +65,4 @@
 .font-nalsun {
   font-family: 'NalSun', 'Paperlogy', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
-
 

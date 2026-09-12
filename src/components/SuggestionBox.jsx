@@ -5,9 +5,10 @@ import {
   addSuggestion,
   voteSuggestion,
   getUserVoteStatus,
+  subscribeCollection,
   updateSuggestionStatus,
   deleteSuggestion
-} from '../services/storageService';
+} from '../services/syncService';
 
 const SUGGESTION_CATEGORIES = [
   { id: 'all', label: '전체' },
@@ -39,39 +40,41 @@ export default function SuggestionBox({ isMonitor }) {
 
   useEffect(() => {
     refreshSuggestions();
+    const unsubscribe = subscribeCollection('suggestions', refreshSuggestions);
+    return unsubscribe;
   }, []);
 
-  const refreshSuggestions = () => {
-    const data = getSuggestions();
+  const refreshSuggestions = async () => {
+    const data = await getSuggestions();
     setSuggestions(data);
   };
 
-  const handleCreateSuggestion = (e) => {
+  const handleCreateSuggestion = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.content.trim()) {
       alert('제목과 내용을 모두 입력해 주세요.');
       return;
     }
 
-    const updated = addSuggestion(formData);
+    const updated = await addSuggestion(formData);
     setSuggestions(updated);
     setFormData({ title: '', content: '', category: '시설/환경' });
     setIsModalOpen(false);
   };
 
-  const handleVote = (id, type) => {
-    const updated = voteSuggestion(id, type);
+  const handleVote = async (id, type) => {
+    const updated = await voteSuggestion(id, type);
     setSuggestions(updated);
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    const updated = updateSuggestionStatus(id, newStatus);
+  const handleStatusChange = async (id, newStatus) => {
+    const updated = await updateSuggestionStatus(id, newStatus);
     setSuggestions(updated);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('이 건의사항을 삭제하시겠습니까?')) {
-      const updated = deleteSuggestion(id);
+      const updated = await deleteSuggestion(id);
       setSuggestions(updated);
     }
   };
@@ -97,8 +100,8 @@ export default function SuggestionBox({ isMonitor }) {
   return (
     <div className="space-y-6">
       {/* Top Banner Card - Riroschool Pastel Blue Banner */}
-      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-3xl p-6 shadow-md flex items-center justify-between">
-        <div>
+      <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-3xl p-5 sm:p-6 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="min-w-0">
           <div className="flex items-center gap-2 text-blue-100 text-xs font-semibold mb-1">
             <MessageSquare className="w-4 h-4 text-blue-200" />
             <span>익명 소통함</span>
@@ -111,7 +114,7 @@ export default function SuggestionBox({ isMonitor }) {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2.5 bg-white text-blue-600 rounded-full font-extrabold text-xs shadow-lg hover:bg-blue-50 active:scale-95 transition-all whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-blue-600 rounded-full font-extrabold text-xs shadow-lg hover:bg-blue-50 active:scale-95 transition-all whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>건의 작성하기</span>
@@ -170,8 +173,8 @@ export default function SuggestionBox({ isMonitor }) {
                 className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:border-blue-300 transition-all space-y-3 relative"
               >
                 {/* Card Header: Category & Status Badge */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-extrabold border border-blue-100">
                       {item.category}
                     </span>
@@ -181,7 +184,7 @@ export default function SuggestionBox({ isMonitor }) {
                   </div>
 
                   {/* Status Badge */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={`px-3 py-0.5 rounded-full text-xs font-bold border ${badge.bg} ${badge.text} ${badge.border}`}
                     >
@@ -225,7 +228,7 @@ export default function SuggestionBox({ isMonitor }) {
                 </p>
 
                 {/* Footer: Date & Up/Down Vote Buttons */}
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
                   <span className="text-slate-400 font-medium">
                     {new Date(item.createdAt).toLocaleDateString('ko-KR', {
                       month: 'short',
@@ -236,7 +239,7 @@ export default function SuggestionBox({ isMonitor }) {
                   </span>
 
                   {/* Vote Buttons Row */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {/* 좋아요 Button */}
                     <button
                       onClick={() => handleVote(item.id, 'up')}
@@ -293,7 +296,7 @@ export default function SuggestionBox({ isMonitor }) {
       {/* New Suggestion Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-100 p-6 space-y-5">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-100 p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h2 className="font-bold text-slate-900 text-base sm:text-lg">

@@ -82,7 +82,7 @@ export default function TodayReportCard({ notices = [], onNavigate, onSelectNoti
       <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white font-extrabold text-[10px] shadow-xs flex items-center gap-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white font-extrabold text-[10px] shadow-sm flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
               <span>오늘 하루 리포트</span>
             </span>
@@ -100,7 +100,7 @@ export default function TodayReportCard({ notices = [], onNavigate, onSelectNoti
         <div className="flex items-center gap-2">
           <button
             onClick={() => onNavigate?.('calendar', 'monthCalendar')}
-            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs transition-all shadow-2xs flex items-center gap-1"
+            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs transition-all shadow-sm flex items-center gap-1"
           >
             <span>달력 보기</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -113,10 +113,10 @@ export default function TodayReportCard({ notices = [], onNavigate, onSelectNoti
         {topUrgent ? (
           <div
             onClick={() => onSelectNotice?.(topUrgent.notice)}
-            className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200/80 flex items-center justify-between gap-3 cursor-pointer hover:shadow-xs transition-all group"
+            className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200/80 flex items-center justify-between gap-3 cursor-pointer hover:shadow-sm transition-all group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center flex-shrink-0 text-xs font-black shadow-xs">
+              <span className="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center flex-shrink-0 text-xs font-black shadow-sm">
                 {topUrgent.dday.days === 0 ? 'D-DAY' : `D-${topUrgent.dday.days}`}
               </span>
               <div className="min-w-0">
@@ -156,7 +156,7 @@ export default function TodayReportCard({ notices = [], onNavigate, onSelectNoti
         {/* Card A: 오늘의 급식 식단 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
-          className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2.5"
+          className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2.5"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -202,7 +202,7 @@ export default function TodayReportCard({ notices = [], onNavigate, onSelectNoti
         {/* Card B: 오늘의 시간표 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
-          className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2.5"
+          className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2.5"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

@@ -14,11 +14,14 @@ import PinLoginModal from './components/PinLoginModal';
 import SettingsModal from './components/SettingsModal';
 import TodayReportCard from './components/TodayReportCard';
 import {
-  getNotices,
   addNotice,
-  updateNotice,
   deleteNotice,
+  getNotices,
+  subscribeCollection,
   togglePinNotice,
+  updateNotice
+} from './services/syncService';
+import {
   calculateDDay,
   getLocalDateString
 } from './services/storageService';
@@ -59,36 +62,38 @@ export default function App() {
   // Initial load
   useEffect(() => {
     refreshNotices();
+    const unsubscribe = subscribeCollection('notices', refreshNotices);
+    return unsubscribe;
   }, []);
 
-  const refreshNotices = () => {
-    const data = getNotices();
+  const refreshNotices = async () => {
+    const data = await getNotices();
     setNotices(data);
   };
 
   // Notice CRUD handlers
-  const handleSaveNotice = (noticeData) => {
+  const handleSaveNotice = async (noticeData) => {
     if (noticeData.id) {
       // Update
-      const updated = updateNotice(noticeData.id, noticeData);
+      const updated = await updateNotice(noticeData.id, noticeData);
       setNotices(updated);
     } else {
       // Create new
-      const updated = addNotice(noticeData);
+      const updated = await addNotice(noticeData);
       setNotices(updated);
     }
     setEditingNotice(null);
   };
 
-  const handleDeleteNotice = (id) => {
+  const handleDeleteNotice = async (id) => {
     if (window.confirm('정말로 이 게시물을 삭제하시겠습니까?')) {
-      const updated = deleteNotice(id);
+      const updated = await deleteNotice(id);
       setNotices(updated);
     }
   };
 
-  const handleTogglePin = (id) => {
-    const updated = togglePinNotice(id);
+  const handleTogglePin = async (id) => {
+    const updated = await togglePinNotice(id);
     setNotices(updated);
   };
 
@@ -188,7 +193,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-4 sm:pt-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-4 pt-3 sm:pt-6">
         {/* Today's Daily Report & Briefing Card */}
         <TodayReportCard
           notices={notices}
@@ -200,7 +205,7 @@ export default function App() {
         />
 
         {/* Banner for Student vs Monitor status */}
-        <div className="mb-5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-between text-xs text-blue-950 shadow-sm">
+        <div className="mb-5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start sm:items-center justify-between text-xs text-blue-950 shadow-sm">
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white font-bold text-[10px]">
               안내
@@ -238,7 +243,7 @@ export default function App() {
 
             {/* Notice Cards Grid with motion layout */}
             {filteredNotices.length > 0 ? (
-              <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                 <AnimatePresence>
                   {filteredNotices.map((notice) => (
                     <NoticeCard
@@ -260,7 +265,7 @@ export default function App() {
             ) : (
               /* Empty state */
               <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 p-8 space-y-3">
-                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto shadow-xs">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto shadow-sm">
                   <Inbox className="w-6 h-6 text-blue-500" />
                 </div>
                 <h3 className="font-bold text-slate-800 text-base">

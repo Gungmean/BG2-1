@@ -102,11 +102,11 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
   const WeatherIcon = weather.icon;
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm px-4 py-2.5">
-      <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm px-3 sm:px-4 py-2.5">
+      <div className="max-w-5xl mx-auto flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3">
         
         {/* LEFT: Brand Logo & School Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shadow-sm flex items-center justify-center bg-slate-100 flex-shrink-0">
               <img
@@ -132,9 +132,9 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
         </div>
 
         {/* CENTER: 실시간 날짜 · 디지털 시계 · 시험 D-Day · 날씨 위젯 */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50/90 border border-slate-200/80 shadow-inner">
+        <div className="order-3 sm:order-none w-full sm:w-auto flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-50/90 border border-slate-200/80 shadow-inner overflow-x-auto scrollbar-none">
           {/* 📅 날짜 & ⏰ 실시간 시계 */}
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-slate-700 shrink-0">
             <span className="text-slate-900 whitespace-nowrap">
               {month}월 {date}일 ({dayName})
             </span>
@@ -150,7 +150,7 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
             <>
               <span className="text-slate-300">|</span>
               <div
-                className="flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50/90 px-2.5 py-0.5 rounded-full border border-indigo-200 shadow-xs cursor-default select-none"
+                className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-indigo-700 bg-indigo-50/90 px-2 sm:px-2.5 py-0.5 rounded-full border border-indigo-200 shadow-sm cursor-default select-none shrink-0"
                 title={`${examDDay.fullName} (${examDDay.startDateStr} ~ ${examDDay.endDateStr})`}
               >
                 <GraduationCap className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
@@ -179,7 +179,7 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
 
           {/* ☀️ 실시간 날씨 위젯 */}
           <div
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-default"
+            className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-slate-700 cursor-default shrink-0"
             title={`인천 부평구 날씨: ${weather.text} (${weather.temp}°C)`}
           >
             <WeatherIcon className={`w-4 h-4 ${weather.color} flex-shrink-0`} />
@@ -191,7 +191,7 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
         </div>
 
         {/* RIGHT: Action Buttons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* Refresh Button */}
           <motion.button
             whileTap={{ scale: 0.9, rotate: 180 }}
