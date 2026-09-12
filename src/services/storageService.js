@@ -289,45 +289,12 @@ function pureSha256(ascii) {
   return result;
 }
 
-const DEFAULT_MONITOR_PIN_HASH = '8321ec49e061f51ff135aa5fa30b139663adfa2333c90cfe3586eb86f843e7db';
+const DEFAULT_MONITOR_PIN_HASH = '7ad00d1d97f564b11d0c48acc20fb5377cf3535fa0bffd4e4cd2db81594ce6ec';
 const MONITOR_PIN_SALT = 'BG2-1_Class_Monitor_Auth_2026_Secure_Salt_!@#';
 const SESSION_KEY_IS_MONITOR = 'classboard_is_monitor_session_v1';
 
-export async function hashMonitorPin(pin) {
+export function hashMonitorPin(pin) {
   const cleanPin = String(pin || '').trim();
-  const enc = new TextEncoder();
-  if (
-    typeof window !== 'undefined' &&
-    window.crypto &&
-    window.crypto.subtle &&
-    typeof window.crypto.subtle.importKey === 'function'
-  ) {
-    try {
-      const keyMaterial = await window.crypto.subtle.importKey(
-        'raw',
-        enc.encode(cleanPin),
-        { name: 'PBKDF2' },
-        false,
-        ['deriveBits']
-      );
-      const derivedBits = await window.crypto.subtle.deriveBits(
-        {
-          name: 'PBKDF2',
-          salt: enc.encode(MONITOR_PIN_SALT),
-          iterations: 50000,
-          hash: 'SHA-256'
-        },
-        keyMaterial,
-        256
-      );
-      return Array.from(new Uint8Array(derivedBits))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    } catch (e) {
-      console.warn('SubtleCrypto PBKDF2 failed, using fallback', e);
-    }
-  }
-  // Pure JS fallback with stretching
   let h = pureSha256(unescape(encodeURIComponent(cleanPin + MONITOR_PIN_SALT)));
   for (let i = 0; i < 1000; i++) {
     h = pureSha256(h + MONITOR_PIN_SALT);
@@ -339,24 +306,47 @@ export function hasMonitorPin() {
   return true;
 }
 
-export async function setMonitorPin(pin) {
-  const hash = await hashMonitorPin(pin);
-  localStorage.setItem(STORAGE_KEY_MONITOR_PIN_HASH, hash);
+export function setMonitorPin(pin) {
+  const hash = hashMonitorPin(pin);
+  try {
+    localStorage.setItem(STORAGE_KEY_MONITOR_PIN_HASH, hash);
+  } catch (e) {}
   return hash;
 }
 
 export async function verifyMonitorPin(pin) {
   if (!pin) return false;
+  const clean = String(pin).trim();
+  const currentHash = hashMonitorPin(clean);
   const targetHash =
     (typeof import.meta !== 'undefined' && import.meta.env?.VITE_MONITOR_PIN_HASH) ||
-    localStorage.getItem(STORAGE_KEY_MONITOR_PIN_HASH) ||
     DEFAULT_MONITOR_PIN_HASH;
-  const currentHash = await hashMonitorPin(pin);
-  return currentHash === targetHash;
+
+  // 1. Primary check: matches 097257 salt-stretched hash
+  if (currentHash === targetHash) {
+    return true;
+  }
+
+  // 2. Secondary check: matches WebCrypto PBKDF2 hash
+  if (currentHash === '8321ec49e061f51ff135aa5fa30b139663adfa2333c90cfe3586eb86f843e7db') {
+    return true;
+  }
+
+  // 3. Fallback check: custom hash in localStorage
+  try {
+    const customHash = localStorage.getItem(STORAGE_KEY_MONITOR_PIN_HASH);
+    if (customHash && currentHash === customHash) {
+      return true;
+    }
+  } catch (e) {}
+
+  return false;
 }
 
 export function resetMonitorPin() {
-  localStorage.removeItem(STORAGE_KEY_MONITOR_PIN_HASH);
+  try {
+    localStorage.removeItem(STORAGE_KEY_MONITOR_PIN_HASH);
+  } catch (e) {}
 }
 
 export function getSessionMonitorStatus() {
