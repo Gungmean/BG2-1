@@ -106,7 +106,7 @@ const HANGUL_SCRAMBLE_POOL = [
 ];
 
 // 오디오 합성 비프/틱 사운드 (외부 파일 없이 부드러운 효과음)
-const playDrawSound = (type = 'tick') => {
+const playDrawSound = (type = 'tick', freq = 600) => {
   try {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
@@ -116,8 +116,8 @@ const playDrawSound = (type = 'tick') => {
 
     if (type === 'tick') {
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.045, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -406,47 +406,66 @@ export default function DrawPageView() {
       student: targetStudent,
       currentDisplay: CLASS_STUDENTS[Math.floor(Math.random() * CLASS_STUDENTS.length)],
       status: 'rolling',
+      speedFactor: 0
     });
 
-    // 1단계: 슬롯 롤링 (빠르게 번호.이름 회전)
-    animIntervalRef.current = setInterval(() => {
-      setSeatModalData((prev) => {
-        if (!prev || prev.status !== 'rolling') return prev;
-        playDrawSound('tick');
+    // 파칭코 슬롯머신 가속 연출:
+    // 처음엔 묵직하게 느리다가(260ms), 점점 맹렬하게 가속(18ms)되어 최고속도로 회전 후 탕! 하고 락인
+    const stepDelays = [
+      260, 215, 175, 140, 110, 85, 68, 54, 42, 34, 28, 24, 20, 18, 18, 18, 18, 18, 18, 18, 18
+    ];
+
+    let currentStep = 0;
+    const runPachinkoStep = () => {
+      if (currentStep < stepDelays.length) {
+        const delay = stepDelays[currentStep];
+        const progress = currentStep / stepDelays.length;
+        // 가속될수록 기계음 틱 피치가 상승 (500Hz -> 860Hz)
+        const pitch = 500 + progress * 360;
+        playDrawSound('tick', pitch);
+
         const rand = CLASS_STUDENTS[Math.floor(Math.random() * CLASS_STUDENTS.length)];
-        return { ...prev, currentDisplay: rand };
-      });
-    }, 35);
+        setSeatModalData((prev) => {
+          if (!prev || prev.status !== 'rolling') return prev;
+          return {
+            ...prev,
+            currentDisplay: rand,
+            status: 'rolling',
+            speedFactor: progress
+          };
+        });
 
-    // 2단계: 0.65초 후 확정 락인 & 축하
-    timeoutsRef.current.push(
-      setTimeout(() => {
-        if (animIntervalRef.current) clearInterval(animIntervalRef.current);
-
+        currentStep++;
+        const t = setTimeout(runPachinkoStep, delay);
+        timeoutsRef.current.push(t);
+      } else {
+        // [클라이맥스: 최고 속도에서 탕!! 락인]
         setSeatModalData((prev) => {
           if (!prev) return null;
           return {
             ...prev,
             currentDisplay: targetStudent,
             status: 'locked',
+            speedFactor: 1
           };
         });
 
         playDrawSound('winner');
         confetti({
-          particleCount: 85,
-          spread: 80,
+          particleCount: 95,
+          spread: 85,
           origin: { y: 0.5 }
         });
 
-        // 3단계: 0.65초 후 즉시 닫힘 및 좌석 공개
-        timeoutsRef.current.push(
-          setTimeout(() => {
-            finalizeSeatModal(index);
-          }, 650)
-        );
-      }, 650)
-    );
+        // 결과 확정 후 0.75초간 보여준 뒤 닫기
+        const tFinal = setTimeout(() => {
+          finalizeSeatModal(index);
+        }, 750);
+        timeoutsRef.current.push(tFinal);
+      }
+    };
+
+    runPachinkoStep();
   };
 
   const finalizeSeatModal = (index) => {
@@ -1158,7 +1177,7 @@ export default function DrawPageView() {
       )}
 
       {/* ======================================================== */}
-      {/* 3. 자리 뽑기 전체화면 블러 텍스트 추첨 연출                */}
+      {/* 3. 자리 뽑기 전체화면 블러 텍스트 추첨 연출 (파칭코 모드)    */}
       {/* ======================================================== */}
       <AnimatePresence>
         {seatModalData && (
@@ -1168,10 +1187,31 @@ export default function DrawPageView() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={() => finalizeSeatModal(seatModalData.index)}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-lg cursor-pointer select-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black/75 backdrop-blur-md cursor-pointer select-none"
           >
-            <div className="flex flex-col items-center justify-center text-center">
-              {/* Rolling / Locked Huge White Typography */}
+            <div className="flex flex-col items-center justify-center text-center max-w-lg w-full">
+              {/* 상단 파칭코 상태 뱃지 */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-extrabold text-amber-300 shadow-lg"
+              >
+                {seatModalData.status === 'locked' ? (
+                  <>
+                    <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                    <span className="tracking-wide">🎯 좌석 배정 확정!</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+                    <span className="tracking-widest">
+                      {seatModalData.speedFactor > 0.5 ? '🎰 HYPER SPINNING' : '🎰 ROLLING...'}
+                    </span>
+                  </>
+                )}
+              </motion.div>
+
+              {/* Rolling / Locked Huge Pachinko Typography */}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={
@@ -1181,29 +1221,35 @@ export default function DrawPageView() {
                   }
                   initial={
                     seatModalData.status === 'locked'
-                      ? { scale: 0.7, opacity: 0, y: 20 }
-                      : { y: 15, opacity: 0.8 }
+                      ? { scale: 0.6, opacity: 0, y: 30 }
+                      : { y: 15, opacity: 0.75 }
                   }
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ y: -15, opacity: 0 }}
                   transition={
                     seatModalData.status === 'locked'
-                      ? { type: 'spring', stiffness: 500, damping: 20 }
-                      : { duration: 0.035 }
+                      ? { type: 'spring', stiffness: 450, damping: 22 }
+                      : { duration: Math.max(0.015, (1 - (seatModalData.speedFactor || 0)) * 0.12) }
                   }
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center py-4"
                 >
                   <span
-                    className={`font-black tracking-tight text-white ${
+                    className={`font-black tracking-tight transition-all duration-75 ${
                       seatModalData.status === 'locked'
-                        ? 'text-6xl sm:text-8xl md:text-9xl drop-shadow-[0_10px_35px_rgba(0,0,0,0.9)]'
-                        : 'text-5xl sm:text-7xl md:text-8xl opacity-90 blur-[0.3px] drop-shadow-[0_8px_20px_rgba(0,0,0,0.8)]'
+                        ? 'text-6xl sm:text-8xl md:text-9xl text-amber-300 drop-shadow-[0_0_50px_rgba(251,191,36,0.9)] scale-110'
+                        : (seatModalData.speedFactor || 0) > 0.6
+                        ? 'text-5xl sm:text-7xl md:text-8xl text-white opacity-95 blur-[0.8px] drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]'
+                        : 'text-5xl sm:text-7xl md:text-8xl text-white/90 drop-shadow-[0_8px_20px_rgba(0,0,0,0.8)]'
                     }`}
                   >
                     {seatModalData.currentDisplay?.number}.{seatModalData.currentDisplay?.name}
                   </span>
                 </motion.div>
               </AnimatePresence>
+
+              <div className="mt-4 text-[11px] text-white/40 tracking-wider">
+                화면을 터치하면 즉시 공개됩니다
+              </div>
             </div>
           </motion.div>
         )}
