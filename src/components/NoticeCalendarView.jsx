@@ -1,0 +1,941 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Utensils,
+  X,
+  Eye,
+  Sparkles,
+  Flame,
+  Info
+} from 'lucide-react';
+import { calculateDDay } from '../services/storageService';
+import { fetchMonthlyMeals, fetchSchoolSchedules, cleanDishName, getMealHighlights } from '../services/schoolService';
+
+const CATEGORY_STYLES = {
+  수행평가: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', dot: 'bg-rose-500', barBg: 'bg-rose-500 text-white' },
+  학교행사: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500', barBg: 'bg-blue-500 text-white' },
+  외부활동: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', dot: 'bg-emerald-500', barBg: 'bg-emerald-500 text-white' },
+  학사일정: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-600', barBg: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' },
+  기타: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', dot: 'bg-slate-500', barBg: 'bg-slate-500 text-white' }
+};
+
+export default function NoticeCalendarView({ notices, onSelectNotice, initialMode = 'schedule' }) {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarMode, setCalendarMode] = useState(initialMode); // 'schedule' | 'meal'
+  const [selectedDayNotices, setSelectedDayNotices] = useState(null); // { dateStr, notices, dayNum }
+  const [selectedDayMeal, setSelectedDayMeal] = useState(null); // { dateStr, dayNum, meal }
+  const [monthlyMeals, setMonthlyMeals] = useState({});
+  const [loadingMeals, setLoadingMeals] = useState(false);
+  const [schoolSchedules, setSchoolSchedules] = useState({ events: [], byDate: {} });
+  const [loadingSchedule, setLoadingSchedule] = useState(false);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth(); // 0-indexed
+
+  // Fetch meals whenever month or year changes
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingMeals(true);
+    fetchMonthlyMeals(year, month)
+      .then((data) => {
+        if (isMounted) setMonthlyMeals(data);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingMeals(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [year, month]);
+
+  // Fetch official NEIS school schedules whenever month or year changes
+  useEffect(() => {
+    let isMounted = true;
+    setLoadingSchedule(true);
+    fetchSchoolSchedules(year, month)
+      .then((data) => {
+        if (isMounted) setSchoolSchedules(data);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingSchedule(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [year, month]);
+
+  // Prev / Next month handlers
+  const handlePrevMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
+
+  const handleToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  // Combine official school schedules and classroom notices
+  const allCalendarNotices = useMemo(() => {
+    return [...(schoolSchedules.events || []), ...notices];
+  }, [schoolSchedules.events, notices]);
+
+  // Group notices by YYYY-MM-DD
+  const noticesByDate = useMemo(() => {
+    const map = {};
+    allCalendarNotices.forEach((n) => {
+      if (n.dateType === 'range' && n.startDate && n.endDate) {
+        let curr = new Date(n.startDate);
+        const end = new Date(n.endDate);
+        curr.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+
+        while (curr <= end) {
+          const dateStr = formatDateStr(curr);
+          if (!map[dateStr]) map[dateStr] = [];
+          if (!map[dateStr].some((item) => item.id === n.id)) {
+            map[dateStr].push(n);
+          }
+          curr.setDate(curr.getDate() + 1);
+        }
+      } else {
+        const targetDateStr = n.date || n.startDate || n.endDate;
+        if (targetDateStr) {
+          if (!map[targetDateStr]) map[targetDateStr] = [];
+          if (!map[targetDateStr].some((item) => item.id === n.id)) {
+            map[targetDateStr].push(n);
+          }
+        }
+      }
+    });
+    return map;
+  }, [allCalendarNotices]);
+
+  // Build calendar matrix (35 or 42 cells)
+  const calendarCells = useMemo(() => {
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+
+    const startingDayOfWeek = firstDayOfMonth.getDay();
+    const daysInMonth = lastDayOfMonth.getDate();
+
+    const cells = [];
+
+    // Prev month padding days
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const prevDate = new Date(year, month - 1, prevMonthLastDay - i);
+      const dateStr = formatDateStr(prevDate);
+      cells.push({
+        date: prevDate,
+        dateStr,
+        dayNum: prevMonthLastDay - i,
+        isCurrentMonth: false,
+        isToday: isSameDate(prevDate, new Date())
+      });
+    }
+
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dateStr = formatDateStr(date);
+      cells.push({
+        date,
+        dateStr,
+        dayNum: d,
+        isCurrentMonth: true,
+        isToday: isSameDate(date, new Date())
+      });
+    }
+
+    // Next month padding days
+    const remainingCells = (cells.length > 35 ? 42 : 35) - cells.length;
+    for (let i = 1; i <= remainingCells; i++) {
+      const nextDate = new Date(year, month + 1, i);
+      const dateStr = formatDateStr(nextDate);
+      cells.push({
+        date: nextDate,
+        dateStr,
+        dayNum: i,
+        isCurrentMonth: false,
+        isToday: isSameDate(nextDate, new Date())
+      });
+    }
+
+    return cells;
+  }, [year, month]);
+
+  // Group cells into weeks (7 days per row)
+  const weeks = useMemo(() => {
+    const list = [];
+    for (let i = 0; i < calendarCells.length; i += 7) {
+      list.push(calendarCells.slice(i, i + 7));
+    }
+    return list;
+  }, [calendarCells]);
+
+  function formatDateStr(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function isSameDate(d1, d2) {
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  }
+
+  function isNoticeActiveOnDate(dateStr, notice) {
+    if (!dateStr || !notice) return false;
+    if (notice.dateType === 'range' && notice.startDate && notice.endDate) {
+      return dateStr >= notice.startDate && dateStr <= notice.endDate;
+    }
+    const target = notice.date || notice.startDate || notice.endDate;
+    return dateStr === target;
+  }
+
+  function isNoticeMultiDay(notice) {
+    return Boolean(
+      notice &&
+      notice.dateType === 'range' &&
+      notice.startDate &&
+      notice.endDate &&
+      notice.startDate !== notice.endDate
+    );
+  }
+
+  function getWeekTrackLayout(weekCells) {
+    const activeNotices = [];
+    const activeNoticeIds = new Set();
+
+    allCalendarNotices.forEach((n) => {
+      let isActiveInWeek = false;
+      for (let d = 0; d < 7; d++) {
+        if (isNoticeActiveOnDate(weekCells[d].dateStr, n)) {
+          isActiveInWeek = true;
+          break;
+        }
+      }
+      if (isActiveInWeek && !activeNoticeIds.has(n.id)) {
+        activeNoticeIds.add(n.id);
+        activeNotices.push({
+          notice: n,
+          isMultiDay: isNoticeMultiDay(n),
+          startDate: n.startDate || n.date || '',
+          endDate: n.endDate || n.date || ''
+        });
+      }
+    });
+
+    // Sort: Official school events & multi-day spans first
+    activeNotices.sort((a, b) => {
+      if (a.notice.isSchoolEvent && !b.notice.isSchoolEvent) return -1;
+      if (!a.notice.isSchoolEvent && b.notice.isSchoolEvent) return 1;
+      if (a.isMultiDay && !b.isMultiDay) return -1;
+      if (!a.isMultiDay && b.isMultiDay) return 1;
+      if (a.startDate !== b.startDate) return a.startDate.localeCompare(b.startDate);
+      return (b.endDate || '').localeCompare(a.endDate || '');
+    });
+
+    const tracks = [];
+    const noticeTrackMap = {};
+
+    activeNotices.forEach(({ notice }) => {
+      const activeDays = [];
+      for (let d = 0; d < 7; d++) {
+        if (isNoticeActiveOnDate(weekCells[d].dateStr, notice)) {
+          activeDays.push(d);
+        }
+      }
+
+      let assignedTrack = -1;
+      for (let t = 0; t < tracks.length; t++) {
+        const isFree = activeDays.every((d) => !tracks[t][d]);
+        if (isFree) {
+          assignedTrack = t;
+          break;
+        }
+      }
+
+      if (assignedTrack === -1) {
+        assignedTrack = tracks.length;
+        tracks.push(new Array(7).fill(null));
+      }
+
+      activeDays.forEach((d) => {
+        tracks[assignedTrack][d] = notice;
+      });
+      noticeTrackMap[notice.id] = assignedTrack;
+    });
+
+    return { tracks, noticeTrackMap };
+  }
+
+  const handleCellClick = (cell) => {
+    if (calendarMode === 'schedule') {
+      const dayNotices = noticesByDate[cell.dateStr] || [];
+      if (dayNotices.length > 0) {
+        setSelectedDayNotices({
+          dateStr: cell.dateStr,
+          dayNum: cell.dayNum,
+          notices: dayNotices
+        });
+      }
+    } else {
+      const meal = monthlyMeals[cell.dateStr];
+      if (meal && meal.dishes && meal.dishes.length > 0) {
+        setSelectedDayMeal({
+          dateStr: cell.dateStr,
+          dayNum: cell.dayNum,
+          meal
+        });
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Calendar Header Card with Motion */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        
+        {/* Left: Mode Icon & Title */}
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <motion.div
+            key={calendarMode}
+            initial={{ scale: 0.8, rotate: -15 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold shadow-sm transition-colors ${
+              calendarMode === 'schedule'
+                ? 'bg-blue-600 text-white shadow-blue-200'
+                : 'bg-amber-500 text-white shadow-amber-200'
+            }`}
+          >
+            {calendarMode === 'schedule' ? (
+              <CalendarIcon className="w-5 h-5" />
+            ) : (
+              <Utensils className="w-5 h-5" />
+            )}
+          </motion.div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                {year}년 {month + 1}월
+              </h2>
+              <span
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-colors ${
+                  calendarMode === 'schedule'
+                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                }`}
+              >
+                {calendarMode === 'schedule' ? '📅 학급 일정 달력' : '🍱 월간 급식 달력'}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {calendarMode === 'schedule'
+                ? '기간 지정 일정은 달력에 가로 바로 연결되어 표시됩니다.'
+                : '날짜를 클릭하면 해당 일자의 상세 급식 메뉴와 칼로리를 확인합니다.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Right: Switch Mode Buttons with layoutId Pill & Month Controls */}
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto flex-wrap">
+          
+          {/* Mode Switcher Pill with motion.dev layoutId */}
+          <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200/80 relative">
+            <button
+              type="button"
+              onClick={() => setCalendarMode('schedule')}
+              className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                calendarMode === 'schedule' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              {calendarMode === 'schedule' && (
+                <motion.div
+                  layoutId="calendarModePill"
+                  className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <CalendarIcon className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">일정 달력</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCalendarMode('meal')}
+              className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                calendarMode === 'meal' ? 'text-amber-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              {calendarMode === 'meal' && (
+                <motion.div
+                  layoutId="calendarModePill"
+                  className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                />
+              )}
+              <Utensils className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">급식 달력</span>
+            </button>
+          </div>
+
+          {/* Month Navigation Controls */}
+          <div className="flex items-center gap-1.5">
+            <motion.button
+              whileTap={{ scale: 0.94 }}
+              onClick={handleToday}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+            >
+              오늘
+            </motion.button>
+            <div className="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200">
+              <motion.button
+                whileTap={{ scale: 0.85 }}
+                onClick={handlePrevMonth}
+                className="p-1.5 rounded-lg text-slate-700 hover:bg-white transition-all"
+                title="이전 달"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </motion.button>
+              <span className="px-2 text-xs font-extrabold text-slate-800">
+                {month + 1}월
+              </span>
+              <motion.button
+                whileTap={{ scale: 0.85 }}
+                onClick={handleNextMonth}
+                className="p-1.5 rounded-lg text-slate-700 hover:bg-white transition-all"
+                title="다음 달"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </motion.button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Calendar Grid */}
+      <motion.div
+        layout
+        className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden p-3 sm:p-4"
+      >
+        {/* Day Names Row */}
+        <div className="grid grid-cols-7 text-center font-extrabold text-xs text-slate-500 mb-2 border-b border-slate-100 pb-2">
+          <span className="text-rose-600">일</span>
+          <span>월</span>
+          <span>화</span>
+          <span>수</span>
+          <span>목</span>
+          <span>금</span>
+          <span className="text-blue-600">토</span>
+        </div>
+
+        {/* Date Cells Grid - Grouped by Weeks for continuous multi-day span */}
+        <div className="space-y-1 sm:space-y-1.5">
+          {weeks.map((week, wIdx) => {
+            const { tracks } = getWeekTrackLayout(week);
+
+            return (
+              <div key={`week-${wIdx}`} className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                {week.map((cell, dayIdx) => {
+                  const dayNotices = noticesByDate[cell.dateStr] || [];
+                  const dayMeal = monthlyMeals[cell.dateStr];
+                  const isSunday = cell.date.getDay() === 0;
+                  const isSaturday = cell.date.getDay() === 6;
+                  const isWeekend = isSunday || isSaturday;
+                  const hasHoliday = dayNotices.some((n) => n.isHoliday);
+
+                  const hasContent =
+                    calendarMode === 'schedule'
+                      ? dayNotices.length > 0
+                      : dayMeal && dayMeal.dishes && dayMeal.dishes.length > 0;
+
+                  const track0Notice = tracks[0] ? tracks[0][dayIdx] : null;
+                  const track1Notice = tracks[1] ? tracks[1][dayIdx] : null;
+                  const trackCountOnDay = (track0Notice ? 1 : 0) + (track1Notice ? 1 : 0);
+                  const extraCount = Math.max(0, dayNotices.length - trackCountOnDay);
+
+                  return (
+                    <div
+                      key={`cell-${cell.dateStr}-${dayIdx}`}
+                      onClick={() => handleCellClick(cell)}
+                      className={`min-h-[85px] sm:min-h-[110px] p-1.5 rounded-xl border transition-colors flex flex-col justify-between relative ${
+                        !cell.isCurrentMonth
+                          ? 'bg-slate-50/40 border-slate-100 opacity-30'
+                          : cell.isToday
+                          ? calendarMode === 'schedule'
+                            ? 'bg-blue-50/60 border-blue-400 ring-2 ring-blue-500/15'
+                            : 'bg-amber-50/60 border-amber-400 ring-2 ring-amber-500/15'
+                          : hasHoliday
+                          ? 'bg-rose-50/30 border-rose-100'
+                          : isWeekend
+                          ? 'bg-slate-50/60 border-slate-100'
+                          : 'bg-white border-slate-100 hover:border-slate-300'
+                      } ${hasContent ? 'cursor-pointer hover:shadow-sm' : ''}`}
+                    >
+                      {/* Cell Header: Date Number & Badges */}
+                      <div className="flex items-center justify-between pointer-events-none">
+                        <span
+                          className={`text-xs font-bold rounded-full px-1.5 py-0.5 ${
+                            cell.isToday
+                              ? calendarMode === 'schedule'
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'bg-amber-500 text-white shadow-sm'
+                              : hasHoliday
+                              ? 'text-rose-600 font-black'
+                              : isSunday
+                              ? 'text-rose-600'
+                              : isSaturday
+                              ? 'text-blue-600'
+                              : cell.isCurrentMonth
+                              ? 'text-slate-800'
+                              : 'text-slate-400'
+                          }`}
+                        >
+                          {cell.dayNum}
+                        </span>
+
+                        {calendarMode === 'schedule' && hasHoliday && cell.isCurrentMonth && (
+                          <span className="text-[9px] font-extrabold text-rose-600 bg-rose-50 px-1 rounded border border-rose-100 hidden sm:inline">
+                            휴업일
+                          </span>
+                        )}
+
+                        {calendarMode === 'schedule' && dayNotices.length > 0 && !hasHoliday && (
+                          <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                            {dayNotices.length}
+                          </span>
+                        )}
+
+                        {calendarMode === 'meal' && cell.isCurrentMonth && !isWeekend && dayMeal && (
+                          <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1 rounded">
+                            🍱
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Cell Body */}
+                      <AnimatePresence mode="wait">
+                        {calendarMode === 'schedule' ? (
+                          <motion.div
+                            key="schedule-content"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="space-y-1 my-1 flex-1 flex flex-col justify-start"
+                          >
+                            {[0, 1].map((tIdx) => {
+                              const notice = tIdx === 0 ? track0Notice : track1Notice;
+                              if (!notice) {
+                                if (tIdx === 0 && track1Notice) {
+                                  return <div key={`spacer-${tIdx}`} className="h-5 invisible pointer-events-none" />;
+                                }
+                                return null;
+                              }
+
+                              const isMulti = isNoticeMultiDay(notice);
+                              const cat = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES.기타;
+
+                              if (isMulti) {
+                                const isStartOfSpan =
+                                  dayIdx === 0 ||
+                                  !tracks[tIdx][dayIdx - 1] ||
+                                  tracks[tIdx][dayIdx - 1].id !== notice.id ||
+                                  cell.dateStr === notice.startDate;
+
+                                const isEndOfSpan =
+                                  dayIdx === 6 ||
+                                  !tracks[tIdx][dayIdx + 1] ||
+                                  tracks[tIdx][dayIdx + 1].id !== notice.id ||
+                                  cell.dateStr === notice.endDate;
+
+                                const spanClass =
+                                  isStartOfSpan && isEndOfSpan
+                                    ? 'rounded-md mx-0.5'
+                                    : isStartOfSpan && !isEndOfSpan
+                                    ? 'rounded-l-md rounded-r-none -mr-2 sm:-mr-2.5 z-10'
+                                    : !isStartOfSpan && isEndOfSpan
+                                    ? 'rounded-r-md rounded-l-none -ml-2 sm:-ml-2.5 z-10'
+                                    : 'rounded-none -mx-2 sm:-mx-2.5 z-10';
+
+                                return (
+                                  <div
+                                    key={`track-${tIdx}-${notice.id}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (notice.isSchoolEvent) {
+                                        setSelectedDayNotices({
+                                          dateStr: cell.dateStr,
+                                          dayNum: cell.dayNum,
+                                          notices: dayNotices
+                                        });
+                                      } else {
+                                        onSelectNotice && onSelectNotice(notice);
+                                      }
+                                    }}
+                                    className={`h-5 flex items-center transition-all cursor-pointer select-none overflow-hidden ${cat.barBg || 'bg-blue-500 text-white'} ${spanClass}`}
+                                    title={`${notice.title} (${notice.startDate} ~ ${notice.endDate})`}
+                                  >
+                                    {isStartOfSpan ? (
+                                      <div className="flex items-center gap-1 px-1.5 text-[10px] font-extrabold truncate leading-none">
+                                        <span className="text-[9px] opacity-90">
+                                          {notice.isSchoolEvent ? '🏫' : '📌'}
+                                        </span>
+                                        <span className="truncate">{notice.title}</span>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center px-1 text-[9px] font-medium text-white/90 truncate leading-none">
+                                        <span className="truncate hidden sm:inline">{notice.title}</span>
+                                        <span className="sm:hidden text-[7px] opacity-70">➔</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+
+                              // Single Day Event
+                              return (
+                                <div
+                                  key={`track-${tIdx}-${notice.id}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (notice.isSchoolEvent) {
+                                      setSelectedDayNotices({
+                                        dateStr: cell.dateStr,
+                                        dayNum: cell.dayNum,
+                                        notices: dayNotices
+                                      });
+                                    } else {
+                                      onSelectNotice && onSelectNotice(notice);
+                                    }
+                                  }}
+                                  className={`h-5 px-1.5 rounded-md font-extrabold truncate border text-[10px] flex items-center gap-1 transition-all mx-0.5 ${cat.bg} ${cat.text} ${cat.border} hover:opacity-90 cursor-pointer`}
+                                  title={notice.title}
+                                >
+                                  <span className={`w-1.5 h-1.5 rounded-full ${cat.dot} flex-shrink-0`} />
+                                  <span className="truncate">
+                                    {notice.isSchoolEvent ? `🏫 ${notice.title}` : notice.title}
+                                  </span>
+                                </div>
+                              );
+                            })}
+
+                            {extraCount > 0 && (
+                              <span className="text-[9px] font-extrabold text-blue-600 pl-1 block">
+                                +{extraCount}개 더보기
+                              </span>
+                            )}
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="meal-content"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="my-1 overflow-hidden flex-1 flex flex-col justify-between"
+                          >
+                            {cell.isCurrentMonth && !isWeekend && dayMeal && dayMeal.dishes ? (
+                              <div className="space-y-0.5">
+                                {getMealHighlights(dayMeal.dishes).map((dish, dIdx) => (
+                                  <div
+                                    key={dIdx}
+                                    className="text-[10px] text-slate-700 font-semibold truncate leading-tight flex items-center gap-1"
+                                    title={dish}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                                    <span className="truncate">{dish}</span>
+                                  </div>
+                                ))}
+                                {dayMeal.dishes.length > 2 && (
+                                  <div className="text-[9px] text-amber-700/80 font-bold pl-2.5">
+                                    외 {dayMeal.dishes.length - 2}개
+                                  </div>
+                                )}
+                              </div>
+                            ) : isWeekend && cell.isCurrentMonth ? (
+                              <div className="text-[10px] text-slate-400 italic text-center pt-2">
+                                주말
+                              </div>
+                            ) : null}
+
+                            {dayMeal?.calInfo && cell.isCurrentMonth && !isWeekend && (
+                              <div className="text-[9px] text-slate-400 font-semibold text-right">
+                                {dayMeal.calInfo.replace('Kcal', 'kcal')}
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+        {/* Calendar Legend for Schedule Mode */}
+        {calendarMode === 'schedule' && (
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-[11px] text-slate-500">
+            <div className="flex items-center gap-3 flex-wrap font-bold">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600" />
+                <span className="text-purple-700">학교 학사일정 (나이스 연동)</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                <span className="text-rose-600">수행평가</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <span className="text-blue-600">학교행사</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="text-emerald-600">외부활동</span>
+              </span>
+            </div>
+            <div className="text-[10px] text-slate-400">
+              * 날짜를 클릭하면 해당 일자의 상세 일정을 확인합니다.
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* SCHEDULE DETAIL MODAL with AnimatePresence */}
+      <AnimatePresence>
+        {selectedDayNotices && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => setSelectedDayNotices(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+              className="relative z-10 bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[85vh] flex flex-col"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <CalendarIcon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-base">
+                      {selectedDayNotices.dateStr} 일정 및 학사안내
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      총 {selectedDayNotices.notices.length}건의 안내 및 행사
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedDayNotices(null)}
+                  className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-3 overflow-y-auto flex-1 pr-1">
+                {selectedDayNotices.notices.map((n) => {
+                  const cat = CATEGORY_STYLES[n.category] || CATEGORY_STYLES.기타;
+                  const dday = calculateDDay(n);
+
+                  if (n.isSchoolEvent) {
+                    return (
+                      <div
+                        key={n.id}
+                        className="p-4 rounded-2xl border border-purple-200 bg-purple-50/40 space-y-2.5 shadow-xs"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full border bg-purple-100 text-purple-800 border-purple-200 flex items-center gap-1.5">
+                            <span>🏫 부광고 학사일정</span>
+                            {n.isHoliday && (
+                              <span className="text-rose-600 font-extrabold bg-rose-50 px-1 rounded border border-rose-200">
+                                휴업일
+                              </span>
+                            )}
+                          </span>
+                          <span className="text-[10px] font-bold text-purple-700 font-mono">
+                            {n.dateType === 'range' ? `${n.startDate} ~ ${n.endDate}` : n.date}
+                          </span>
+                        </div>
+                        <h4 className="font-extrabold text-purple-950 text-sm flex items-center gap-2">
+                          <span>{n.title}</span>
+                          {n.isExam && (
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-indigo-600 text-white font-black shadow-xs">
+                              지필평가
+                            </span>
+                          )}
+                        </h4>
+                        <p className="text-xs text-purple-900/85 leading-relaxed bg-white/80 p-2.5 rounded-xl border border-purple-100">
+                          {n.content}
+                        </p>
+                        <div className="flex items-center justify-between text-[11px] text-purple-500 font-medium pt-0.5">
+                          <span>🏛️ 인천광역시교육청 나이스(NEIS) 연동</span>
+                          <span className="font-bold text-purple-700">공식 학사일정</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      key={n.id}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => {
+                        setSelectedDayNotices(null);
+                        onSelectNotice && onSelectNotice(n);
+                      }}
+                      className="p-3.5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/20 transition-colors cursor-pointer space-y-2 group"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${cat.bg} ${cat.text} ${cat.border}`}
+                        >
+                          {n.category}
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-500">
+                          {dday.text}
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">
+                        {n.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {n.content}
+                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                        <span>👤 {n.author || '반장'}</span>
+                        <span className="text-blue-600 font-bold flex items-center gap-1 group-hover:underline">
+                          <Eye className="w-3 h-3" /> 상세 보기
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MEAL DETAIL MODAL with AnimatePresence */}
+      <AnimatePresence>
+        {selectedDayMeal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => setSelectedDayMeal(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+              className="relative z-10 bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-200">
+                    <Utensils className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-base">
+                      {selectedDayMeal.dateStr} 오늘의 급식
+                    </h3>
+                    <span className="text-[11px] font-bold text-amber-600">
+                      부광고등학교 {selectedDayMeal.meal.type || '중식'} 식단표
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedDayMeal(null)}
+                  className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Menu List */}
+              <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-100/80 space-y-2.5">
+                <div className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>식단 구성 메뉴</span>
+                </div>
+                <ul className="space-y-1.5 pt-1">
+                  {selectedDayMeal.meal.dishes.map((dish, i) => (
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-amber-100/60 shadow-sm text-xs font-bold text-slate-800"
+                    >
+                      <span>{cleanDishName(dish)}</span>
+                      <span className="text-[10px] text-slate-400 font-normal">
+                        {dish.match(/\([0-9.]+\)/)?.[0] || ''}
+                      </span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Nutritional & Calories Info */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] text-slate-400 font-semibold block flex items-center gap-1">
+                    <Flame className="w-3 h-3 text-rose-500" /> 총 칼로리
+                  </span>
+                  <span className="font-extrabold text-slate-800 text-sm">
+                    {selectedDayMeal.meal.calInfo || '정보 없음'}
+                  </span>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <span className="text-[10px] text-slate-400 font-semibold block flex items-center gap-1">
+                    <Info className="w-3 h-3 text-blue-500" /> 알레르기 안내
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-600 line-clamp-1">
+                    식단 옆 괄호 번호 참고
+                  </span>
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                onClick={() => setSelectedDayMeal(null)}
+                className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors"
+              >
+                닫기
+              </motion.button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
