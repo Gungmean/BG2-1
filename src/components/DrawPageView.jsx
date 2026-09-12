@@ -1206,23 +1206,6 @@ export default function DrawPageView() {
             className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md cursor-pointer select-none"
           >
             <div className="flex flex-col items-center justify-center text-center max-w-4xl w-full px-2">
-              {/* 상단 파칭코 상태 뱃지 */}
-              <div className="mb-6 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-extrabold text-amber-300 shadow-lg">
-                {seatModalData.status === 'locked' ? (
-                  <>
-                    <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
-                    <span className="tracking-wide">🎯 좌석 배정 확정!</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-                    <span className="tracking-widest">
-                      {seatModalData.speedFactor > 0.5 ? '🎰 HYPER SPINNING' : '🎰 ROLLING...'}
-                    </span>
-                  </>
-                )}
-              </div>
-
               {/* 고성능 60fps 텍스트 렌더링 (줄바꿈 방지 whitespace-nowrap & 리렌더링 최적화) */}
               <div className="flex items-center justify-center py-4 w-full overflow-visible">
                 <motion.div
