@@ -105,24 +105,40 @@ const HANGUL_SCRAMBLE_POOL = [
   '빈', '훈', '찬', '우', '결', '성'
 ];
 
+// 공유 AudioContext 싱글톤 (오디오 생성/해제 반복으로 인한 렉 방지)
+let sharedAudioCtx = null;
+const getAudioContext = () => {
+  try {
+    if (!sharedAudioCtx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) sharedAudioCtx = new AudioCtx();
+    }
+    if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+      sharedAudioCtx.resume();
+    }
+    return sharedAudioCtx;
+  } catch (e) {
+    return null;
+  }
+};
+
 // 오디오 합성 비프/틱 사운드 (외부 파일 없이 부드러운 효과음)
 const playDrawSound = (type = 'tick', freq = 600) => {
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
+    const ctx = getAudioContext();
+    if (!ctx) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     if (type === 'tick') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.045, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.03);
+      osc.stop(ctx.currentTime + 0.025);
     } else if (type === 'lock') {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(880, ctx.currentTime);
@@ -1187,15 +1203,11 @@ export default function DrawPageView() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={() => finalizeSeatModal(seatModalData.index)}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-black/75 backdrop-blur-md cursor-pointer select-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md cursor-pointer select-none"
           >
-            <div className="flex flex-col items-center justify-center text-center max-w-lg w-full">
+            <div className="flex flex-col items-center justify-center text-center max-w-4xl w-full px-2">
               {/* 상단 파칭코 상태 뱃지 */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-extrabold text-amber-300 shadow-lg"
-              >
+              <div className="mb-6 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-extrabold text-amber-300 shadow-lg">
                 {seatModalData.status === 'locked' ? (
                   <>
                     <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
@@ -1209,45 +1221,36 @@ export default function DrawPageView() {
                     </span>
                   </>
                 )}
-              </motion.div>
+              </div>
 
-              {/* Rolling / Locked Huge Pachinko Typography */}
-              <AnimatePresence mode="wait">
+              {/* 고성능 60fps 텍스트 렌더링 (줄바꿈 방지 whitespace-nowrap & 리렌더링 최적화) */}
+              <div className="flex items-center justify-center py-4 w-full overflow-visible">
                 <motion.div
-                  key={
-                    seatModalData.status === 'locked'
-                      ? `locked-${seatModalData.currentDisplay?.number}`
-                      : `rolling-${seatModalData.currentDisplay?.number}`
-                  }
-                  initial={
-                    seatModalData.status === 'locked'
-                      ? { scale: 0.6, opacity: 0, y: 30 }
-                      : { y: 15, opacity: 0.75 }
-                  }
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ y: -15, opacity: 0 }}
+                  key={seatModalData.status}
+                  initial={seatModalData.status === 'locked' ? { scale: 0.55, opacity: 0 } : false}
+                  animate={{ scale: 1, opacity: 1 }}
                   transition={
                     seatModalData.status === 'locked'
-                      ? { type: 'spring', stiffness: 450, damping: 22 }
-                      : { duration: Math.max(0.015, (1 - (seatModalData.speedFactor || 0)) * 0.12) }
+                      ? { type: 'spring', stiffness: 450, damping: 20 }
+                      : { duration: 0 }
                   }
-                  className="flex items-center justify-center py-4"
+                  className="flex items-center justify-center text-center"
                 >
                   <span
-                    className={`font-black tracking-tight transition-all duration-75 ${
+                    className={`font-black tracking-tight whitespace-nowrap select-none ${
                       seatModalData.status === 'locked'
-                        ? 'text-6xl sm:text-8xl md:text-9xl text-amber-300 drop-shadow-[0_0_50px_rgba(251,191,36,0.9)] scale-110'
+                        ? 'text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-amber-300 drop-shadow-[0_0_55px_rgba(251,191,36,0.95)]'
                         : (seatModalData.speedFactor || 0) > 0.6
-                        ? 'text-5xl sm:text-7xl md:text-8xl text-white opacity-95 blur-[0.8px] drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]'
+                        ? 'text-5xl sm:text-7xl md:text-8xl text-white opacity-95 blur-[0.4px] drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]'
                         : 'text-5xl sm:text-7xl md:text-8xl text-white/90 drop-shadow-[0_8px_20px_rgba(0,0,0,0.8)]'
                     }`}
                   >
                     {seatModalData.currentDisplay?.number}.{seatModalData.currentDisplay?.name}
                   </span>
                 </motion.div>
-              </AnimatePresence>
+              </div>
 
-              <div className="mt-4 text-[11px] text-white/40 tracking-wider">
+              <div className="mt-6 text-[11px] text-white/40 tracking-wider">
                 화면을 터치하면 즉시 공개됩니다
               </div>
             </div>
