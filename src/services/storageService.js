@@ -11,7 +11,7 @@ export function getLocalDateString(date = new Date()) {
 const INITIAL_NOTICES = [
   {
     id: 'n1',
-    title: '📝 국어 2학기 1차 수행평가 (독서록 작성 및 제출)',
+    title: '국어 2학기 1차 수행평가 (독서록 작성 및 제출)',
     content: '지정도서 중 1권을 선택하여 독후감(A4 2매 내외)을 작성 후 국어 수행평가 제출함에 넣어주세요. 작성 양식은 학급 게시판 프린트를 참고하세요.',
     date: getOffsetDate(3),
     category: '수행평가',
@@ -22,7 +22,7 @@ const INITIAL_NOTICES = [
   },
   {
     id: 'n2',
-    title: '🏫 2026학년도 교내 체육대회 반별 반티 및 응원도구 결정',
+    title: '2026학년도 교내 체육대회 반별 반티 및 응원도구 결정',
     content: '체육대회 반티 후보 3가지 중 학급 투표가 진행 중입니다. 건의함에 투표 용지를 제출하거나 반장에게 의견 전달 바랍니다.',
     date: getOffsetDate(7),
     category: '학교행사',
@@ -33,7 +33,7 @@ const INITIAL_NOTICES = [
   },
   {
     id: 'n3',
-    title: '🏃 Youth AI SW 아이디어 경진대회 참가자 모집',
+    title: 'Youth AI SW 아이디어 경진대회 참가자 모집',
     content: '청소년 AI 및 앱 개발 경진대회 참가 안내입니다. 팀(2~4인) 구성 후 과학 정보실로 신청서를 제출하세요.',
     date: getOffsetDate(12),
     category: '외부활동',
@@ -44,7 +44,7 @@ const INITIAL_NOTICES = [
   },
   {
     id: 'n4',
-    title: '📢 1인 1역 학급 청소 구역 배정 및 청소 일지 작성',
+    title: '1인 1역 학급 청소 구역 배정 및 청소 일지 작성',
     content: '8월 3차 학급 청소 구역 배정표입니다. 주번과 청소 담당 학생은 방과 후 청소 상태 점검을 받아주세요.',
     date: getOffsetDate(-2),
     category: '기타',
@@ -61,6 +61,19 @@ function getOffsetDate(daysOffset) {
   return getLocalDateString(d);
 }
 
+// Deduplicate helper by unique ID
+function deduplicateNotices(list) {
+  if (!Array.isArray(list)) return [];
+  const seenIds = new Set();
+  const result = [];
+  for (const item of list) {
+    if (!item || !item.id) continue;
+    if (seenIds.has(item.id)) continue;
+    seenIds.add(item.id);
+    result.push(item);
+  }
+  return result;
+}
 
 export function getNotices() {
   try {
@@ -69,7 +82,16 @@ export function getNotices() {
       localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(INITIAL_NOTICES));
       return INITIAL_NOTICES;
     }
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      const unique = deduplicateNotices(parsed);
+      // If duplicates existed in localStorage, auto-repair by rewriting clean data
+      if (unique.length !== parsed.length) {
+        saveNotices(unique);
+      }
+      return unique;
+    }
+    return INITIAL_NOTICES;
   } catch (e) {
     console.error('Failed to load notices from localStorage', e);
     return INITIAL_NOTICES;
@@ -78,7 +100,8 @@ export function getNotices() {
 
 export function saveNotices(notices) {
   try {
-    localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(notices));
+    const clean = deduplicateNotices(notices);
+    localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(clean));
   } catch (e) {
     console.error('Failed to save notices to localStorage', e);
   }
@@ -86,20 +109,37 @@ export function saveNotices(notices) {
 
 export function addNotice(notice) {
   const current = getNotices();
+
+  // If notice has an ID that already exists in current, update it to prevent duplicate proliferation
+  if (notice.id && current.some((item) => item.id === notice.id)) {
+    return updateNotice(notice.id, notice);
+  }
+
+  // Prevent accidental rapid duplicate submissions with identical title and content
+  const existingDup = current.find(
+    (item) => item.title === notice.title && item.content === notice.content
+  );
+  if (existingDup) {
+    console.warn('Duplicate notice detected, updating existing item instead');
+    return updateNotice(existingDup.id, notice);
+  }
+
+  const newId = notice.id || ('notice_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
   const newNotice = {
-    id: 'notice_' + Date.now(),
-    createdAt: new Date().toISOString(),
-    pinned: false,
-    ...notice
+    ...notice,
+    id: newId,
+    createdAt: notice.createdAt || new Date().toISOString(),
+    pinned: notice.pinned || false,
   };
-  const updated = [newNotice, ...current];
+
+  const updated = [newNotice, ...current.filter((item) => item.id !== newNotice.id)];
   saveNotices(updated);
   return updated;
 }
 
 export function updateNotice(id, updatedFields) {
   const current = getNotices();
-  const updated = current.map(item => item.id === id ? { ...item, ...updatedFields } : item);
+  const updated = current.map(item => item.id === id ? { ...item, ...updatedFields, id } : item);
   saveNotices(updated);
   return updated;
 }
@@ -116,6 +156,11 @@ export function togglePinNotice(id) {
   const updated = current.map(item => item.id === id ? { ...item, pinned: !item.pinned } : item);
   saveNotices(updated);
   return updated;
+}
+
+export function resetNoticesToDefault() {
+  localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(INITIAL_NOTICES));
+  return INITIAL_NOTICES;
 }
 
 /**

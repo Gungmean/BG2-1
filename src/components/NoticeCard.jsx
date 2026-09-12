@@ -1,6 +1,6 @@
 ﻿import React, { forwardRef } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, Pin, Trash2, Edit3, Clock, ImageOff } from 'lucide-react';
+import { Calendar, Pin, Trash2, Edit3, Clock, User } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
 const CATEGORY_STYLES = {
@@ -73,9 +73,9 @@ const NoticeCard = forwardRef(function NoticeCard({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200/70 text-slate-400">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200/70 text-slate-400 select-none">
             <span className="text-2xl mb-1">📢</span>
-            <span className="text-[10px] font-medium text-slate-400">안내문</span>
+            <span className="text-[10px] font-medium text-slate-400">학급 안내문</span>
           </div>
         )}
 
@@ -128,8 +128,9 @@ const NoticeCard = forwardRef(function NoticeCard({
 
         {/* Footer Row: Author & Actions */}
         <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-          <span className="font-medium text-slate-500 truncate max-w-[90px]">
-            {notice.author || '학급반장'}
+          <span className="font-medium text-slate-500 truncate max-w-[90px] flex items-center gap-1">
+            <User className="w-3 h-3 text-slate-400 shrink-0" />
+            <span className="truncate">{notice.author || '반장'}</span>
           </span>
 
           <div className="flex items-center gap-1 shrink-0">

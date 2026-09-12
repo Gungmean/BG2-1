@@ -1,6 +1,6 @@
-﻿import React, { Suspense, useState, useEffect, useMemo } from 'react';
+import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Camera, Plus } from 'lucide-react';
+import { Camera, Plus, Inbox } from 'lucide-react';
 import Header from './components/Header';
 import Navbar from './components/Navbar';
 import ScheduleInfo from './components/ScheduleInfo';
@@ -244,8 +244,8 @@ export default function App() {
             ) : (
               /* Empty state */
               <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 p-8 space-y-3">
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mx-auto text-xl">
-                  📭
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto shadow-xs">
+                  <Inbox className="w-6 h-6 text-blue-500" />
                 </div>
                 <h3 className="font-bold text-slate-800 text-base">
                   해당하는 게시물이 없습니다

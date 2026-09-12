@@ -1,5 +1,5 @@
-﻿import React from 'react';
-import { X, Calendar, Clock, Pin, Trash2, Edit3, UserCheck, Image as ImageIcon } from 'lucide-react';
+import React from 'react';
+import { X, Calendar, Clock, Pin, Trash2, Edit3, UserCheck, Image as ImageIcon, FileText, Building2 } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
 export default function DetailModal({
@@ -91,8 +91,9 @@ export default function DetailModal({
 
           {/* Full Text Content */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/70">
-            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-              📜 상세 안내 내용
+            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-slate-500" />
+              <span>상세 안내 내용</span>
             </h3>
             <p className="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">
               {notice.content}
@@ -102,8 +103,15 @@ export default function DetailModal({
 
         {/* Modal Footer & Actions */}
         <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          <div className="text-[11px] text-slate-400">
-            {notice.isSchoolEvent ? '🏛️ 나이스(NEIS) 공식 학사일정' : `게시글 #${notice.id}`}
+          <div className="text-[11px] text-slate-400 flex items-center gap-1">
+            {notice.isSchoolEvent ? (
+              <>
+                <Building2 className="w-3.5 h-3.5 text-blue-600 inline" />
+                <span>나이스(NEIS) 공식 학사일정</span>
+              </>
+            ) : (
+              <span>게시글 #{notice.id}</span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">

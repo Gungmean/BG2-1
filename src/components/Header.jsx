@@ -153,7 +153,7 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
                 className="flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50/90 px-2.5 py-0.5 rounded-full border border-indigo-200 shadow-xs cursor-default select-none"
                 title={`${examDDay.fullName} (${examDDay.startDateStr} ~ ${examDDay.endDateStr})`}
               >
-                <span className="text-[11px]">📝</span>
+                <GraduationCap className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span className="hidden sm:inline font-extrabold text-indigo-900">
                   {examDDay.name}
                 </span>

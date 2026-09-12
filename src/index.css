@@ -77,17 +77,14 @@
 }
 
 @layer base {
-  * {
-    font-family: 'Paperlogy', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-  body {
+  html, body {
     @apply bg-slate-50 text-slate-800 antialiased;
-    font-family: 'Paperlogy', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Paperlogy', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   }
 }
 
 .font-nalsun {
-  font-family: 'NalSun', sans-serif !important;
+  font-family: 'NalSun', 'Paperlogy', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
 

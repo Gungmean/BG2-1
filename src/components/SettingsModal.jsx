@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Key, Download, Upload, RefreshCw, CheckCircle2, Sparkles, Database } from 'lucide-react';
-import { getLocalDateString, getStoredApiKey, setStoredApiKey, exportDataJSON, importDataJSON } from '../services/storageService';
+import { X, Key, Download, Upload, RefreshCw, CheckCircle2, Sparkles, Database, RotateCcw } from 'lucide-react';
+import { getLocalDateString, getStoredApiKey, setStoredApiKey, exportDataJSON, importDataJSON, resetNoticesToDefault, getNotices } from '../services/storageService';
 
 export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
   const [apiKey, setApiKey] = useState('');
@@ -46,6 +46,15 @@ export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
       setTimeout(() => setImportStatus(''), 4000);
     };
     reader.readAsText(file);
+  };
+
+  const handleResetNotices = () => {
+    if (window.confirm('게시판을 초기 상태로 복구하고 중복 데이터를 모두 정리하시겠습니까?')) {
+      resetNoticesToDefault();
+      onRefreshData();
+      setImportStatus('게시판이 기본 상태로 안전하게 복구되었습니다.');
+      setTimeout(() => setImportStatus(''), 4000);
+    }
   };
 
   return (
@@ -134,6 +143,18 @@ export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
                 className="hidden"
               />
             </label>
+          </div>
+
+          {/* Reset notices button */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleResetNotices}
+              className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
+              <span>게시물 중복 정리 및 기본값으로 초기화</span>
+            </button>
           </div>
 
           {importStatus && (

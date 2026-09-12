@@ -18,9 +18,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Paperlogy', 'system-ui', '-apple-system', 'sans-serif'],
-        paperlogy: ['Paperlogy', 'sans-serif'],
-        nalsun: ['NalSun', 'sans-serif'],
+        sans: ['Paperlogy', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', 'sans-serif'],
+        paperlogy: ['Paperlogy', '-apple-system', 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', 'sans-serif'],
+        nalsun: ['NalSun', 'Paperlogy', '-apple-system', 'sans-serif'],
       }
     },
   },
