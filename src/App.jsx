@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Camera, Plus, Inbox } from 'lucide-react';
+import { Camera, Plus, Inbox, Crown } from 'lucide-react';
 import Header from './components/Header';
 import Navbar from './components/Navbar';
 import ScheduleInfo from './components/ScheduleInfo';
@@ -205,12 +205,12 @@ export default function App() {
         />
 
         {/* Banner for Student vs Monitor status */}
-        <div className="mb-5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start sm:items-center justify-between text-xs text-blue-950 shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white font-bold text-[10px]">
+        <div className="mb-5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-center justify-between gap-3 text-xs text-blue-950 shadow-sm">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white font-bold text-[10px] shrink-0">
               안내
             </span>
-            <span>
+            <span className="truncate sm:whitespace-normal">
               {isMonitor ? (
                 <span>
                   👑 <strong className="text-blue-900 font-bold">반장 모드 활성화</strong>: 게시글 작성, AI 스캔, 수정 및 삭제 권한이 있습니다.
@@ -223,6 +223,26 @@ export default function App() {
             </span>
           </div>
 
+          <div className="shrink-0">
+            {isMonitor ? (
+              <button
+                type="button"
+                onClick={() => setIsPinModalOpen(true)}
+                className="px-2.5 py-1 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold text-xs transition-colors flex items-center gap-1 shadow-sm"
+              >
+                <span>관리</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsPinModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-sm flex items-center gap-1.5 active:scale-95 shrink-0"
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                <span>반장 인증</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* TAB 1: 게시판 */}
