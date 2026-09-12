@@ -1,6 +1,6 @@
-﻿import React, { forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, Pin, Trash2, Edit3, Clock, User } from 'lucide-react';
+import { Calendar, Pin, Trash2, Edit3, Clock } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
 const CATEGORY_STYLES = {
@@ -126,14 +126,13 @@ const NoticeCard = forwardRef(function NoticeCard({
           </div>
         </div>
 
-        {/* Footer Row: Author & Actions */}
+        {/* Footer Row: Type & Actions */}
         <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-          <span className="font-medium text-slate-500 truncate max-w-[90px] flex items-center gap-1">
-            <User className="w-3 h-3 text-slate-400 shrink-0" />
-            <span className="truncate">{notice.author || '반장'}</span>
+          <span className="font-semibold text-slate-400 text-[10px]">
+            {notice.isSchoolEvent ? '학사일정' : '학급 안내'}
           </span>
 
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1 shrink-0 ml-auto">
             {isMonitor && (
               <>
                 <button

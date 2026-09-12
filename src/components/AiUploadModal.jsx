@@ -29,8 +29,7 @@ export default function AiUploadModal({
     date: editNoticeData?.date || getTodayDate(),
     startDate: editNoticeData?.startDate || getTodayDate(),
     endDate: editNoticeData?.endDate || getTodayDate(),
-    category: editNoticeData?.category || '수행평가',
-    author: editNoticeData?.author || '학급 반장'
+    category: editNoticeData?.category || '수행평가'
   });
 
   useEffect(() => {
@@ -44,8 +43,7 @@ export default function AiUploadModal({
         date: editNoticeData?.date || getTodayDate(),
         startDate: editNoticeData?.startDate || getTodayDate(),
         endDate: editNoticeData?.endDate || getTodayDate(),
-        category: editNoticeData?.category || '수행평가',
-        author: editNoticeData?.author || '학급 반장'
+        category: editNoticeData?.category || '수행평가'
       });
       setSelectedImage(editNoticeData?.imageUrl || null);
     }
@@ -85,8 +83,7 @@ export default function AiUploadModal({
         title: result.data.title,
         content: result.data.content,
         date: result.data.date || getTodayDate(),
-        category: result.data.category,
-        author: '학급 반장'
+        category: result.data.category
       }));
       setAiAnalysisMode(result.mode);
       if (result.errorMsg) {

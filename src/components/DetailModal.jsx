@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Calendar, Clock, Pin, Trash2, Edit3, UserCheck, Image as ImageIcon, FileText, Building2 } from 'lucide-react';
+import { X, Calendar, Clock, Pin, Trash2, Edit3, Image as ImageIcon, FileText, Building2 } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
 export default function DetailModal({
@@ -71,10 +71,6 @@ export default function DetailModal({
             <div className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-blue-600" />
               <span>마감/일시: <strong className="text-slate-800">{displayDateText}</strong></span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-slate-400" />
-              <span>작성자: <strong className="text-slate-700">{notice.author || '학급 반장'}</strong></span>
             </div>
           </div>
 

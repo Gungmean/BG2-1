@@ -9,8 +9,7 @@ import {
   Eye,
   Sparkles,
   Flame,
-  Info,
-  User
+  Info
 } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 import { fetchMonthlyMeals, fetchSchoolSchedules, cleanDishName, getMealHighlights } from '../services/schoolService';
@@ -827,11 +826,7 @@ export default function NoticeCalendarView({ notices, onSelectNotice, initialMod
                       <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                         {n.content}
                       </p>
-                      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                        <span className="flex items-center gap-1">
-                          <User className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span>{n.author || '반장'}</span>
-                        </span>
+                      <div className="flex items-center justify-end text-[11px] text-slate-400 pt-1">
                         <span className="text-blue-600 font-bold flex items-center gap-1 group-hover:underline">
                           <Eye className="w-3 h-3" /> 상세 보기
                         </span>

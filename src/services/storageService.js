@@ -15,7 +15,6 @@ const INITIAL_NOTICES = [
     content: '지정도서 중 1권을 선택하여 독후감(A4 2매 내외)을 작성 후 국어 수행평가 제출함에 넣어주세요. 작성 양식은 학급 게시판 프린트를 참고하세요.',
     date: getOffsetDate(3),
     category: '수행평가',
-    author: '국어 선생님 / 반장',
     pinned: true,
     createdAt: new Date().toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&auto=format&fit=crop&q=80'
@@ -26,7 +25,6 @@ const INITIAL_NOTICES = [
     content: '체육대회 반티 후보 3가지 중 학급 투표가 진행 중입니다. 건의함에 투표 용지를 제출하거나 반장에게 의견 전달 바랍니다.',
     date: getOffsetDate(7),
     category: '학교행사',
-    author: '체육부장 / 반장',
     pinned: false,
     createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&auto=format&fit=crop&q=80'
@@ -37,7 +35,6 @@ const INITIAL_NOTICES = [
     content: '청소년 AI 및 앱 개발 경진대회 참가 안내입니다. 팀(2~4인) 구성 후 과학 정보실로 신청서를 제출하세요.',
     date: getOffsetDate(12),
     category: '외부활동',
-    author: '정보 선생님',
     pinned: false,
     createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80'
@@ -48,7 +45,6 @@ const INITIAL_NOTICES = [
     content: '8월 3차 학급 청소 구역 배정표입니다. 주번과 청소 담당 학생은 방과 후 청소 상태 점검을 받아주세요.',
     date: getOffsetDate(-2),
     category: '기타',
-    author: '학급 반장',
     pinned: false,
     createdAt: new Date(Date.now() - 3600000 * 72).toISOString(),
     imageUrl: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&auto=format&fit=crop&q=80'
@@ -61,7 +57,7 @@ function getOffsetDate(daysOffset) {
   return getLocalDateString(d);
 }
 
-// Deduplicate helper by unique ID
+// Deduplicate helper by unique ID and remove unnecessary author fields
 function deduplicateNotices(list) {
   if (!Array.isArray(list)) return [];
   const seenIds = new Set();
@@ -70,7 +66,8 @@ function deduplicateNotices(list) {
     if (!item || !item.id) continue;
     if (seenIds.has(item.id)) continue;
     seenIds.add(item.id);
-    result.push(item);
+    const { author, ...cleanItem } = item;
+    result.push(cleanItem);
   }
   return result;
 }
@@ -506,7 +503,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'reading_writing',
     subject: '독서와 작문',
     category: '국어',
-    teacher: '국어 담당 교사',
     examMethod: '선택형(100)',
     essayRatio: '서술형 40% (논술형: 24%)',
     writtenExam: {
@@ -523,7 +519,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'english_2',
     subject: '영어2',
     category: '영어',
-    teacher: '영어 담당 교사',
     examMethod: '선택형(48) 서술형(12)',
     essayRatio: '42% (논술형: 30%)',
     writtenExam: {
@@ -540,7 +535,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'calculus_1',
     subject: '미적분1',
     category: '수학',
-    teacher: '수학 담당 교사',
     examMethod: '선택형(100)',
     essayRatio: '40% (논술형: 20%)',
     writtenExam: {
@@ -557,7 +551,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'geometry',
     subject: '기하',
     category: '수학',
-    teacher: '기하 담당 교사',
     examMethod: '선택형(90) 서술형(10)',
     essayRatio: '36% (논술형: 20%)',
     writtenExam: {
@@ -573,7 +566,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'mechanics_energy',
     subject: '역학과 에너지',
     category: '과학',
-    teacher: '물리 담당 교사',
     examMethod: '선택형(100)',
     essayRatio: '35% (논술형: 30%)',
     writtenExam: {
@@ -590,7 +582,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'cell_metabolism',
     subject: '세포와 물질대사',
     category: '과학',
-    teacher: '생명과학 담당 교사',
     examMethod: '선택형(100)',
     essayRatio: '40% (논술형: 25%)',
     writtenExam: {
@@ -607,7 +598,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'matter_energy',
     subject: '물질과 에너지',
     category: '과학',
-    teacher: '화학 담당 교사',
     examMethod: '선택형(100)',
     essayRatio: '38% (논술형: 29%)',
     writtenExam: {
@@ -623,7 +613,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'sports_life_2',
     subject: '스포츠생활2',
     category: '체육',
-    teacher: '체육 담당 교사',
     examMethod: '지필 미실시',
     essayRatio: '해당없음',
     writtenExam: {
@@ -641,7 +630,6 @@ const INITIAL_EXAM_PLANS = [
     id: 'japanese',
     subject: '일본어',
     category: '제2외국어',
-    teacher: '일본어 담당 교사',
     examMethod: '선택형(100) 1회',
     essayRatio: '30% (논술형: 30%)',
     writtenExam: {
@@ -701,7 +689,11 @@ export function getExamPlans() {
       localStorage.setItem(STORAGE_KEY_EXAM_PLANS, JSON.stringify(mergedPlans));
       return mergedPlans;
     }
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    if (Array.isArray(parsed)) {
+      return parsed.map(({ teacher, ...rest }) => rest);
+    }
+    return INITIAL_EXAM_PLANS;
   } catch (e) {
     console.error('Failed to load exam plans', e);
     return INITIAL_EXAM_PLANS;
