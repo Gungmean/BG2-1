@@ -96,33 +96,30 @@ export function getNotices() {
 }
 
 export function saveNotices(notices) {
+  const clean = deduplicateNotices(notices);
+
+  // Preemptively cap base64 image strings to 300KB in localStorage to guarantee never exceeding 5MB quota
+  const safeForLocalStorage = clean.map((item) => {
+    if (item.imageUrl && item.imageUrl.startsWith('data:') && item.imageUrl.length > 300000) {
+      return { ...item, imageUrl: '' };
+    }
+    return item;
+  });
+
   try {
-    const clean = deduplicateNotices(notices);
-    localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(clean));
+    localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(safeForLocalStorage));
   } catch (e) {
-    console.warn('Failed to save notices to localStorage (QuotaExceeded), recovering...', e);
+    console.warn('LocalStorage QuotaExceeded fallback: stripping all data:image URLs', e);
     try {
-      // Quota exceeded: trim large base64 image strings from older notices in localStorage
-      const clean = deduplicateNotices(notices).map((item, idx) => {
-        if (idx > 1 && item.imageUrl && item.imageUrl.startsWith('data:image')) {
+      const minimal = clean.map((item) => {
+        if (item.imageUrl && item.imageUrl.startsWith('data:')) {
           return { ...item, imageUrl: '' };
         }
         return item;
       });
-      localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(clean));
-    } catch (err2) {
-      console.error('Final fallback: stripping all base64 images from localStorage cache', err2);
-      try {
-        const minimal = deduplicateNotices(notices).map((item) => {
-          if (item.imageUrl && item.imageUrl.startsWith('data:image')) {
-            return { ...item, imageUrl: '' };
-          }
-          return item;
-        });
-        localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(minimal));
-      } catch (e3) {
-        console.error('localStorage completely full', e3);
-      }
+      localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(minimal));
+    } catch (e2) {
+      console.error('Failed to save notices to localStorage even with stripped images', e2);
     }
   }
 }
