@@ -62,29 +62,41 @@ async function upsertItem(collection, item) {
   if (!isSupabaseEnabled) return item;
 
   const record = normalizeRecord(item);
-  const { error } = await supabase
-    .from(TABLE_NAME)
-    .upsert({
-      collection,
-      id: record.id,
-      data: record,
-      updated_at: record.updatedAt
-    });
+  try {
+    const { error } = await supabase
+      .from(TABLE_NAME)
+      .upsert({
+        collection,
+        id: record.id,
+        data: record,
+        updated_at: record.updatedAt
+      });
 
-  if (error) throw error;
+    if (error) {
+      console.error(`[Supabase Error] ${collection} upsert failed:`, error);
+    }
+  } catch (err) {
+    console.error(`[Supabase Error] ${collection} upsert exception:`, err);
+  }
   return record;
 }
 
 async function deleteItem(collection, id) {
   if (!isSupabaseEnabled) return;
 
-  const { error } = await supabase
-    .from(TABLE_NAME)
-    .delete()
-    .eq('collection', collection)
-    .eq('id', id);
+  try {
+    const { error } = await supabase
+      .from(TABLE_NAME)
+      .delete()
+      .eq('collection', collection)
+      .eq('id', id);
 
-  if (error) throw error;
+    if (error) {
+      console.error(`[Supabase Error] ${collection} delete failed:`, error);
+    }
+  } catch (err) {
+    console.error(`[Supabase Error] ${collection} delete exception:`, err);
+  }
 }
 
 export function subscribeCollection(collection, onChange) {
@@ -122,21 +134,17 @@ export async function getNotices() {
 }
 
 export async function addNotice(notice) {
-  if (!isSupabaseEnabled) return addLocalNotice(notice);
+  const localList = addLocalNotice(notice);
+  if (!isSupabaseEnabled) return localList;
 
-  const item = {
-    id: notice.id || `notice_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-    createdAt: notice.createdAt || new Date().toISOString(),
-    pinned: notice.pinned || false,
-    ...notice
-  };
-
+  const item = localList.find((n) => n.id === notice.id) || localList[0];
   await upsertItem('notices', item);
   return getNotices();
 }
 
 export async function updateNotice(id, updatedFields) {
-  if (!isSupabaseEnabled) return updateLocalNotice(id, updatedFields);
+  const localList = updateLocalNotice(id, updatedFields);
+  if (!isSupabaseEnabled) return localList;
 
   const current = await getNotices();
   const existing = current.find((item) => item.id === id);
@@ -152,13 +160,15 @@ export async function updateNotice(id, updatedFields) {
 }
 
 export async function deleteNotice(id) {
-  if (!isSupabaseEnabled) return deleteLocalNotice(id);
+  const localList = deleteLocalNotice(id);
+  if (!isSupabaseEnabled) return localList;
   await deleteItem('notices', id);
   return getNotices();
 }
 
 export async function togglePinNotice(id) {
-  if (!isSupabaseEnabled) return toggleLocalPinNotice(id);
+  const localList = toggleLocalPinNotice(id);
+  if (!isSupabaseEnabled) return localList;
 
   const current = await getNotices();
   const item = current.find((notice) => notice.id === id);
@@ -185,18 +195,10 @@ export async function getSuggestions() {
 }
 
 export async function addSuggestion(suggestion) {
-  if (!isSupabaseEnabled) return addLocalSuggestion(suggestion);
+  const localList = addLocalSuggestion(suggestion);
+  if (!isSupabaseEnabled) return localList;
 
-  const item = {
-    id: `sug_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-    upvotes: 0,
-    downvotes: 0,
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-    author: '익명',
-    ...suggestion
-  };
-
+  const item = localList.find((s) => s.id === suggestion.id) || localList[0];
   await upsertItem('suggestions', item);
   return getSuggestions();
 }
