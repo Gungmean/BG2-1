@@ -224,19 +224,23 @@ export default function TodayReportCard({ notices = [], onNavigate, onSelectNoti
             </div>
           ) : todayTimetable.length > 0 ? (
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-0.5">
-              {todayTimetable.map((subj, idx) => (
-                <div
-                  key={idx}
-                  className="flex-1 min-w-[42px] px-1 py-1 rounded-lg bg-indigo-50/70 border border-indigo-100/80 text-center"
-                >
-                  <span className="block text-[9px] font-extrabold text-indigo-400">
-                    {idx + 1}
-                  </span>
-                  <span className="block text-[11px] font-black text-indigo-950 truncate">
-                    {subj}
-                  </span>
-                </div>
-              ))}
+              {todayTimetable.map((item, idx) => {
+                const subjectName = typeof item === 'object' && item !== null ? item.subject || item.name || '' : String(item || '');
+                const periodNum = typeof item === 'object' && item !== null && item.period ? item.period : idx + 1;
+                return (
+                  <div
+                    key={idx}
+                    className="flex-1 min-w-[42px] px-1 py-1 rounded-lg bg-indigo-50/70 border border-indigo-100/80 text-center"
+                  >
+                    <span className="block text-[9px] font-extrabold text-indigo-400">
+                      {periodNum}
+                    </span>
+                    <span className="block text-[11px] font-black text-indigo-950 truncate" title={subjectName}>
+                      {subjectName}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="py-2.5 text-center text-slate-400 text-xs font-medium">
