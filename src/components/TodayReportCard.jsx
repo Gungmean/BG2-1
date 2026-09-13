@@ -84,9 +84,10 @@ export default function TodayReportCard({
   const mealDishes = activeData.meal;
   const timetableList = activeData.timetable;
 
-  // D-7 Upcoming Notices (0 <= D-Day <= 7)
+  // D-7 Upcoming Notices (ONLY '수행평가' category, 0 <= D-Day <= 7)
   const upcomingD7Notices = useMemo(() => {
     return notices
+      .filter((n) => n.category === '수행평가')
       .map((n) => ({ notice: n, dday: calculateDDay(n) }))
       .filter(({ dday }) => !dday.isExpired && dday.days >= 0 && dday.days <= 7)
       .sort((a, b) => a.dday.days - b.dday.days);
@@ -97,14 +98,16 @@ export default function TodayReportCard({
     return upcomingD7Notices.filter(({ dday }) => dday.days <= 3);
   }, [upcomingD7Notices]);
 
-  // Target date events
+  // Target date events (ONLY '수행평가' category)
   const targetDateEvents = useMemo(() => {
-    return notices.filter((n) => {
-      if (n.dateType === 'range' && n.startDate && n.endDate) {
-        return targetDateStr >= n.startDate && targetDateStr <= n.endDate;
-      }
-      return n.date === targetDateStr;
-    });
+    return notices
+      .filter((n) => n.category === '수행평가')
+      .filter((n) => {
+        if (n.dateType === 'range' && n.startDate && n.endDate) {
+          return targetDateStr >= n.startDate && targetDateStr <= n.endDate;
+        }
+        return n.date === targetDateStr;
+      });
   }, [notices, targetDateStr]);
 
   const topUrgent = urgentNotices[0];
@@ -145,7 +148,7 @@ export default function TodayReportCard({
             )}
             {urgentNotices.length > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold text-[10px] shrink-0">
-                {urgentNotices[0].dday.days === 0 ? 'D-DAY 과제' : `D-${urgentNotices[0].dday.days} 마감`}
+                {urgentNotices[0].dday.days === 0 ? 'D-DAY 수행평가' : `D-${urgentNotices[0].dday.days} 수행평가`}
               </span>
             )}
           </div>
@@ -241,14 +244,14 @@ export default function TodayReportCard({
         </div>
       </div>
 
-      {/* D-7 UPCOMING EVENTS WIDGET */}
+      {/* D-7 UPCOMING NOTICES WIDGET (FOCUSED ON '수행평가') */}
       <div className="relative z-10 bg-white/85 backdrop-blur-xs rounded-2xl border border-blue-100 p-3 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs">
+          <div className="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-black text-xs">
             <Clock className="w-3.5 h-3.5" />
           </div>
           <span className="text-xs font-extrabold text-slate-800">
-            다가오는 일정 <span className="text-blue-600 text-[11px] font-bold">(D-7)</span>
+            다가오는 수행평가 <span className="text-rose-600 text-[11px] font-bold">(D-7)</span>
           </span>
         </div>
 
@@ -261,7 +264,7 @@ export default function TodayReportCard({
                   key={notice.id}
                   type="button"
                   onClick={() => setShowD7Modal(true)}
-                  className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-blue-50 border border-slate-200/80 hover:border-blue-300 text-xs flex items-center gap-1.5 transition-all text-left"
+                  className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-rose-50 border border-slate-200/80 hover:border-rose-300 text-xs flex items-center gap-1.5 transition-all text-left"
                 >
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-black ${
@@ -269,7 +272,7 @@ export default function TodayReportCard({
                         ? 'bg-rose-500 text-white'
                         : dday.days <= 2
                         ? 'bg-amber-500 text-white'
-                        : 'bg-blue-500 text-white'
+                        : 'bg-rose-600 text-white'
                     }`}
                   >
                     {isToday ? 'D-DAY' : `D-${dday.days}`}
@@ -293,12 +296,12 @@ export default function TodayReportCard({
         ) : (
           <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span>7일 이내 마감되는 일정이 없습니다.</span>
+            <span>7일 이내 마감되는 수행평가가 없습니다.</span>
           </div>
         )}
       </div>
 
-      {/* URGENT / TODAY BANNER */}
+      {/* URGENT / TODAY BANNER (FOCUSED ON '수행평가') */}
       {topUrgent && dayTab === 'today' ? (
         <div
           onClick={() => onSelectNotice?.(topUrgent.notice)}
@@ -313,8 +316,8 @@ export default function TodayReportCard({
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                 <span>
                   {topUrgent.dday.days === 0
-                    ? '오늘 마감되는 중요 공지가 있습니다!'
-                    : `${topUrgent.dday.days}일 후 마감 임박!`}
+                    ? '오늘 마감되는 수행평가가 있습니다!'
+                    : `${topUrgent.dday.days}일 후 수행평가 마감 임박!`}
                 </span>
               </div>
               <p className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
@@ -328,10 +331,10 @@ export default function TodayReportCard({
           </span>
         </div>
       ) : targetDateEvents.length > 0 ? (
-        <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200/80 flex items-center gap-2 text-xs text-blue-900 font-bold">
-          <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+        <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/80 flex items-center gap-2 text-xs text-rose-950 font-bold">
+          <Calendar className="w-4 h-4 text-rose-600 shrink-0" />
           <span>
-            {dayTab === 'today' ? '오늘' : '내일'} 일정:{' '}
+            {dayTab === 'today' ? '오늘' : '내일'} 수행평가:{' '}
             <strong>{targetDateEvents.map((e) => e.title).join(', ')}</strong>
           </span>
         </div>
@@ -387,7 +390,7 @@ export default function TodayReportCard({
           )}
         </div>
 
-        {/* CARD B: 수업 시간표 (Single-row slim layout with lighter readable font) */}
+        {/* CARD B: 수업 시간표 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
           className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
@@ -449,7 +452,7 @@ export default function TodayReportCard({
         </div>
       </div>
 
-      {/* D-7 UPCOMING NOTICES MODAL */}
+      {/* D-7 UPCOMING NOTICES MODAL (FOCUSED ON '수행평가') */}
       {showD7Modal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150"
@@ -461,11 +464,11 @@ export default function TodayReportCard({
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                <span className="w-7 h-7 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
                   <Clock className="w-4 h-4" />
                 </span>
                 <h3 className="text-base font-black text-slate-900">
-                  다가오는 일정 (D-7)
+                  다가오는 수행평가 (D-7)
                 </h3>
               </div>
               <button
@@ -488,7 +491,7 @@ export default function TodayReportCard({
                         setShowD7Modal(false);
                         onSelectNotice?.(notice);
                       }}
-                      className="p-3 rounded-2xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200/80 hover:border-blue-200 transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                      className="p-3 rounded-2xl bg-slate-50 hover:bg-rose-50/70 border border-slate-200/80 hover:border-rose-200 transition-all cursor-pointer flex items-center justify-between gap-3 group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span
@@ -497,13 +500,13 @@ export default function TodayReportCard({
                               ? 'bg-rose-500 text-white'
                               : dday.days <= 2
                               ? 'bg-amber-500 text-white'
-                              : 'bg-blue-500 text-white'
+                              : 'bg-rose-600 text-white'
                           }`}
                         >
                           {isToday ? 'D-DAY' : `D-${dday.days}`}
                         </span>
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-blue-600 truncate transition-colors">
+                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
                             {notice.title}
                           </h4>
                           <p className="text-[11px] text-slate-500 font-medium">
@@ -513,13 +516,13 @@ export default function TodayReportCard({
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all shrink-0" />
                     </div>
                   );
                 })
               ) : (
                 <div className="py-8 text-center text-slate-400 text-xs font-medium">
-                  다가오는 일정이 없습니다.
+                  다가오는 수행평가가 없습니다.
                 </div>
               )}
             </div>
@@ -531,7 +534,7 @@ export default function TodayReportCard({
                   setShowD7Modal(false);
                   onNavigate?.('calendar', 'monthCalendar');
                 }}
-                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
               >
                 <span>학급 달력에서 전체 일정 확인하기</span>
                 <ChevronRight className="w-3.5 h-3.5" />
