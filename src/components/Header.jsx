@@ -107,21 +107,21 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
         
         {/* LEFT: Brand Logo & School Title */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shadow-sm flex items-center justify-center bg-slate-100 flex-shrink-0">
-              <img
-                src="/symbol.jpg"
-                alt="부광이일 심볼"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
+          <div 
+            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none group"
+            onDoubleClick={onOpenPinModal}
+            title="부광이일"
+          >
+            <img
+              src="/symbol.png"
+              alt="부광이일 심볼"
+              className="h-8 sm:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
             <span 
-              className="font-extrabold font-nalsun text-slate-900 text-lg tracking-tight cursor-pointer select-none"
-              onDoubleClick={onOpenPinModal}
-              title="부광이일"
+              className="font-extrabold font-nalsun text-slate-900 text-lg sm:text-xl tracking-tight"
             >
               부광이일
             </span>
