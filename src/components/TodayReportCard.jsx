@@ -84,33 +84,35 @@ export default function TodayReportCard({
   const mealDishes = activeData.meal;
   const timetableList = activeData.timetable;
 
-  // D-7 Upcoming Notices (ONLY '수행평가' category, 0 <= D-Day <= 7)
-  const upcomingD7Notices = useMemo(() => {
+  // 1. Target Date Due Notices (All '수행평가' due on the selected day)
+  const targetDateDueNotices = useMemo(() => {
     return notices
       .filter((n) => n.category === '수행평가')
       .map((n) => ({ notice: n, dday: calculateDDay(n) }))
-      .filter(({ dday }) => !dday.isExpired && dday.days >= 0 && dday.days <= 7)
-      .sort((a, b) => a.dday.days - b.dday.days);
-  }, [notices]);
-
-  // Urgent (D-3 or today)
-  const urgentNotices = useMemo(() => {
-    return upcomingD7Notices.filter(({ dday }) => dday.days <= 3);
-  }, [upcomingD7Notices]);
-
-  // Target date events (ONLY '수행평가' category)
-  const targetDateEvents = useMemo(() => {
-    return notices
-      .filter((n) => n.category === '수행평가')
-      .filter((n) => {
-        if (n.dateType === 'range' && n.startDate && n.endDate) {
-          return targetDateStr >= n.startDate && targetDateStr <= n.endDate;
+      .filter(({ notice, dday }) => {
+        if (dday.isExpired) return false;
+        // Exact single date match
+        if (notice.date === targetDateStr) return true;
+        // Range notice match (current day falls inside or is endDate)
+        if (notice.dateType === 'range' && notice.startDate && notice.endDate) {
+          return targetDateStr >= notice.startDate && targetDateStr <= notice.endDate;
         }
-        return n.date === targetDateStr;
+        // D-Day calculation match
+        if (dayTab === 'today' && dday.days === 0) return true;
+        if (dayTab === 'tomorrow' && dday.days === 1) return true;
+        return false;
       });
-  }, [notices, targetDateStr]);
+  }, [notices, targetDateStr, dayTab]);
 
-  const topUrgent = urgentNotices[0];
+  // 2. D-7 Upcoming Notices (ONLY D-1 to D-7, strictly EXCLUDING targetDateDueNotices to avoid duplication)
+  const upcomingD7Notices = useMemo(() => {
+    const dueIds = new Set(targetDateDueNotices.map((item) => item.notice.id));
+    return notices
+      .filter((n) => n.category === '수행평가' && !dueIds.has(n.id))
+      .map((n) => ({ notice: n, dday: calculateDDay(n) }))
+      .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
+      .sort((a, b) => a.dday.days - b.dday.days);
+  }, [notices, targetDateDueNotices]);
 
   // 1. COLLAPSED VIEW (Slim single-row summary bar)
   if (isCollapsed) {
@@ -146,9 +148,9 @@ export default function TodayReportCard({
                 📚 1교시: {todayFirstSubj}
               </span>
             )}
-            {urgentNotices.length > 0 && (
+            {targetDateDueNotices.length > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold text-[10px] shrink-0">
-                {urgentNotices[0].dday.days === 0 ? 'D-DAY 수행평가' : `D-${urgentNotices[0].dday.days} 수행평가`}
+                {`D-DAY 수행평가 (${targetDateDueNotices.length}개)`}
               </span>
             )}
           </div>
@@ -244,7 +246,7 @@ export default function TodayReportCard({
         </div>
       </div>
 
-      {/* D-7 UPCOMING NOTICES WIDGET (FOCUSED ON '수행평가') */}
+      {/* D-7 UPCOMING NOTICES WIDGET (ONLY D-1 to D-7, NO DUPLICATE OF TODAY) */}
       <div className="relative z-10 bg-white/85 backdrop-blur-xs rounded-2xl border border-blue-100 p-3 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-black text-xs">
@@ -258,7 +260,6 @@ export default function TodayReportCard({
         {upcomingD7Notices.length > 0 ? (
           <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0 justify-start sm:justify-end">
             {upcomingD7Notices.slice(0, 3).map(({ notice, dday }) => {
-              const isToday = dday.days === 0;
               return (
                 <button
                   key={notice.id}
@@ -268,14 +269,12 @@ export default function TodayReportCard({
                 >
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-black ${
-                      isToday
-                        ? 'bg-rose-500 text-white'
-                        : dday.days <= 2
+                      dday.days <= 2
                         ? 'bg-amber-500 text-white'
                         : 'bg-rose-600 text-white'
                     }`}
                   >
-                    {isToday ? 'D-DAY' : `D-${dday.days}`}
+                    {`D-${dday.days}`}
                   </span>
                   <span className="font-semibold text-slate-700 truncate max-w-[85px] sm:max-w-[110px]">
                     {notice.title.length > 7 ? `${notice.title.slice(0, 7)}…` : notice.title}
@@ -296,49 +295,56 @@ export default function TodayReportCard({
         ) : (
           <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span>7일 이내 마감되는 수행평가가 없습니다.</span>
+            <span>다가오는 수행평가(D-1~D-7)가 없습니다.</span>
           </div>
         )}
       </div>
 
-      {/* URGENT / TODAY BANNER (FOCUSED ON '수행평가') */}
-      {topUrgent && dayTab === 'today' ? (
-        <div
-          onClick={() => onSelectNotice?.(topUrgent.notice)}
-          className="p-3 rounded-2xl bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200 flex items-center justify-between gap-3 cursor-pointer hover:shadow-xs transition-all group"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center shrink-0 text-xs font-black shadow-xs">
-              {topUrgent.dday.days === 0 ? 'D-DAY' : `D-${topUrgent.dday.days}`}
+      {/* ALL DUE NOTICES FOR TODAY / TOMORROW (SHOWS ALL ITEMS, NOT JUST 1) */}
+      {targetDateDueNotices.length > 0 && (
+        <div className="space-y-2 relative z-10">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-rose-700 px-1">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>
+              {dayTab === 'today' ? '오늘' : '내일'} 마감되는 수행평가가{' '}
+              <strong className="text-rose-900 font-black">{targetDateDueNotices.length}개</strong> 있습니다!
             </span>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700">
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                <span>
-                  {topUrgent.dday.days === 0
-                    ? '오늘 마감되는 수행평가가 있습니다!'
-                    : `${topUrgent.dday.days}일 후 수행평가 마감 임박!`}
-                </span>
-              </div>
-              <p className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
-                {topUrgent.notice.title}
-              </p>
-            </div>
           </div>
-          <span className="text-[11px] font-bold text-rose-600 whitespace-nowrap flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform shrink-0">
-            <span>자세히</span>
-            <ArrowRight className="w-3 h-3" />
-          </span>
+
+          <div className={`grid gap-2 ${targetDateDueNotices.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+            {targetDateDueNotices.map(({ notice, dday }) => {
+              const isToday = dday.days === 0;
+              return (
+                <div
+                  key={notice.id}
+                  onClick={() => onSelectNotice?.(notice)}
+                  className="p-3 rounded-2xl bg-gradient-to-r from-rose-50 to-amber-50/70 border border-rose-200 flex items-center justify-between gap-2.5 cursor-pointer hover:shadow-xs hover:border-rose-300 transition-all group"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <span className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center shrink-0 text-xs font-black shadow-xs">
+                      {isToday ? 'D-DAY' : `D-${dday.days}`}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
+                        {notice.title}
+                      </p>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        {notice.dateType === 'range'
+                          ? `${notice.startDate} ~ ${notice.endDate}`
+                          : notice.date || '기한 미정'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-bold text-rose-600 whitespace-nowrap flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform shrink-0">
+                    <span>자세히</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      ) : targetDateEvents.length > 0 ? (
-        <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/80 flex items-center gap-2 text-xs text-rose-950 font-bold">
-          <Calendar className="w-4 h-4 text-rose-600 shrink-0" />
-          <span>
-            {dayTab === 'today' ? '오늘' : '내일'} 수행평가:{' '}
-            <strong>{targetDateEvents.map((e) => e.title).join(', ')}</strong>
-          </span>
-        </div>
-      ) : null}
+      )}
 
       {/* MEAL & TIMETABLE (SLIM & READABLE ROW) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
@@ -452,7 +458,7 @@ export default function TodayReportCard({
         </div>
       </div>
 
-      {/* D-7 UPCOMING NOTICES MODAL (FOCUSED ON '수행평가') */}
+      {/* D-7 UPCOMING NOTICES MODAL (D-1 to D-7) */}
       {showD7Modal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150"
@@ -483,7 +489,6 @@ export default function TodayReportCard({
             <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
               {upcomingD7Notices.length > 0 ? (
                 upcomingD7Notices.map(({ notice, dday }) => {
-                  const isToday = dday.days === 0;
                   return (
                     <div
                       key={notice.id}
@@ -496,14 +501,12 @@ export default function TodayReportCard({
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span
                           className={`px-2 py-1 rounded-lg text-xs font-black shrink-0 ${
-                            isToday
-                              ? 'bg-rose-500 text-white'
-                              : dday.days <= 2
+                            dday.days <= 2
                               ? 'bg-amber-500 text-white'
                               : 'bg-rose-600 text-white'
                           }`}
                         >
-                          {isToday ? 'D-DAY' : `D-${dday.days}`}
+                          {`D-${dday.days}`}
                         </span>
                         <div className="min-w-0">
                           <h4 className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
