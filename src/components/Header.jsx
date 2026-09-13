@@ -203,7 +203,7 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
           </motion.button>
 
           {/* Monitor Auth Status / Login Button */}
-          {isMonitor && (
+          {isMonitor ? (
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onOpenPinModal}
@@ -212,6 +212,16 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
               <Crown className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
               <span className="hidden sm:inline">반장 모드</span>
               <span className="sm:hidden">반장</span>
+            </motion.button>
+          ) : (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={onOpenPinModal}
+              title="반장 인증 (PIN)"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-500" />
+              <span className="hidden sm:inline">반장 인증</span>
             </motion.button>
           )}
 
