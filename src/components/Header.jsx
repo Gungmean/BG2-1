@@ -36,12 +36,38 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
     return getUpcomingExamDDay(time);
   }, [time.getFullYear(), time.getMonth(), time.getDate()]);
 
-  // 1초마다 시계 업데이트
+  // 실제 초 정각(000ms) 동기화 및 1초 주기 보정 타이머
   useEffect(() => {
-    const timer = setInterval(() => {
+    let timeoutId = null;
+    let isCancelled = false;
+
+    const tick = () => {
+      if (isCancelled) return;
       setTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
+
+      // 다음 000 밀리초(정각)까지 남은 시간을 계산하여 오차 누적 방지
+      const now = new Date();
+      const delay = Math.max(10, 1000 - now.getMilliseconds());
+      timeoutId = setTimeout(tick, delay);
+    };
+
+    // 초기 동기화: 다음 초의 000ms에 첫 틱 실행
+    const initialDelay = Math.max(10, 1000 - new Date().getMilliseconds());
+    timeoutId = setTimeout(tick, initialDelay);
+
+    // 탭 복귀 및 화면 켜짐 시 즉시 시간 동기화
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setTime(new Date());
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      isCancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // 실시간 날씨 데이터 Fetch (Open-Meteo API)
@@ -139,9 +165,9 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
               {month}월 {date}일 ({dayName})
             </span>
             <span className="text-slate-300">|</span>
-            <div className="flex items-center gap-1 font-mono text-blue-600 font-extrabold tracking-tight">
+            <div className="flex items-center gap-1 font-mono tabular-nums text-blue-600 font-extrabold tracking-tight">
               <Clock className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-              <span>{hours}:{minutes}:{seconds}</span>
+              <span className="tabular-nums tracking-normal">{hours}:{minutes}:{seconds}</span>
             </div>
           </div>
 
