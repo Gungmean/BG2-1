@@ -53,19 +53,19 @@ const NoticeCard = forwardRef(function NoticeCard({
         scale: { duration: 0.15 }
       }}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-row items-stretch min-h-[96px] sm:min-h-[104px] ${
+      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-row items-stretch h-28 max-h-28 ${
         notice.pinned
           ? 'border-blue-400 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 to-white'
           : 'border-slate-200/90 hover:border-blue-300'
       }`}
     >
-      {/* 1. LEFT THUMBNAIL AREA (Compact square/rounded) */}
-      <div className="w-24 xs:w-28 sm:w-32 shrink-0 relative bg-slate-100 overflow-hidden select-none">
+      {/* 1. LEFT THUMBNAIL AREA (Strictly aspect-square 112px x 112px) */}
+      <div className="w-28 h-28 aspect-square shrink-0 relative bg-slate-100 overflow-hidden select-none">
         {notice.imageUrl ? (
           <img
             src={notice.imageUrl}
             alt={notice.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 block"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200/70 text-slate-400 p-2 text-center">
@@ -78,7 +78,7 @@ const NoticeCard = forwardRef(function NoticeCard({
 
         {/* Pinned Tag on Thumbnail */}
         {notice.pinned && (
-          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-blue-600 text-white text-[9px] font-black flex items-center gap-0.5 shadow-xs">
+          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-blue-600 text-white text-[9px] font-black flex items-center gap-0.5 shadow-xs z-10">
             <Pin className="w-2.5 h-2.5 fill-white" />
             <span>고정</span>
           </div>
@@ -86,7 +86,7 @@ const NoticeCard = forwardRef(function NoticeCard({
       </div>
 
       {/* 2. RIGHT CONTENT AREA (Title, Category, D-Day & Actions) */}
-      <div className="flex-1 min-w-0 p-2.5 sm:p-3 flex flex-col justify-between">
+      <div className="flex-1 min-w-0 p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden">
         <div>
           {/* Top Badges: Category & D-Day / Ongoing Status */}
           <div className="flex items-center justify-between gap-1.5 mb-1 flex-wrap">
