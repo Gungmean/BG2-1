@@ -203,12 +203,19 @@ export function calculateDDay(dateOrNotice) {
 
       if (today < sDate) {
         const diffDays = Math.ceil((sDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        return { text: `D-${diffDays} (시작 전)`, isExpired: false, days: diffDays };
+        return { text: `시작 D-${diffDays}`, isExpired: false, isOngoing: false, days: diffDays };
       } else if (today >= sDate && today <= eDate) {
-        return { text: '진행 중', isExpired: false, days: 0 };
+        const diffToEnd = Math.ceil((eDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffToEnd === 0) {
+          return { text: '오늘 종료', isExpired: false, isOngoing: true, days: 0 };
+        } else if (diffToEnd <= 3) {
+          return { text: `종료 D-${diffToEnd}`, isExpired: false, isOngoing: true, days: diffToEnd };
+        } else {
+          return { text: '진행 중', isExpired: false, isOngoing: true, days: diffToEnd };
+        }
       } else {
         const diffDays = Math.ceil((today.getTime() - eDate.getTime()) / (1000 * 60 * 60 * 24));
-        return { text: `마감 (${diffDays}일 경과)`, isExpired: true, days: -diffDays };
+        return { text: `마감 (${diffDays}일 경과)`, isExpired: true, isOngoing: false, days: -diffDays };
       }
     }
 

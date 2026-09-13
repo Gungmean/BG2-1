@@ -186,8 +186,8 @@ export default function App() {
 
         // Sort rules
         if (sortBy === 'deadline') {
-          const dateA = new Date(a.date || '2099-12-31').getTime();
-          const dateB = new Date(b.date || '2099-12-31').getTime();
+          const dateA = new Date(a.date || a.endDate || a.startDate || '2099-12-31').getTime();
+          const dateB = new Date(b.date || b.endDate || b.startDate || '2099-12-31').getTime();
           return dateA - dateB;
         } else if (sortBy === 'oldest') {
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
@@ -242,7 +242,7 @@ export default function App() {
 
             {/* Notice Cards Grid with motion layout */}
             {filteredNotices.length > 0 ? (
-              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <AnimatePresence>
                   {filteredNotices.map((notice) => (
                     <NoticeCard

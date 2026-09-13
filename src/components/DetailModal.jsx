@@ -44,8 +44,21 @@ export default function DetailModal({
               <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-200 text-slate-600">
                 {dday.text}
               </span>
+            ) : dday.text === '진행 중' ? (
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-extrabold bg-emerald-600 text-white flex items-center gap-1 shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                진행 중
+              </span>
+            ) : dday.text === '오늘 종료' || dday.days === 0 ? (
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-rose-600 text-white animate-pulse shadow-xs">
+                {dday.text}
+              </span>
+            ) : dday.days <= 3 ? (
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-500 text-white shadow-xs">
+                {dday.text}
+              </span>
             ) : (
-              <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-500 text-white">
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-600 text-white shadow-xs">
                 {dday.text}
               </span>
             )}
