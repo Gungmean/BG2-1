@@ -300,48 +300,34 @@ export default function TodayReportCard({
         )}
       </div>
 
-      {/* ALL DUE NOTICES FOR TODAY / TOMORROW (SHOWS ALL ITEMS, NOT JUST 1) */}
+      {/* ALL DUE NOTICES FOR TODAY / TOMORROW (SLIM & FOCUSED ON TITLES) */}
       {targetDateDueNotices.length > 0 && (
-        <div className="space-y-2 relative z-10">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-rose-700 px-1">
-            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-            <span>
-              {dayTab === 'today' ? '오늘' : '내일'} 마감되는 수행평가가{' '}
-              <strong className="text-rose-900 font-black">{targetDateDueNotices.length}개</strong> 있습니다!
+        <div className="relative z-10 bg-rose-50/85 backdrop-blur-xs rounded-2xl border border-rose-200/90 p-2.5 sm:px-3.5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-rose-500 text-white flex items-center justify-center font-black text-xs shadow-2xs">
+              <AlertTriangle className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-extrabold text-rose-950">
+              {dayTab === 'today' ? '오늘 마감' : '내일 마감'}
+              <span className="text-rose-600 text-[11px] font-bold ml-1">
+                ({targetDateDueNotices.length})
+              </span>
             </span>
           </div>
 
-          <div className={`grid gap-2 ${targetDateDueNotices.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-            {targetDateDueNotices.map(({ notice, dday }) => {
-              const isToday = dday.days === 0;
-              return (
-                <div
-                  key={notice.id}
-                  onClick={() => onSelectNotice?.(notice)}
-                  className="p-3 rounded-2xl bg-gradient-to-r from-rose-50 to-amber-50/70 border border-rose-200 flex items-center justify-between gap-2.5 cursor-pointer hover:shadow-xs hover:border-rose-300 transition-all group"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <span className="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center shrink-0 text-xs font-black shadow-xs">
-                      {isToday ? 'D-DAY' : `D-${dday.days}`}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
-                        {notice.title}
-                      </p>
-                      <span className="text-[11px] text-slate-500 block truncate">
-                        {notice.dateType === 'range'
-                          ? `${notice.startDate} ~ ${notice.endDate}`
-                          : notice.date || '기한 미정'}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold text-rose-600 whitespace-nowrap flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform shrink-0">
-                    <span>자세히</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
-              );
-            })}
+          <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0 justify-start sm:justify-end">
+            {targetDateDueNotices.map(({ notice }) => (
+              <button
+                key={notice.id}
+                type="button"
+                onClick={() => onSelectNotice?.(notice)}
+                className="px-2.5 py-1 rounded-lg bg-white hover:bg-rose-100/70 border border-rose-200 text-rose-950 font-bold text-xs flex items-center gap-1 shadow-2xs hover:shadow-xs transition-all text-left group max-w-[160px] sm:max-w-[220px]"
+                title={notice.title}
+              >
+                <span className="truncate">{notice.title}</span>
+                <ChevronRight className="w-3 h-3 text-rose-400 group-hover:text-rose-600 shrink-0" />
+              </button>
+            ))}
           </div>
         </div>
       )}
