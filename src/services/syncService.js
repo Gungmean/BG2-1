@@ -185,10 +185,16 @@ export async function togglePinNotice(id) {
 export async function getSuggestions() {
   const suggestions = await listCollection('suggestions', getLocalSuggestions);
   if (isSupabaseEnabled && suggestions.length === 0) {
-    const localSuggestions = getLocalSuggestions();
-    await Promise.all(localSuggestions.map((suggestion) => upsertItem('suggestions', suggestion)));
-    saveSuggestions(localSuggestions);
-    return sortByCreatedAtDesc(localSuggestions);
+    const isSeeded = localStorage.getItem('classboard_suggestions_seeded_v2');
+    if (!isSeeded) {
+      localStorage.setItem('classboard_suggestions_seeded_v2', 'true');
+      const localSuggestions = getLocalSuggestions();
+      await Promise.all(localSuggestions.map((suggestion) => upsertItem('suggestions', suggestion)));
+      saveSuggestions(localSuggestions);
+      return sortByCreatedAtDesc(localSuggestions);
+    }
+  } else if (isSupabaseEnabled) {
+    localStorage.setItem('classboard_suggestions_seeded_v2', 'true');
   }
   if (isSupabaseEnabled) saveSuggestions(suggestions);
   return sortByCreatedAtDesc(suggestions);
@@ -261,9 +267,12 @@ export async function updateSuggestionStatus(id, newStatus) {
 }
 
 export async function deleteSuggestion(id) {
-  if (!isSupabaseEnabled) return deleteLocalSuggestion(id);
+  const localList = deleteLocalSuggestion(id);
+  if (!isSupabaseEnabled) return localList;
   await deleteItem('suggestions', id);
-  return getSuggestions();
+  const fresh = (await listCollection('suggestions', () => localList)).filter((s) => s.id !== id);
+  saveSuggestions(fresh);
+  return sortByCreatedAtDesc(fresh);
 }
 
 export { getUserVoteStatus };

@@ -296,7 +296,10 @@ export default function App() {
 
         {/* TAB 2: 건의함 (Suggestion Box) */}
         {activeBottomNav === 'suggestion' && (
-          <SuggestionBox isMonitor={isMonitor} />
+          <SuggestionBox
+            isMonitor={isMonitor}
+            onOpenPinModal={() => setIsPinModalOpen(true)}
+          />
         )}
 
         {/* TAB 3: 일정 & 캘린더 (Calendar & Meal & Timetable) */}
