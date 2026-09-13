@@ -49,6 +49,15 @@ export async function getSchoolInfoForToday() {
   return getSchoolInfoForDate(ymd);
 }
 
+/**
+ * Fetch both meal and timetable for tomorrow.
+ */
+export async function getSchoolInfoForTomorrow() {
+  const tomorrow = addDays(new Date(), 1);
+  const ymd = format(tomorrow, 'yyyyMMdd');
+  return getSchoolInfoForDate(ymd);
+}
+
 // Helper to fetch meal dishes for a specific date.
 async function fetchMeal(ymd) {
   try {

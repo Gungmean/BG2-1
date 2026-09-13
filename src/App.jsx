@@ -49,6 +49,16 @@ export default function App() {
   };
   const [activeBottomNav, setActiveBottomNav] = useState('board'); // 'board' | 'suggestion' | 'calendar'
   const [calendarSubTab, setCalendarSubTab] = useState('monthCalendar'); // 'schedule' | 'monthCalendar'
+  const [isReportCollapsed, setIsReportCollapsed] = useState(false);
+
+  // When user navigates to another page (not 'board'), automatically fold the TodayReportCard
+  // Returning to 'board' does NOT automatically unfold it (stays folded until user manually unfolds)
+  const handleTabChange = (tab) => {
+    if (tab !== 'board') {
+      setIsReportCollapsed(true);
+    }
+    setActiveBottomNav(tab);
+  };
 
   // Filter & Search states
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -203,9 +213,11 @@ export default function App() {
         {/* Today's Daily Report & Briefing Card */}
         <TodayReportCard
           notices={notices}
+          isCollapsed={isReportCollapsed}
+          onToggleCollapse={() => setIsReportCollapsed((prev) => !prev)}
           onNavigate={(tab, subTab) => {
             if (subTab) setCalendarSubTab(subTab);
-            setActiveBottomNav(tab);
+            handleTabChange(tab);
           }}
           onSelectNotice={(n) => setSelectedNotice(n)}
         />
@@ -407,7 +419,7 @@ export default function App() {
       {/* Bottom Navigation with Center Semicircle Radial Menu */}
       <Navbar
         activeTab={activeBottomNav}
-        setActiveTab={setActiveBottomNav}
+        setActiveTab={handleTabChange}
       />
 
       {/* Choice Modal for AI vs Manual */}
