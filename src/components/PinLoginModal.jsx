@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Crown, AlertCircle, X, ShieldCheck, Lock, LogOut } from 'lucide-react';
-import { verifyMonitorPin } from '../services/storageService';
+import { Crown, AlertCircle, X, ShieldCheck, Lock, LogOut, User } from 'lucide-react';
+import { verifyMonitorPin, getSessionMonitorName, setSessionMonitorName } from '../services/storageService';
 
 export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor }) {
+  const [name, setName] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -11,6 +12,7 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
 
   useEffect(() => {
     if (isOpen) {
+      setName(getSessionMonitorName());
       setPin('');
       setError('');
     }
@@ -41,6 +43,11 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
       return;
     }
 
+    if (!name || name.trim().length === 0) {
+      setError('이름을 입력해 주세요.');
+      return;
+    }
+
     if (!pin || pin.trim().length === 0) {
       setError('비밀번호를 입력해 주세요.');
       return;
@@ -53,6 +60,7 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
       const isValid = await verifyMonitorPin(pin.trim());
       if (isValid) {
         setFailedAttempts(0);
+        setSessionMonitorName(name.trim());
         setIsMonitor(true);
         setPin('');
         onClose();
@@ -75,6 +83,8 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
   };
 
   const handleLogout = () => {
+    setSessionMonitorName('');
+    setName('');
     setIsMonitor(false);
     onClose();
   };
@@ -108,7 +118,7 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
           <div className="space-y-4 py-2 text-center">
             <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold space-y-1">
               <p className="text-sm font-bold text-amber-800 flex items-center justify-center gap-1.5">
-                <Crown className="w-4 h-4 fill-amber-500" /> 반장 권한 활성화 중
+                <Crown className="w-4 h-4 fill-amber-500" /> {name ? `${name} 반장 권한 활성화 중` : '반장 권한 활성화 중'}
               </p>
               <p className="text-amber-700">
                 안내문 AI 등록, 공지 수정 및 삭제가 가능합니다.
@@ -123,7 +133,29 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
             </button>
           </div>
         ) : (
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-3.5">
+            {/* 1. 이름 입력란 */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                <User className="w-3.5 h-3.5 text-amber-600" />
+                <span>이름 입력</span>
+              </label>
+              <input
+                type="text"
+                maxLength={15}
+                disabled={lockoutTimer > 0 || isSubmitting}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError('');
+                }}
+                placeholder="본인 이름을 입력하세요"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 disabled:opacity-50 transition-colors"
+                autoFocus
+              />
+            </div>
+
+            {/* 2. 비밀번호 입력란 */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-slate-700 flex items-center justify-between">
                 <span className="flex items-center gap-1">
@@ -145,8 +177,7 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
                   setError('');
                 }}
                 placeholder="비밀번호 입력"
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center text-lg font-bold tracking-widest text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 disabled:opacity-50"
-                autoFocus
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center text-lg font-bold tracking-widest text-slate-900 focus:bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 disabled:opacity-50 transition-colors"
               />
               {error && (
                 <p className="text-xs font-bold text-rose-600 flex items-center gap-1 mt-1.5">

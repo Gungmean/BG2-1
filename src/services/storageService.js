@@ -319,6 +319,7 @@ function pureSha256(ascii) {
 const DEFAULT_MONITOR_PIN_HASH = '7ad00d1d97f564b11d0c48acc20fb5377cf3535fa0bffd4e4cd2db81594ce6ec';
 const MONITOR_PIN_SALT = 'BG2-1_Class_Monitor_Auth_2026_Secure_Salt_!@#';
 const SESSION_KEY_IS_MONITOR = 'classboard_is_monitor_session_v1';
+const SESSION_KEY_MONITOR_NAME = 'classboard_monitor_name_session_v1';
 
 export function hashMonitorPin(pin) {
   const cleanPin = String(pin || '').trim();
@@ -392,10 +393,31 @@ export function setSessionMonitorStatus(status) {
       sessionStorage.setItem(SESSION_KEY_IS_MONITOR, 'true');
     } else {
       sessionStorage.removeItem(SESSION_KEY_IS_MONITOR);
+      sessionStorage.removeItem(SESSION_KEY_MONITOR_NAME);
     }
   } catch (e) {
     // Ignore storage quota or security errors
   }
+}
+
+export function getSessionMonitorName() {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) return '';
+    return sessionStorage.getItem(SESSION_KEY_MONITOR_NAME) || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+export function setSessionMonitorName(name) {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) return;
+    if (name) {
+      sessionStorage.setItem(SESSION_KEY_MONITOR_NAME, String(name).trim());
+    } else {
+      sessionStorage.removeItem(SESSION_KEY_MONITOR_NAME);
+    }
+  } catch (e) {}
 }
 
 export function exportDataJSON() {
