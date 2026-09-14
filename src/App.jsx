@@ -42,6 +42,10 @@ const EASTER_EGG_VIDEOS = {
   오정민: {
     title: '👑 학급 반장 오정민 등장!',
     videoId: 'tyQvwseASgo'
+  },
+  김선중: {
+    title: '👑 서브 관리자 김선중 등장!',
+    videoId: 'vyRAc_ef0vg'
   }
 };
 
