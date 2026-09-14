@@ -20,7 +20,8 @@ import {
   getSchoolInfoForTomorrow,
   parseMealDishes,
   cleanDishName,
-  PERIOD_SCHEDULE
+  PERIOD_SCHEDULE,
+  getCurrentPeriod
 } from '../services/schoolService';
 import { calculateDDay, getLocalDateString } from '../services/storageService';
 import { addDays, format } from 'date-fns';
@@ -37,6 +38,16 @@ export default function TodayReportCard({
   const [todayData, setTodayData] = useState({ meal: [], timetable: [] });
   const [tomorrowData, setTomorrowData] = useState({ meal: [], timetable: [] });
   const [showD7Modal, setShowD7Modal] = useState(false);
+  const [currentPeriod, setCurrentPeriod] = useState(() => getCurrentPeriod());
+
+  // 30초마다 현재 진행 중인 교시 실시간 업데이트
+  useEffect(() => {
+    const updatePeriod = () => {
+      setCurrentPeriod(getCurrentPeriod());
+    };
+    const timer = setInterval(updatePeriod, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Current Target Date calculation
   const today = new Date();
@@ -428,23 +439,52 @@ export default function TodayReportCard({
                   PERIOD_SCHEDULE[String(periodNum)]?.start ||
                   '';
 
+                const isCurrentPeriod =
+                  dayTab === 'today' &&
+                  currentPeriod !== null &&
+                  Number(periodNum) === currentPeriod;
+
                 return (
                   <div
                     key={idx}
-                    className="flex-1 min-w-[48px] px-1 py-1 rounded-lg bg-slate-50 border border-indigo-100/90 text-center hover:bg-indigo-50/50 transition-colors cursor-default"
-                    title={`${periodNum}교시${timeStr ? ` (${timeStr})` : ''} : ${subjectName}`}
+                    className={`flex-1 min-w-[48px] px-1 py-1 rounded-lg text-center transition-all cursor-default relative ${
+                      isCurrentPeriod
+                        ? 'bg-white border-indigo-500 ring-2 ring-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.45)] scale-[1.05] z-10'
+                        : 'bg-slate-50 border border-indigo-100/90 hover:bg-indigo-50/50'
+                    }`}
+                    title={`${periodNum}교시${timeStr ? ` (${timeStr})` : ''} : ${subjectName}${
+                      isCurrentPeriod ? ' ★ 현재 진행 중인 수업' : ''
+                    }`}
                   >
-                    <span className="block text-[9px] font-bold text-indigo-500 leading-tight">
+                    {isCurrentPeriod && (
+                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600" />
+                      </span>
+                    )}
+                    <span
+                      className={`block text-[9px] leading-tight ${
+                        isCurrentPeriod ? 'text-indigo-600 font-black' : 'text-indigo-500 font-bold'
+                      }`}
+                    >
                       {periodNum}교시
                     </span>
                     <span
-                      className="block text-[11px] font-semibold text-slate-800 truncate"
+                      className={`block text-[11px] truncate ${
+                        isCurrentPeriod
+                          ? 'font-black text-indigo-950 underline decoration-indigo-400 decoration-2 underline-offset-2'
+                          : 'font-semibold text-slate-800'
+                      }`}
                       title={subjectName}
                     >
                       {subjectName}
                     </span>
                     {startTime && (
-                      <span className="block text-[8px] font-medium text-slate-400 font-mono tracking-tight leading-none mt-0.5">
+                      <span
+                        className={`block text-[8px] font-mono tracking-tight leading-none mt-0.5 ${
+                          isCurrentPeriod ? 'text-indigo-600 font-bold' : 'text-slate-400 font-medium'
+                        }`}
+                      >
                         {startTime}
                       </span>
                     )}

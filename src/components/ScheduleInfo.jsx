@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Utensils, Calendar, BookOpen, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
-import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName, PERIOD_SCHEDULE, SCHOOL_ROUTINE_TIMES } from '../services/schoolService';
+import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName, PERIOD_SCHEDULE, SCHOOL_ROUTINE_TIMES, getCurrentPeriod } from '../services/schoolService';
 
 export default function ScheduleInfo() {
   const weekDays = useState(() => getWeekDays())[0];
@@ -15,6 +15,16 @@ export default function ScheduleInfo() {
   const [meal, setMeal] = useState([]);
   const [timetable, setTimetable] = useState([]);
   const [error, setError] = useState(null);
+  const [currentPeriod, setCurrentPeriod] = useState(() => getCurrentPeriod());
+
+  // 30초마다 현재 진행 중인 교시 업데이트
+  useEffect(() => {
+    const updatePeriod = () => {
+      setCurrentPeriod(getCurrentPeriod());
+    };
+    const timer = setInterval(updatePeriod, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // 로컬 캐시 (요일 클릭 시 재요청 없이 즉각 부드럽게 전환)
   const cacheRef = useRef({});
@@ -269,16 +279,46 @@ export default function ScheduleInfo() {
                         <tbody className="divide-y divide-slate-100 bg-white">
                           {timetable.map((item, idx) => {
                             const timeStr = item.time || PERIOD_SCHEDULE[String(item.period)]?.time || '-';
+                            const isCurrent =
+                              Boolean(selectedDay.isToday) &&
+                              currentPeriod !== null &&
+                              Number(item.period) === currentPeriod;
+
                             return (
-                              <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
+                              <tr
+                                key={idx}
+                                className={`transition-all ${
+                                  isCurrent
+                                    ? 'bg-indigo-50/90 font-bold border-l-4 border-l-indigo-600 shadow-xs ring-1 ring-indigo-200/60'
+                                    : 'hover:bg-blue-50/40'
+                                }`}
+                              >
                                 <td className="px-3.5 py-2.5 font-bold text-blue-600 whitespace-nowrap">
-                                  {item.period}교시
+                                  <div className="flex items-center gap-1.5">
+                                    {isCurrent && (
+                                      <span className="w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
+                                    )}
+                                    <span>{item.period}교시</span>
+                                  </div>
                                 </td>
-                                <td className="px-3.5 py-2.5 font-medium text-slate-500 text-xs whitespace-nowrap font-mono tabular-nums">
+                                <td
+                                  className={`px-3.5 py-2.5 text-xs whitespace-nowrap font-mono tabular-nums ${
+                                    isCurrent ? 'font-bold text-indigo-700' : 'font-medium text-slate-500'
+                                  }`}
+                                >
                                   {timeStr}
                                 </td>
                                 <td className="px-3.5 py-2.5 font-semibold text-slate-800">
-                                  {item.subject}
+                                  <div className="flex items-center gap-2">
+                                    <span className={isCurrent ? 'font-black text-indigo-950' : ''}>
+                                      {item.subject}
+                                    </span>
+                                    {isCurrent && (
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white shadow-xs animate-pulse">
+                                        현재 수업 중
+                                      </span>
+                                    )}
+                                  </div>
                                 </td>
                               </tr>
                             );

@@ -145,6 +145,33 @@ export const SCHOOL_ROUTINE_TIMES = [
   { name: '종례', time: '16:35 ~ 16:40', note: '5분' }
 ];
 
+/**
+ * 현재 시각(Date)을 기준으로 현재 진행 중인 교시 번호(1~7) 반환
+ * 수업 중이 아니면 null 반환
+ */
+export function getCurrentPeriod(now = new Date()) {
+  const day = now.getDay();
+  // 주말(0: 일, 6: 토) 제외
+  if (day === 0 || day === 6) return null;
+
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const currentMin = hours * 60 + minutes;
+
+  for (const [p, sched] of Object.entries(PERIOD_SCHEDULE)) {
+    const [sH, sM] = sched.start.split(':').map(Number);
+    const [eH, eM] = sched.end.split(':').map(Number);
+    const startMin = sH * 60 + sM;
+    const endMin = eH * 60 + eM;
+
+    if (currentMin >= startMin && currentMin <= endMin) {
+      return Number(p);
+    }
+  }
+
+  return null;
+}
+
 // Helper to fetch timetable for a specific date.
 async function fetchTimetable(ymd) {
   try {
