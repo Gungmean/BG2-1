@@ -43,10 +43,10 @@ const NoticeCard = forwardRef(function NoticeCard({
     <div
       ref={ref}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white dark:bg-slate-900 rounded-2xl border cursor-pointer overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-[border-color,box-shadow,transform,background-color] duration-150 flex flex-row items-stretch h-28 max-h-28 ${
+      className={`group relative bg-white dark:bg-slate-850 rounded-2xl border cursor-pointer overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-[border-color,box-shadow,transform,background-color] duration-150 flex flex-row items-stretch h-28 max-h-28 ${
         notice.pinned
-          ? 'border-blue-400 dark:border-blue-500 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 dark:from-blue-950/30 to-white dark:to-slate-900'
-          : 'border-slate-200/90 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600'
+          ? 'border-blue-400 dark:border-blue-500/70 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 dark:from-blue-950/30 to-white dark:to-slate-850'
+          : 'border-slate-200/90 dark:border-slate-750 hover:border-blue-300 dark:hover:border-blue-500/60'
       }`}
     >
       {/* 1. LEFT THUMBNAIL AREA (Strictly aspect-square 112px x 112px) */}

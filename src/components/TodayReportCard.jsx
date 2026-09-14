@@ -145,7 +145,7 @@ function TodayReportCard({
     return (
       <div
         onClick={onToggleCollapse}
-        className="mb-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border border-blue-200/80 dark:border-slate-800 p-3 sm:px-4 flex items-center justify-between gap-3 shadow-xs hover:border-blue-300 dark:hover:border-slate-700 hover:shadow-sm cursor-pointer transition-all group"
+        className="mb-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white dark:from-slate-850 dark:via-slate-850 dark:to-slate-850 border border-blue-200/80 dark:border-slate-750 p-3 sm:px-4 flex items-center justify-between gap-3 shadow-xs hover:border-blue-300 dark:hover:border-slate-700 hover:shadow-sm cursor-pointer transition-all group"
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <span className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
@@ -157,17 +157,17 @@ function TodayReportCard({
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
             {todaySummaryDish && (
-              <span className="text-slate-600 truncate font-medium max-w-[130px] sm:max-w-[200px]">
+              <span className="text-slate-600 dark:text-slate-300 truncate font-medium max-w-[130px] sm:max-w-[200px]">
                 🍱 {todaySummaryDish}
               </span>
             )}
             {todayFirstSubj && (
-              <span className="text-slate-600 truncate font-medium hidden md:inline">
+              <span className="text-slate-600 dark:text-slate-300 truncate font-medium hidden md:inline">
                 📚 1교시: {todayFirstSubj}
               </span>
             )}
             {targetDateDueNotices.length > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold text-[10px] shrink-0">
+              <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 font-extrabold text-[10px] shrink-0">
                 {`D-DAY 수행평가 (${targetDateDueNotices.length}개)`}
               </span>
             )}
@@ -180,7 +180,7 @@ function TodayReportCard({
             e.stopPropagation();
             onToggleCollapse?.();
           }}
-          className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
+          className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
         >
           <span>리포트 펼치기</span>
           <ChevronDown className="w-3.5 h-3.5" />
@@ -191,13 +191,13 @@ function TodayReportCard({
 
   // 2. EXPANDED FULL VIEW
   return (
-    <div className="mb-5 rounded-3xl bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/50 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-850 border border-blue-100 dark:border-slate-800 shadow-sm p-4 sm:p-6 relative overflow-hidden space-y-4 transition-colors">
+    <div className="mb-5 rounded-3xl bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/50 dark:from-slate-850 dark:via-slate-850/95 dark:to-slate-850 border border-blue-100 dark:border-slate-750 shadow-sm p-4 sm:p-6 relative overflow-hidden space-y-4 transition-colors">
       {/* Background soft glow decoration */}
       <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-blue-200/25 dark:bg-blue-600/10 blur-3xl pointer-events-none" />
       <div className="absolute right-24 -bottom-8 w-36 h-36 rounded-full bg-indigo-200/20 dark:bg-indigo-600/10 blur-2xl pointer-events-none" />
 
       {/* HEADER: Title, Today/Tomorrow Tabs & Collapse Button */}
-      <div className="flex flex-wrap items-center justify-between gap-3 relative z-10 border-b border-slate-100 dark:border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 relative z-10 border-b border-slate-100 dark:border-slate-750 pb-3">
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
@@ -216,13 +216,13 @@ function TodayReportCard({
           </div>
 
           {/* Today / Tomorrow Toggle Pill */}
-          <div className="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 text-xs font-bold shrink-0 ml-1">
+          <div className="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-750 border border-slate-300/60 dark:border-slate-700 text-xs font-bold shrink-0 ml-1">
             <button
               type="button"
               onClick={() => setDayTab('today')}
               className={`px-3 py-1 rounded-lg transition-all ${
                 dayTab === 'today'
-                  ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs font-black'
+                  ? 'bg-white dark:bg-slate-850 text-blue-700 dark:text-blue-300 shadow-xs font-black'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-bold'
               }`}
             >
@@ -233,7 +233,7 @@ function TodayReportCard({
               onClick={() => setDayTab('tomorrow')}
               className={`px-3 py-1 rounded-lg transition-all ${
                 dayTab === 'tomorrow'
-                  ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs font-black'
+                  ? 'bg-white dark:bg-slate-850 text-blue-700 dark:text-blue-300 shadow-xs font-black'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-bold'
               }`}
             >
@@ -247,7 +247,7 @@ function TodayReportCard({
           <button
             type="button"
             onClick={() => onNavigate?.('calendar', 'monthCalendar')}
-            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-750 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
           >
             <span>달력</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -255,7 +255,7 @@ function TodayReportCard({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-750 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
             title="리포트 접기"
           >
             <span>접기</span>
@@ -265,7 +265,7 @@ function TodayReportCard({
       </div>
 
       {/* D-7 UPCOMING NOTICES WIDGET (ONLY D-1 to D-7, NO DUPLICATE OF TODAY) */}
-      <div className="relative z-10 bg-white/85 dark:bg-slate-850/90 backdrop-blur-xs rounded-2xl border border-blue-100 dark:border-slate-800 p-3 flex flex-wrap items-center justify-between gap-2.5">
+      <div className="relative z-10 bg-white/85 dark:bg-slate-800/80 backdrop-blur-xs rounded-2xl border border-blue-100 dark:border-slate-700/60 p-3 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black text-xs">
             <Clock className="w-3.5 h-3.5" />
@@ -283,7 +283,7 @@ function TodayReportCard({
                   key={notice.id}
                   type="button"
                   onClick={() => setShowD7Modal(true)}
-                  className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-rose-50 border border-slate-200/80 hover:border-rose-300 text-xs flex items-center gap-1.5 transition-all text-left"
+                  className="px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-750 hover:bg-rose-50 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700 text-xs flex items-center gap-1.5 transition-all text-left"
                 >
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-black ${
@@ -294,7 +294,7 @@ function TodayReportCard({
                   >
                     {`D-${dday.days}`}
                   </span>
-                  <span className="font-semibold text-slate-700 truncate max-w-[85px] sm:max-w-[110px]">
+                  <span className="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[85px] sm:max-w-[110px]">
                     {notice.title.length > 7 ? `${notice.title.slice(0, 7)}…` : notice.title}
                   </span>
                 </button>
@@ -304,7 +304,7 @@ function TodayReportCard({
             <button
               type="button"
               onClick={() => setShowD7Modal(true)}
-              className="px-2 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-bold text-xs flex items-center gap-0.5 shrink-0 transition-colors shadow-2xs"
+              className="px-2 py-1 rounded-lg bg-white dark:bg-slate-750 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs flex items-center gap-0.5 shrink-0 transition-colors shadow-2xs"
             >
               <span>전체 ({upcomingD7Notices.length})</span>
               <ChevronRight className="w-3 h-3" />
@@ -320,14 +320,14 @@ function TodayReportCard({
 
       {/* ALL DUE NOTICES FOR TODAY / TOMORROW (SLIM & FOCUSED ON TITLES) */}
       {targetDateDueNotices.length > 0 && (
-        <div className="relative z-10 bg-rose-50/85 backdrop-blur-xs rounded-2xl border border-rose-200/90 p-2.5 sm:px-3.5 flex flex-wrap items-center justify-between gap-2">
+        <div className="relative z-10 bg-rose-50/85 dark:bg-rose-950/40 backdrop-blur-xs rounded-2xl border border-rose-200/90 dark:border-rose-900/60 p-2.5 sm:px-3.5 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <div className="w-6 h-6 rounded-lg bg-rose-500 text-white flex items-center justify-center font-black text-xs shadow-2xs">
               <AlertTriangle className="w-3.5 h-3.5" />
             </div>
-            <span className="text-xs font-extrabold text-rose-950">
+            <span className="text-xs font-extrabold text-rose-950 dark:text-rose-200">
               {dayTab === 'today' ? '오늘 마감' : '내일 마감'}
-              <span className="text-rose-600 text-[11px] font-bold ml-1">
+              <span className="text-rose-600 dark:text-rose-400 text-[11px] font-bold ml-1">
                 ({targetDateDueNotices.length})
               </span>
             </span>
@@ -355,7 +355,7 @@ function TodayReportCard({
         {/* CARD A: 점심 급식 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
-          className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-amber-300 dark:hover:border-amber-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
+          className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 shadow-xs hover:border-amber-300 dark:hover:border-amber-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -382,13 +382,13 @@ function TodayReportCard({
               {mealDishes.slice(0, 5).map((dish, i) => (
                 <span
                   key={i}
-                  className="px-2 py-0.8 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 text-slate-800 dark:text-slate-200 font-medium text-[11px]"
+                  className="px-2 py-0.8 rounded-lg bg-amber-50/80 dark:bg-slate-900/90 border border-amber-200/70 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-medium text-[11px]"
                 >
                   {cleanDishName(dish)}
                 </span>
               ))}
               {mealDishes.length > 5 && (
-                <span className="px-1.5 py-0.8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-[10px]">
+                <span className="px-1.5 py-0.8 rounded-lg bg-slate-100 dark:bg-slate-750 text-slate-500 dark:text-slate-300 font-bold text-[10px]">
                   +{mealDishes.length - 5}
                 </span>
               )}
@@ -403,7 +403,7 @@ function TodayReportCard({
         {/* CARD B: 수업 시간표 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
-          className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
+          className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/60 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -455,8 +455,8 @@ function TodayReportCard({
                     key={idx}
                     className={`flex-1 min-w-[48px] px-1 py-1 rounded-lg text-center transition-all cursor-default relative ${
                       isCurrentPeriod
-                        ? 'bg-white dark:bg-slate-750 border-indigo-500 dark:border-indigo-400 ring-2 ring-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.45)] scale-[1.05] z-10'
-                        : 'bg-slate-50 dark:bg-slate-800/80 border border-indigo-100/90 dark:border-slate-700 hover:bg-indigo-50/50 dark:hover:bg-slate-750'
+                        ? 'bg-white dark:bg-indigo-950/70 border-indigo-500 dark:border-indigo-400 ring-2 ring-indigo-400/50 shadow-[0_0_14px_rgba(99,102,241,0.45)] scale-[1.05] z-10'
+                        : 'bg-slate-50 dark:bg-slate-900/90 border border-indigo-100/90 dark:border-slate-700/80 hover:bg-indigo-50/50 dark:hover:bg-slate-800'
                     }`}
                     title={`${periodNum}교시${timeStr ? ` (${timeStr})` : ''} : ${subjectName}${
                       isCurrentPeriod ? ' ★ 현재 진행 중인 수업' : ''
@@ -478,29 +478,22 @@ function TodayReportCard({
                     <span
                       className={`block text-[11px] truncate ${
                         isCurrentPeriod
-                          ? 'font-black text-indigo-950 dark:text-indigo-100 underline decoration-indigo-400 decoration-2 underline-offset-2'
-                          : 'font-semibold text-slate-800 dark:text-slate-200'
+                          ? 'font-black text-indigo-900 dark:text-white'
+                          : 'font-extrabold text-slate-800 dark:text-slate-200'
                       }`}
-                      title={subjectName}
                     >
-                      {subjectName}
+                      {subjectName || '수업'}
                     </span>
-                    {startTime && (
-                      <span
-                        className={`block text-[8px] font-mono tracking-tight leading-none mt-0.5 ${
-                          isCurrentPeriod ? 'text-indigo-600 dark:text-indigo-300 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'
-                        }`}
-                      >
-                        {startTime}
-                      </span>
-                    )}
+                    <span className="block text-[9px] text-slate-400 dark:text-slate-400 font-mono mt-0.5">
+                      {startTime}
+                    </span>
                   </div>
                 );
               })}
             </div>
           ) : (
             <div className="py-2 text-center text-slate-400 dark:text-slate-500 text-xs font-medium">
-              {loading ? '시간표 정보를 불러오는 중...' : '등록된 시간표 정보가 없습니다.'}
+              {loading ? '시간표를 불러오는 중...' : '등록된 시간표 정보가 없습니다.'}
             </div>
           )}
         </div>
