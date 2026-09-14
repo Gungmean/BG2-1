@@ -99,7 +99,7 @@ function TodayReportCard({
   // 1. Target Date Due Notices (All '수행평가' due on the selected day)
   const targetDateDueNotices = useMemo(() => {
     return notices
-      .filter((n) => n.category === '수행평가')
+      .filter((n) => n.category === '수행평가' && n.dateType !== 'none' && Boolean(n.date || n.startDate || n.endDate))
       .map((n) => ({ notice: n, dday: calculateDDay(n) }))
       .filter(({ notice, dday }) => {
         if (dday.isExpired) return false;
@@ -120,7 +120,13 @@ function TodayReportCard({
   const upcomingD7Notices = useMemo(() => {
     const dueIds = new Set(targetDateDueNotices.map((item) => item.notice.id));
     return notices
-      .filter((n) => n.category === '수행평가' && !dueIds.has(n.id))
+      .filter(
+        (n) =>
+          n.category === '수행평가' &&
+          n.dateType !== 'none' &&
+          Boolean(n.date || n.startDate || n.endDate) &&
+          !dueIds.has(n.id)
+      )
       .map((n) => ({ notice: n, dday: calculateDDay(n) }))
       .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
       .sort((a, b) => a.dday.days - b.dday.days);

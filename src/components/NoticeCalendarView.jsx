@@ -113,9 +113,12 @@ export default function NoticeCalendarView({
     setSelectedDateStr(formatDateStr(today));
   };
 
-  // Combine official school schedules and classroom notices
+  // Combine official school schedules and classroom notices (strictly excluding notices without dates)
   const allCalendarNotices = useMemo(() => {
-    return [...(schoolSchedules.events || []), ...notices];
+    const validNotices = notices.filter(
+      (n) => n.dateType !== 'none' && Boolean(n.date || n.startDate || n.endDate)
+    );
+    return [...(schoolSchedules.events || []), ...validNotices];
   }, [schoolSchedules.events, notices]);
 
   // Group notices by YYYY-MM-DD

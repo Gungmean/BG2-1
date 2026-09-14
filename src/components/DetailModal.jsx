@@ -15,7 +15,9 @@ export default function DetailModal({
 
   const dday = calculateDDay(notice);
   const displayDateText =
-    notice.dateType === 'range' && notice.startDate && notice.endDate
+    notice.dateType === 'none' || (!notice.date && !notice.startDate && !notice.endDate)
+      ? '기한 없음 (상시)'
+      : notice.dateType === 'range' && notice.startDate && notice.endDate
       ? `${notice.startDate} ~ ${notice.endDate}`
       : notice.date || notice.startDate || '기한 없음';
 
@@ -52,6 +54,10 @@ export default function DetailModal({
             ) : dday.text === '오늘 종료' || dday.days === 0 ? (
               <span className="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-rose-600 text-white animate-pulse shadow-xs">
                 {dday.text}
+              </span>
+            ) : dday.text === '기한 없음' ? (
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-200 text-slate-700">
+                상시
               </span>
             ) : dday.days <= 3 ? (
               <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-500 text-white shadow-xs">

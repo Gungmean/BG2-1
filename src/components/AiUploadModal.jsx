@@ -23,10 +23,18 @@ export default function AiUploadModal({
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
 
   // Form Data State
+  const getInitialDateType = (data) => {
+    if (!data) return 'single';
+    if (data.dateType) return data.dateType;
+    if (data.startDate && data.endDate && data.startDate !== data.endDate) return 'range';
+    if (!data.date && !data.startDate && !data.endDate) return 'none';
+    return 'single';
+  };
+
   const [formData, setFormData] = useState({
     title: editNoticeData?.title || '',
     content: editNoticeData?.content || '',
-    dateType: editNoticeData?.dateType || (editNoticeData?.startDate && editNoticeData?.endDate && editNoticeData.startDate !== editNoticeData.endDate ? 'range' : 'single'),
+    dateType: getInitialDateType(editNoticeData),
     date: editNoticeData?.date || getTodayDate(),
     startDate: editNoticeData?.startDate || editNoticeData?.date || getTodayDate(),
     endDate: editNoticeData?.endDate || editNoticeData?.date || getTodayDate(),
@@ -40,7 +48,7 @@ export default function AiUploadModal({
       setFormData({
         title: editNoticeData?.title || '',
         content: editNoticeData?.content || '',
-        dateType: editNoticeData?.dateType || (editNoticeData?.startDate && editNoticeData?.endDate && editNoticeData.startDate !== editNoticeData.endDate ? 'range' : 'single'),
+        dateType: getInitialDateType(editNoticeData),
         date: editNoticeData?.date || getTodayDate(),
         startDate: editNoticeData?.startDate || editNoticeData?.date || getTodayDate(),
         endDate: editNoticeData?.endDate || editNoticeData?.date || getTodayDate(),
@@ -145,7 +153,11 @@ export default function AiUploadModal({
     }
 
     let finalFormData = { ...formData };
-    if (finalFormData.dateType === 'range') {
+    if (finalFormData.dateType === 'none') {
+      finalFormData.date = '';
+      finalFormData.startDate = '';
+      finalFormData.endDate = '';
+    } else if (finalFormData.dateType === 'range') {
       let s = finalFormData.startDate || getTodayDate();
       let eDate = finalFormData.endDate || s;
       if (s > eDate) {
@@ -156,6 +168,10 @@ export default function AiUploadModal({
       finalFormData.startDate = s;
       finalFormData.endDate = eDate;
       finalFormData.date = eDate; // deadline is endDate
+    } else {
+      // single
+      finalFormData.startDate = finalFormData.date || getTodayDate();
+      finalFormData.endDate = finalFormData.date || getTodayDate();
     }
 
     onSaveNotice({
@@ -417,40 +433,60 @@ export default function AiUploadModal({
                     </select>
                   </div>
 
-                  {/* Date Type Selector (하루 vs 기간) */}
+                  {/* Date Type Selector (하루 vs 기간 vs 기한 없음) */}
                   <div className="space-y-1">
                     <label className="block text-xs font-bold text-slate-700">
                       일정 지정 방식
                     </label>
-                    <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
+                    <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-bold">
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, dateType: 'single' })}
-                        className={`flex-1 py-1.5 rounded-lg transition-all ${
+                        className={`flex-1 py-1.5 rounded-lg transition-colors duration-75 ${
                           formData.dateType === 'single'
                             ? 'bg-white text-slate-900 shadow-sm'
                             : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        📌 하루 (단일일자)
+                        📌 하루
                       </button>
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, dateType: 'range' })}
-                        className={`flex-1 py-1.5 rounded-lg transition-all ${
+                        className={`flex-1 py-1.5 rounded-lg transition-colors duration-75 ${
                           formData.dateType === 'range'
                             ? 'bg-white text-slate-900 shadow-sm'
                             : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        📅 기간 지정
+                        📅 기간
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, dateType: 'none' })}
+                        className={`flex-1 py-1.5 rounded-lg transition-colors duration-75 ${
+                          formData.dateType === 'none'
+                            ? 'bg-white text-blue-700 shadow-sm font-black'
+                            : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                      >
+                        🚫 기한 없음
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Date Inputs based on dateType */}
-                {formData.dateType === 'single' ? (
+                {formData.dateType === 'none' ? (
+                  <div className="p-3.5 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center space-y-1">
+                    <p className="text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5">
+                      <span>🚫 마감 기한이 없는 상시 공지입니다</span>
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      학급 달력 및 오늘 하루 리포트에는 표시되지 않으며, 기한 정렬 시 가장 아래에 배치됩니다.
+                    </p>
+                  </div>
+                ) : formData.dateType === 'single' ? (
                   <div className="space-y-1">
                     <label className="block text-xs font-bold text-slate-700">
                       마감일 / 일시 지정

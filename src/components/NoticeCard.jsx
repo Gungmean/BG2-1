@@ -22,7 +22,9 @@ const NoticeCard = forwardRef(function NoticeCard({
   const catStyle = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES.기타;
 
   const displayDateText =
-    notice.dateType === 'range' && notice.startDate && notice.endDate
+    notice.dateType === 'none' || (!notice.date && !notice.startDate && !notice.endDate)
+      ? '기한 없음 (상시)'
+      : notice.dateType === 'range' && notice.startDate && notice.endDate
       ? `${notice.startDate} ~ ${notice.endDate}`
       : notice.date || notice.startDate || '기한 없음';
 
@@ -102,6 +104,10 @@ const NoticeCard = forwardRef(function NoticeCard({
             ) : dday.days === 0 ? (
               <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-rose-600 text-white shadow-xs shrink-0 animate-pulse">
                 D-DAY
+              </span>
+            ) : dday.text === '기한 없음' ? (
+              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                상시
               </span>
             ) : dday.days <= 3 ? (
               <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-xs shrink-0">

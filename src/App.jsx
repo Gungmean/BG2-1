@@ -242,8 +242,18 @@ export default function App() {
 
         // Sort rules
         if (sortBy === 'deadline') {
-          const dateA = new Date(a.date || a.endDate || a.startDate || '2099-12-31').getTime();
-          const dateB = new Date(b.date || b.endDate || b.startDate || '2099-12-31').getTime();
+          const hasDateA = a.dateType !== 'none' && Boolean(a.date || a.endDate || a.startDate);
+          const hasDateB = b.dateType !== 'none' && Boolean(b.date || b.endDate || b.startDate);
+
+          // 기간 미지정(기한 없음) 게시물은 마감순 정렬 시 가장 아래로 배치
+          if (hasDateA && !hasDateB) return -1;
+          if (!hasDateA && hasDateB) return 1;
+          if (!hasDateA && !hasDateB) {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          }
+
+          const dateA = new Date(a.date || a.endDate || a.startDate).getTime();
+          const dateB = new Date(b.date || b.endDate || b.startDate).getTime();
           return dateA - dateB;
         } else if (sortBy === 'oldest') {
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();

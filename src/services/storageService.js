@@ -195,6 +195,11 @@ export function calculateDDay(dateOrNotice) {
   if (typeof dateOrNotice === 'object' && dateOrNotice !== null) {
     const { dateType, date, startDate, endDate } = dateOrNotice;
 
+    // 기한 없음 (상시 공지)
+    if (dateType === 'none') {
+      return { text: '기한 없음', isExpired: false, isOngoing: true, days: 999999, hasDate: false };
+    }
+
     if (dateType === 'range' && startDate && endDate) {
       const sDate = new Date(startDate);
       sDate.setHours(0, 0, 0, 0);
@@ -203,19 +208,19 @@ export function calculateDDay(dateOrNotice) {
 
       if (today < sDate) {
         const diffDays = Math.ceil((sDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        return { text: `시작 D-${diffDays}`, isExpired: false, isOngoing: false, days: diffDays };
+        return { text: `시작 D-${diffDays}`, isExpired: false, isOngoing: false, days: diffDays, hasDate: true };
       } else if (today >= sDate && today <= eDate) {
         const diffToEnd = Math.ceil((eDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         if (diffToEnd === 0) {
-          return { text: '오늘 종료', isExpired: false, isOngoing: true, days: 0 };
+          return { text: '오늘 종료', isExpired: false, isOngoing: true, days: 0, hasDate: true };
         } else if (diffToEnd <= 3) {
-          return { text: `종료 D-${diffToEnd}`, isExpired: false, isOngoing: true, days: diffToEnd };
+          return { text: `종료 D-${diffToEnd}`, isExpired: false, isOngoing: true, days: diffToEnd, hasDate: true };
         } else {
-          return { text: '진행 중', isExpired: false, isOngoing: true, days: diffToEnd };
+          return { text: '진행 중', isExpired: false, isOngoing: true, days: diffToEnd, hasDate: true };
         }
       } else {
         const diffDays = Math.ceil((today.getTime() - eDate.getTime()) / (1000 * 60 * 60 * 24));
-        return { text: `마감 (${diffDays}일 경과)`, isExpired: true, isOngoing: false, days: -diffDays };
+        return { text: `마감 (${diffDays}일 경과)`, isExpired: true, isOngoing: false, days: -diffDays, hasDate: true };
       }
     }
 
@@ -225,7 +230,7 @@ export function calculateDDay(dateOrNotice) {
     dateStr = dateOrNotice;
   }
 
-  if (!dateStr) return { text: '기한 없음', isExpired: false, days: 999 };
+  if (!dateStr) return { text: '기한 없음', isExpired: false, isOngoing: true, days: 999999, hasDate: false };
 
   const targetDate = new Date(dateStr);
   targetDate.setHours(0, 0, 0, 0);
