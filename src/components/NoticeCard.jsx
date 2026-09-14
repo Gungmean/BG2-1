@@ -1,5 +1,4 @@
 import React, { forwardRef } from 'react';
-import { motion } from 'motion/react';
 import { Calendar, Pin, Trash2, Edit3, Clock } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
@@ -39,21 +38,10 @@ const NoticeCard = forwardRef(function NoticeCard({
   };
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      layout="position"
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.99 }}
-      transition={{
-        layout: { type: 'spring', stiffness: 280, damping: 28 },
-        opacity: { duration: 0.15 },
-        scale: { duration: 0.15 }
-      }}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-row items-stretch h-28 max-h-28 ${
+      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-all duration-150 flex flex-row items-stretch h-28 max-h-28 ${
         notice.pinned
           ? 'border-blue-400 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 to-white'
           : 'border-slate-200/90 hover:border-blue-300'
@@ -183,7 +171,7 @@ const NoticeCard = forwardRef(function NoticeCard({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });
 

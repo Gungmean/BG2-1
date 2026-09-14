@@ -240,27 +240,25 @@ export default function App() {
               counts={counts}
             />
 
-            {/* Notice Cards Grid with motion layout */}
+            {/* Notice Cards Grid (Stable CSS Grid) */}
             {filteredNotices.length > 0 ? (
-              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <AnimatePresence>
-                  {filteredNotices.map((notice) => (
-                    <NoticeCard
-                      key={notice.id}
-                      notice={notice}
-                      isMonitor={isMonitor}
-                      onSelect={(n) => setSelectedNotice(n)}
-                      onEdit={(n) => {
-                        setEditingNotice(n);
-                        setIsAiModalOpen(true);
-                      }}
-                      onDelete={handleDeleteNotice}
-                      onTogglePin={handleTogglePin}
-                      onOpenPinModal={() => setIsPinModalOpen(true)}
-                    />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {filteredNotices.map((notice) => (
+                  <NoticeCard
+                    key={notice.id}
+                    notice={notice}
+                    isMonitor={isMonitor}
+                    onSelect={(n) => setSelectedNotice(n)}
+                    onEdit={(n) => {
+                      setEditingNotice(n);
+                      setIsAiModalOpen(true);
+                    }}
+                    onDelete={handleDeleteNotice}
+                    onTogglePin={handleTogglePin}
+                    onOpenPinModal={() => setIsPinModalOpen(true)}
+                  />
+                ))}
+              </div>
             ) : (
               /* Empty state */
               <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 p-8 space-y-3">
