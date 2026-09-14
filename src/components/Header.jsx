@@ -21,7 +21,7 @@ import { getUpcomingExamDDay } from '../services/schoolService';
 const INCHEON_LAT = 37.507;
 const INCHEON_LON = 126.722;
 
-export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRefresh }) {
+export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRefresh, onGoHome }) {
   const [time, setTime] = useState(new Date());
   const [weather, setWeather] = useState({
     temp: 23,
@@ -135,8 +135,8 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div 
             className="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none group"
-            onDoubleClick={onOpenPinModal}
-            title="부광이일"
+            onClick={onGoHome}
+            title="부광이일 메인 화면으로 이동"
           >
             <img
               src="/symbol.png"

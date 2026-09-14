@@ -126,6 +126,19 @@ export default function App() {
     setIsPinModalOpen(true);
   }, []);
 
+  const handleOpenSettings = useCallback(() => {
+    setIsSettingsOpen(true);
+  }, []);
+
+  const handleGoHome = useCallback(() => {
+    setActiveBottomNav('board');
+    setSelectedCategory('all');
+    setSearchQuery('');
+    setStatusTab('ongoing');
+    setIsReportCollapsed(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   const handleToggleReportCollapse = useCallback(() => {
     setIsReportCollapsed((prev) => !prev);
   }, []);
@@ -225,9 +238,10 @@ export default function App() {
       {/* Header Bar */}
       <Header
         isMonitor={isMonitor}
-        onOpenPinModal={() => setIsPinModalOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenPinModal={handleOpenPinModal}
+        onOpenSettings={handleOpenSettings}
         onRefresh={refreshNotices}
+        onGoHome={handleGoHome}
       />
 
       {/* Main Content Area */}
