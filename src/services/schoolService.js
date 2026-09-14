@@ -126,6 +126,25 @@ export async function fetchMonthlyMeals(year, month) {
   return mealMap;
 }
 
+/**
+ * 부광고등학교 일반 일과시정표 (월~금)
+ */
+export const PERIOD_SCHEDULE = {
+  '1': { time: '08:50 ~ 09:40', start: '08:50', end: '09:40' },
+  '2': { time: '09:50 ~ 10:40', start: '09:50', end: '10:40' },
+  '3': { time: '10:50 ~ 11:40', start: '10:50', end: '11:40' },
+  '4': { time: '11:50 ~ 12:40', start: '11:50', end: '12:40' },
+  '5': { time: '13:40 ~ 14:30', start: '13:40', end: '14:30' },
+  '6': { time: '14:40 ~ 15:30', start: '14:40', end: '15:30' },
+  '7': { time: '15:45 ~ 16:35', start: '15:45', end: '16:35' }
+};
+
+export const SCHOOL_ROUTINE_TIMES = [
+  { name: '점심시간', time: '12:40 ~ 13:40', note: '60분' },
+  { name: '청소시간', time: '15:30 ~ 15:45', note: '15분' },
+  { name: '종례', time: '16:35 ~ 16:40', note: '5분' }
+];
+
 // Helper to fetch timetable for a specific date.
 async function fetchTimetable(ymd) {
   try {
@@ -133,10 +152,17 @@ async function fetchTimetable(ymd) {
     const resp = await fetch(url);
     const data = await resp.json();
     const rows = data.hisTimetable?.[1]?.row ?? [];
-    return rows.map((r) => ({
-      period: r.PERIO,
-      subject: r.ITRT_CNTNT
-    }));
+    return rows.map((r) => {
+      const p = String(r.PERIO).trim();
+      const sched = PERIOD_SCHEDULE[p];
+      return {
+        period: r.PERIO,
+        subject: r.ITRT_CNTNT,
+        time: sched ? sched.time : '',
+        startTime: sched ? sched.start : '',
+        endTime: sched ? sched.end : ''
+      };
+    });
   } catch (e) {
     console.error('Fetch timetable error:', e);
     return [];

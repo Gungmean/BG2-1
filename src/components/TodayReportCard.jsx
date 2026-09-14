@@ -19,7 +19,8 @@ import {
   getSchoolInfoForToday,
   getSchoolInfoForTomorrow,
   parseMealDishes,
-  cleanDishName
+  cleanDishName,
+  PERIOD_SCHEDULE
 } from '../services/schoolService';
 import { calculateDDay, getLocalDateString } from '../services/storageService';
 import { addDays, format } from 'date-fns';
@@ -418,12 +419,22 @@ export default function TodayReportCard({
                   typeof item === 'object' && item !== null && item.period
                     ? item.period
                     : idx + 1;
+                const timeStr =
+                  (typeof item === 'object' && item !== null && item.time) ||
+                  PERIOD_SCHEDULE[String(periodNum)]?.time ||
+                  '';
+                const startTime =
+                  (typeof item === 'object' && item !== null && item.startTime) ||
+                  PERIOD_SCHEDULE[String(periodNum)]?.start ||
+                  '';
+
                 return (
                   <div
                     key={idx}
-                    className="flex-1 min-w-[46px] px-1 py-1 rounded-lg bg-slate-50 border border-indigo-100/90 text-center hover:bg-indigo-50/50 transition-colors"
+                    className="flex-1 min-w-[48px] px-1 py-1 rounded-lg bg-slate-50 border border-indigo-100/90 text-center hover:bg-indigo-50/50 transition-colors cursor-default"
+                    title={`${periodNum}교시${timeStr ? ` (${timeStr})` : ''} : ${subjectName}`}
                   >
-                    <span className="block text-[9px] font-bold text-indigo-500">
+                    <span className="block text-[9px] font-bold text-indigo-500 leading-tight">
                       {periodNum}교시
                     </span>
                     <span
@@ -432,6 +443,11 @@ export default function TodayReportCard({
                     >
                       {subjectName}
                     </span>
+                    {startTime && (
+                      <span className="block text-[8px] font-medium text-slate-400 font-mono tracking-tight leading-none mt-0.5">
+                        {startTime}
+                      </span>
+                    )}
                   </div>
                 );
               })}

@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Utensils, Calendar, BookOpen, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
-import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName } from '../services/schoolService';
+import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName, PERIOD_SCHEDULE, SCHOOL_ROUTINE_TIMES } from '../services/schoolService';
 
 export default function ScheduleInfo() {
   const weekDays = useState(() => getWeekDays())[0];
@@ -256,27 +256,52 @@ export default function ScheduleInfo() {
                 </div>
 
                 {timetable && timetable.length > 0 ? (
-                  <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-                    <table className="w-full text-xs sm:text-sm text-left">
-                      <thead className="bg-slate-50 text-slate-600 text-xs font-semibold">
-                        <tr>
-                          <th className="px-4 py-2.5">교시</th>
-                          <th className="px-4 py-2.5">수업 과목</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 bg-white">
-                        {timetable.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
-                            <td className="px-4 py-2.5 font-bold text-blue-600">
-                              {item.period}교시
-                            </td>
-                            <td className="px-4 py-2.5 font-semibold text-slate-800">
-                              {item.subject}
-                            </td>
+                  <div className="space-y-3">
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                      <table className="w-full text-xs sm:text-sm text-left">
+                        <thead className="bg-slate-50 text-slate-600 text-xs font-semibold">
+                          <tr>
+                            <th className="px-3.5 py-2.5">교시</th>
+                            <th className="px-3.5 py-2.5">수업 시간</th>
+                            <th className="px-3.5 py-2.5">수업 과목</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 bg-white">
+                          {timetable.map((item, idx) => {
+                            const timeStr = item.time || PERIOD_SCHEDULE[String(item.period)]?.time || '-';
+                            return (
+                              <tr key={idx} className="hover:bg-blue-50/40 transition-colors">
+                                <td className="px-3.5 py-2.5 font-bold text-blue-600 whitespace-nowrap">
+                                  {item.period}교시
+                                </td>
+                                <td className="px-3.5 py-2.5 font-medium text-slate-500 text-xs whitespace-nowrap font-mono tabular-nums">
+                                  {timeStr}
+                                </td>
+                                <td className="px-3.5 py-2.5 font-semibold text-slate-800">
+                                  {item.subject}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* 부광고 주요 일과 시정표 안내 */}
+                    <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold">🍱 점심시간</span>
+                        <span className="font-bold text-slate-700 font-mono text-[11px]">12:40 ~ 13:40</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold">🧹 청소시간</span>
+                        <span className="font-bold text-slate-700 font-mono text-[11px]">15:30 ~ 15:45</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[10px] font-semibold">🔔 종례</span>
+                        <span className="font-bold text-slate-700 font-mono text-[11px]">16:35 ~ 16:40</span>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="py-8 text-center text-slate-400 text-xs font-medium bg-slate-50 rounded-2xl">
