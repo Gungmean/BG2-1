@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Key, Download, Upload, RefreshCw, CheckCircle2, Sparkles, Database, RotateCcw } from 'lucide-react';
+import { X, Key, Download, Upload, RefreshCw, CheckCircle2, Sparkles, Database, RotateCcw, Smartphone } from 'lucide-react';
 import { getLocalDateString, getStoredApiKey, setStoredApiKey, exportDataJSON, importDataJSON, resetNoticesToDefault } from '../services/storageService';
 import { isSupabaseEnabled } from '../services/syncService';
 
@@ -7,12 +7,46 @@ export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
   const [apiKey, setApiKey] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
   const [importStatus, setImportStatus] = useState('');
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setApiKey(getStoredApiKey());
     }
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      setIsInstalled(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, [isOpen]);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      alert(
+        '💡 [부광이일] 앱 설치 안내:\n\n' +
+        '• 아이폰(Safari): 하단 [공유(네모+화살표)] 버튼 클릭 후 [홈 화면에 추가]를 눌러주세요.\n' +
+        '• 안드로이드(Chrome): 우측 상단 메뉴(점 3개) 클릭 후 [앱 설치] 또는 [홈 화면에 추가]를 눌러주세요.'
+      );
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -174,6 +208,35 @@ export default function SettingsModal({ isOpen, onClose, onRefreshData }) {
               {importStatus}
             </p>
           )}
+        </div>
+
+        {/* PWA App Installation Card */}
+        <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4 text-blue-600" />
+              <span className="text-xs font-bold text-slate-800">
+                스마트폰 / PC 앱으로 설치 (PWA)
+              </span>
+            </div>
+            {isInstalled && (
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-extrabold flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                설치됨
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-slate-500 leading-normal">
+            부광이일을 홈 화면에 앱으로 추가하면 브라우저 주소창 없이 실제 어플처럼 전체 화면으로 빠르고 편리하게 이용할 수 있습니다.
+          </p>
+          <button
+            type="button"
+            onClick={handleInstallClick}
+            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-1.5"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{isInstalled ? '앱 설치 안내 다시보기' : '부광이일 앱 설치하기'}</span>
+          </button>
         </div>
 
         {/* Footer button */}
