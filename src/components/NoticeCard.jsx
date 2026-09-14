@@ -41,7 +41,7 @@ const NoticeCard = forwardRef(function NoticeCard({
     <div
       ref={ref}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-2xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-all duration-150 flex flex-row items-stretch h-28 max-h-28 ${
+      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-[border-color,box-shadow,transform] duration-150 flex flex-row items-stretch h-28 max-h-28 ${
         notice.pinned
           ? 'border-blue-400 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 to-white'
           : 'border-slate-200/90 hover:border-blue-300'

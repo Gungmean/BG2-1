@@ -53,12 +53,12 @@ export default function App() {
 
   // When user navigates to another page (not 'board'), automatically fold the TodayReportCard
   // Returning to 'board' does NOT automatically unfold it (stays folded until user manually unfolds)
-  const handleTabChange = (tab) => {
+  const handleTabChange = useCallback((tab) => {
     if (tab !== 'board') {
       setIsReportCollapsed(true);
     }
     setActiveBottomNav(tab);
-  };
+  }, []);
 
   // Filter & Search states
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -125,6 +125,15 @@ export default function App() {
   const handleOpenPinModal = useCallback(() => {
     setIsPinModalOpen(true);
   }, []);
+
+  const handleToggleReportCollapse = useCallback(() => {
+    setIsReportCollapsed((prev) => !prev);
+  }, []);
+
+  const handleReportNavigate = useCallback((tab, subTab) => {
+    if (subTab) setCalendarSubTab(subTab);
+    handleTabChange(tab);
+  }, [handleTabChange]);
 
   const handleOpenAddNoticeFromCalendar = (dateStr) => {
     const defaultDate = dateStr || getLocalDateString();
@@ -227,12 +236,9 @@ export default function App() {
         <TodayReportCard
           notices={notices}
           isCollapsed={isReportCollapsed}
-          onToggleCollapse={() => setIsReportCollapsed((prev) => !prev)}
-          onNavigate={(tab, subTab) => {
-            if (subTab) setCalendarSubTab(subTab);
-            handleTabChange(tab);
-          }}
-          onSelectNotice={(n) => setSelectedNotice(n)}
+          onToggleCollapse={handleToggleReportCollapse}
+          onNavigate={handleReportNavigate}
+          onSelectNotice={handleSelectNotice}
         />
 
 

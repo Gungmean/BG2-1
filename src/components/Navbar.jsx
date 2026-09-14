@@ -273,21 +273,21 @@ function Navbar({
   );
 }
 
-function NavBtn({ active, icon, label, onClick }) {
+const NavBtn = React.memo(function NavBtn({ active, icon, label, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`relative flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl active:scale-95 transition-all duration-150 ${
+      className={`relative flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl transition-colors duration-75 ${
         active ? 'text-blue-600 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-semibold'
       }`}
     >
-      <div className={`relative p-1.5 rounded-xl transition-colors duration-150 ${active ? 'bg-blue-50 text-blue-600' : ''}`}>
+      <div className={`relative p-1.5 rounded-xl transition-colors duration-75 ${active ? 'bg-blue-50 text-blue-600' : ''}`}>
         <span className="relative z-10">{icon}</span>
       </div>
       <span className="text-[10px] relative z-10">{label}</span>
     </button>
   );
-}
+});
 
 export default React.memo(Navbar);
