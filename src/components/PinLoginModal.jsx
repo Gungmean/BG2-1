@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Crown, AlertCircle, X, ShieldCheck, Lock, LogOut, User } from 'lucide-react';
 import { verifyMonitorPin, getSessionMonitorName, setSessionMonitorName } from '../services/storageService';
 
-export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor }) {
+export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor, onLoginSuccess }) {
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -60,10 +60,14 @@ export default function PinLoginModal({ isOpen, onClose, isMonitor, setIsMonitor
       const isValid = await verifyMonitorPin(pin.trim());
       if (isValid) {
         setFailedAttempts(0);
-        setSessionMonitorName(name.trim());
+        const trimmedName = name.trim();
+        setSessionMonitorName(trimmedName);
         setIsMonitor(true);
         setPin('');
         onClose();
+        if (onLoginSuccess) {
+          onLoginSuccess(trimmedName);
+        }
       } else {
         const nextFailed = failedAttempts + 1;
         setFailedAttempts(nextFailed);

@@ -31,6 +31,15 @@ import {
 const AiUploadModal = React.lazy(() => import('./components/AiUploadModal'));
 const DrawPageView = React.lazy(() => import('./components/DrawPageView'));
 const ExamPlanView = React.lazy(() => import('./components/ExamPlanView'));
+const EasterEggVideoModal = React.lazy(() => import('./components/EasterEggVideoModal'));
+
+// 특정 이름 입력 시 재생되는 특별 영상 매핑
+const EASTER_EGG_VIDEOS = {
+  양현모: {
+    title: '👑 서브 관리자 양현모 등장!',
+    videoId: 'XmS-aN9TCmA'
+  }
+};
 
 function LoadingPanel({ label = '화면을 불러오는 중입니다...' }) {
   return (
@@ -74,6 +83,14 @@ export default function App() {
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [easterEggVideo, setEasterEggVideo] = useState(null);
+
+  const handleLoginSuccess = useCallback((userName) => {
+    const cleanName = String(userName || '').replace(/\s+/g, '');
+    if (EASTER_EGG_VIDEOS[cleanName]) {
+      setEasterEggVideo(EASTER_EGG_VIDEOS[cleanName]);
+    }
+  }, []);
 
   // Initial load
   useEffect(() => {
@@ -466,7 +483,17 @@ export default function App() {
         onClose={() => setIsPinModalOpen(false)}
         isMonitor={isMonitor}
         setIsMonitor={setIsMonitor}
+        onLoginSuccess={handleLoginSuccess}
       />
+
+      {easterEggVideo && (
+        <Suspense fallback={null}>
+          <EasterEggVideoModal
+            video={easterEggVideo}
+            onClose={() => setEasterEggVideo(null)}
+          />
+        </Suspense>
+      )}
 
       <SettingsModal
         isOpen={isSettingsOpen}
