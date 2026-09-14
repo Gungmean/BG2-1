@@ -26,7 +26,7 @@ import {
 import { calculateDDay, getLocalDateString } from '../services/storageService';
 import { addDays, format } from 'date-fns';
 
-export default function TodayReportCard({
+function TodayReportCard({
   notices = [],
   isCollapsed = false,
   onToggleCollapse,
@@ -591,3 +591,5 @@ export default function TodayReportCard({
     </div>
   );
 }
+
+export default React.memo(TodayReportCard);

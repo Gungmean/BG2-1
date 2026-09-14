@@ -11,7 +11,7 @@ export const CATEGORIES = [
   { id: '기타', label: '기타' }
 ];
 
-export default function CategoryFilter({
+function CategoryFilter({
   selectedCategory,
   setSelectedCategory,
   sortBy,
@@ -64,62 +64,53 @@ export default function CategoryFilter({
         </div>
       </div>
 
-      {/* Category Pills with motion layoutId */}
+      {/* Category Pills */}
       <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-none">
         {CATEGORIES.map((cat) => {
           const isSelected = selectedCategory === cat.id;
           const count = counts.categories[cat.id] || 0;
           return (
-            <motion.button
+            <button
               key={cat.id}
               type="button"
-              whileTap={{ scale: 0.94 }}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-colors ${
+              className={`relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap active:scale-95 transition-all duration-150 ${
                 isSelected
-                  ? 'text-white'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200'
                   : 'bg-white border border-slate-200 text-slate-700 hover:bg-blue-50/50'
               }`}
             >
-              {isSelected && (
-                <motion.div
-                  layoutId="activeCategoryPill"
-                  className="absolute inset-0 bg-blue-600 rounded-full shadow-sm shadow-blue-200"
-                  transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                />
-              )}
-              <span className="relative z-10">{cat.label}</span>
+              <span>{cat.label}</span>
               <span
-                className={`relative z-10 text-[10px] px-1.5 py-0.5 rounded-full transition-colors ${
+                className={`text-[10px] px-1.5 py-0.5 rounded-full transition-colors ${
                   isSelected ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500'
                 }`}
               >
                 {count}
               </span>
-            </motion.button>
+            </button>
           );
         })}
       </div>
 
-      {/* Status Tabs with motion layoutId: 진행 중인 공지 vs 마감된 공지 */}
+      {/* Status Tabs: 진행 중인 공지 vs 마감된 공지 */}
       <div className="bg-blue-50/60 p-1 rounded-full flex items-center gap-1 text-xs font-extrabold border border-blue-100 relative">
         <button
           type="button"
           onClick={() => setStatusTab('ongoing')}
-          className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-full transition-colors ${
-            statusTab === 'ongoing' ? 'text-blue-700 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+          className={`relative flex-1 flex items-center justify-center gap-2 py-2 rounded-full transition-all duration-150 active:scale-[0.98] ${
+            statusTab === 'ongoing'
+              ? 'bg-white text-blue-700 font-extrabold shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          {statusTab === 'ongoing' && (
-            <motion.div
-              layoutId="statusTabPill"
-              className="absolute inset-0 bg-white rounded-full shadow-sm"
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-            />
-          )}
-          <Clock className="w-3.5 h-3.5 text-blue-600 relative z-10" />
-          <span className="relative z-10">진행 중인 공지</span>
-          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[11px] relative z-10">
+          <Clock className={`w-3.5 h-3.5 ${statusTab === 'ongoing' ? 'text-blue-600' : 'text-slate-400'}`} />
+          <span>진행 중인 공지</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors ${
+              statusTab === 'ongoing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-200/70 text-slate-500'
+            }`}
+          >
             {counts.ongoing}
           </span>
         </button>
@@ -127,20 +118,19 @@ export default function CategoryFilter({
         <button
           type="button"
           onClick={() => setStatusTab('expired')}
-          className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-2 rounded-full transition-colors ${
-            statusTab === 'expired' ? 'text-slate-800 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+          className={`relative flex-1 flex items-center justify-center gap-2 py-2 rounded-full transition-all duration-150 active:scale-[0.98] ${
+            statusTab === 'expired'
+              ? 'bg-white text-slate-800 font-extrabold shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          {statusTab === 'expired' && (
-            <motion.div
-              layoutId="statusTabPill"
-              className="absolute inset-0 bg-white rounded-full shadow-sm"
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-            />
-          )}
-          <CheckCircle2 className="w-3.5 h-3.5 text-slate-400 relative z-10" />
-          <span className="relative z-10">마감된 공지</span>
-          <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-[11px] relative z-10">
+          <CheckCircle2 className={`w-3.5 h-3.5 ${statusTab === 'expired' ? 'text-slate-700' : 'text-slate-400'}`} />
+          <span>마감된 공지</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors ${
+              statusTab === 'expired' ? 'bg-slate-200 text-slate-700' : 'bg-slate-200/70 text-slate-500'
+            }`}
+          >
             {counts.expired}
           </span>
         </button>
@@ -148,3 +138,5 @@ export default function CategoryFilter({
     </div>
   );
 }
+
+export default React.memo(CategoryFilter);

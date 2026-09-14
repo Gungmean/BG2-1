@@ -175,4 +175,4 @@ const NoticeCard = forwardRef(function NoticeCard({
   );
 });
 
-export default NoticeCard;
+export default React.memo(NoticeCard);

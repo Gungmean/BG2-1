@@ -56,7 +56,7 @@ function getSizes() {
     : { rOuter: 118, rInner: 38, iconSize: 16, fontSize: 9.5, fabSize: 52 };
 }
 
-export default function Navbar({
+function Navbar({
   activeTab,
   setActiveTab
 }) {
@@ -273,28 +273,21 @@ export default function Navbar({
   );
 }
 
-function NavBtn({ active, icon, label, layoutId, onClick }) {
+function NavBtn({ active, icon, label, onClick }) {
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.92 }}
-      className={`relative flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl transition-colors ${
+      className={`relative flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl active:scale-95 transition-all duration-150 ${
         active ? 'text-blue-600 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-semibold'
       }`}
     >
-      <div className="relative p-1.5 rounded-xl">
-        {active && (
-          <motion.div
-            layoutId={layoutId}
-            className="absolute inset-0 bg-blue-50 rounded-xl"
-            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          />
-        )}
+      <div className={`relative p-1.5 rounded-xl transition-colors duration-150 ${active ? 'bg-blue-50 text-blue-600' : ''}`}>
         <span className="relative z-10">{icon}</span>
       </div>
       <span className="text-[10px] relative z-10">{label}</span>
-    </motion.button>
+    </button>
   );
 }
+
+export default React.memo(Navbar);

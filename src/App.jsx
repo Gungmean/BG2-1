@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect, useMemo } from 'react';
+import React, { Suspense, useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera, Plus, Inbox } from 'lucide-react';
 import Header from './components/Header';
@@ -101,17 +101,30 @@ export default function App() {
     setEditingNotice(null);
   };
 
-  const handleDeleteNotice = async (id) => {
+  const handleDeleteNotice = useCallback(async (id) => {
     if (window.confirm('정말로 이 게시물을 삭제하시겠습니까?')) {
       const updated = await deleteNotice(id);
       setNotices(updated);
     }
-  };
+  }, []);
 
-  const handleTogglePin = async (id) => {
+  const handleTogglePin = useCallback(async (id) => {
     const updated = await togglePinNotice(id);
     setNotices(updated);
-  };
+  }, []);
+
+  const handleSelectNotice = useCallback((n) => {
+    setSelectedNotice(n);
+  }, []);
+
+  const handleEditNotice = useCallback((n) => {
+    setEditingNotice(n);
+    setIsAiModalOpen(true);
+  }, []);
+
+  const handleOpenPinModal = useCallback(() => {
+    setIsPinModalOpen(true);
+  }, []);
 
   const handleOpenAddNoticeFromCalendar = (dateStr) => {
     const defaultDate = dateStr || getLocalDateString();
@@ -248,14 +261,11 @@ export default function App() {
                     key={notice.id}
                     notice={notice}
                     isMonitor={isMonitor}
-                    onSelect={(n) => setSelectedNotice(n)}
-                    onEdit={(n) => {
-                      setEditingNotice(n);
-                      setIsAiModalOpen(true);
-                    }}
+                    onSelect={handleSelectNotice}
+                    onEdit={handleEditNotice}
                     onDelete={handleDeleteNotice}
                     onTogglePin={handleTogglePin}
-                    onOpenPinModal={() => setIsPinModalOpen(true)}
+                    onOpenPinModal={handleOpenPinModal}
                   />
                 ))}
               </div>
