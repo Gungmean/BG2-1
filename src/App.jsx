@@ -38,6 +38,10 @@ const EASTER_EGG_VIDEOS = {
   양현모: {
     title: '👑 서브 관리자 양현모 등장!',
     videoId: 'XmS-aN9TCmA'
+  },
+  오정민: {
+    title: '👑 학급 반장 오정민 등장!',
+    videoId: 'tyQvwseASgo'
   }
 };
 
