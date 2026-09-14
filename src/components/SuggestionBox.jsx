@@ -151,7 +151,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                 className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   isSelected
                     ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
                 <span>{cat.label}</span>
@@ -162,14 +162,14 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
 
         {/* Sort Selector */}
         <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
-          <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
-            <SlidersHorizontal className="w-3 h-3 text-slate-400" />
+          <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            <SlidersHorizontal className="w-3 h-3 text-slate-400 dark:text-slate-500" />
             <span>정렬:</span>
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs transition-colors"
           >
             <option value="upvotes">좋아요 많은 순</option>
             <option value="newest">최신 등록순</option>
@@ -187,7 +187,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
             return (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/90 shadow-2xs hover:border-blue-300 transition-all space-y-2 relative"
+                className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-4 border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:border-blue-300 dark:hover:border-blue-500 transition-all space-y-2 relative"
               >
                 {/* Card Header: Category & Status Badge */}
                 <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -235,53 +235,52 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                 </div>
 
                 {/* Title */}
-                <h3 className="font-bold text-slate-900 text-sm sm:text-[15px] leading-snug">
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-[15px] leading-snug">
                   {item.title}
                 </h3>
 
                 {/* Content */}
-                <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                   {item.content}
                 </p>
 
                 {/* Footer: Date & Up/Down Vote Buttons */}
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px]">
-                  <span className="text-slate-400 font-medium text-[10px] sm:text-[11px]">
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px]">
+                  <span className="text-slate-400 dark:text-slate-500 font-medium text-[10px] sm:text-[11px]">
                     {new Date(item.createdAt).toLocaleDateString('ko-KR', {
                       month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
+                      day: 'numeric'
                     })}
                   </span>
 
-                  {/* Vote Buttons Row (Compact) */}
                   <div className="flex items-center gap-1.5">
-                    {/* 좋아요 Button */}
+                    {/* Upvote Button */}
                     <button
                       type="button"
                       onClick={() => handleVote(item.id, 'up')}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all ${
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-xl font-bold text-xs transition-all active:scale-90 ${
                         userVote === 'up'
-                          ? 'bg-blue-600 text-white shadow-2xs scale-105'
-                          : 'bg-slate-50 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200/70'
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-750 hover:text-blue-600 dark:hover:text-blue-400'
                       }`}
+                      title="이 건의에 찬성합니다"
                     >
-                      <ThumbsUp className={`w-3 h-3 ${userVote === 'up' ? 'fill-white' : ''}`} />
+                      <ThumbsUp className={`w-3.5 h-3.5 ${userVote === 'up' ? 'fill-white' : ''}`} />
                       <span>{item.upvotes || 0}</span>
                     </button>
 
-                    {/* 별로예요 Button */}
+                    {/* Downvote Button */}
                     <button
                       type="button"
                       onClick={() => handleVote(item.id, 'down')}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all ${
+                      className={`flex items-center gap-1 px-2 py-1 rounded-xl font-bold text-xs transition-all active:scale-90 ${
                         userVote === 'down'
-                          ? 'bg-rose-600 text-white shadow-2xs scale-105'
-                          : 'bg-slate-50 text-slate-700 hover:bg-rose-50 hover:text-rose-600 border border-slate-200/70'
+                          ? 'bg-slate-600 text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-750 hover:text-slate-600 dark:hover:text-slate-300'
                       }`}
+                      title="이 건의에 반대합니다"
                     >
-                      <ThumbsDown className={`w-3 h-3 ${userVote === 'down' ? 'fill-white' : ''}`} />
+                      <ThumbsDown className={`w-3.5 h-3.5 ${userVote === 'down' ? 'fill-white' : ''}`} />
                       <span>{item.downvotes || 0}</span>
                     </button>
                   </div>
@@ -292,14 +291,14 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
         </div>
       ) : (
         /* Empty State */
-        <div className="py-12 text-center bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5">
-          <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mx-auto text-lg">
+        <div className="py-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-2.5 transition-colors">
+          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/70 text-blue-500 dark:text-blue-400 flex items-center justify-center mx-auto text-lg">
             💬
           </div>
-          <h3 className="font-bold text-slate-800 text-sm">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm">
             등록된 건의사항이 없습니다
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             학급 생활 개선을 위한 익명 건의사항을 새로 작성해보세요.
           </p>
           <button
@@ -315,21 +314,21 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
 
       {/* New Suggestion Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 p-5 space-y-4 max-h-[90vh] overflow-y-auto transition-colors">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div>
-                <h2 className="font-bold text-slate-900 text-base">
+                <h2 className="font-bold text-slate-900 dark:text-slate-100 text-base">
                   ✍️ 익명 건의 작성
                 </h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   작성자 정보는 저장되지 않으며 100% 익명으로 제출됩니다.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-full hover:bg-slate-100 text-slate-400 transition-colors"
+                className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -338,7 +337,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
             <form onSubmit={handleCreateSuggestion} className="space-y-3.5">
               {/* Category */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   카테고리
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -350,7 +349,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                       className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                         formData.category === cat.id
                           ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750'
                       }`}
                     >
                       {cat.label}
@@ -361,7 +360,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
 
               {/* Title */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   건의 제목
                 </label>
                 <input
@@ -369,13 +368,13 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="예: 교실 에어컨 온도 설정 건의"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-850 focus:border-blue-500 focus:outline-none"
                 />
               </div>
 
               {/* Content */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   건의 상세 내용
                 </label>
                 <textarea
@@ -383,16 +382,16 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="학급 회의에서 논의하고 싶은 구체적인 건의 내용을 입력해 주세요."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:border-blue-500 focus:outline-none resize-none"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-850 focus:border-blue-500 focus:outline-none resize-none"
                 />
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3.5 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-200 transition-colors"
+                  className="px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-750 transition-colors"
                 >
                   취소
                 </button>

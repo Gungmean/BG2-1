@@ -7,9 +7,9 @@ import {
   X,
   MessageSquare,
   Gift,
-  Sparkles,
   BookOpenCheck
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 const GAP = 2.5; // degrees gap between wedges
 
@@ -60,6 +60,7 @@ function Navbar({
   activeTab,
   setActiveTab
 }) {
+  const { isDark } = useTheme();
   const [open, setOpen]       = useState(false);
   const [hovered, setHovered] = useState(null);
   const [sizes, setSizes]     = useState(getSizes);
@@ -174,8 +175,8 @@ function Navbar({
                   {/* Main wedge */}
                   <path
                     d={wedgePath(i, rOuter, rInner)}
-                    fill={isHov ? w.color : '#ffffff'}
-                    stroke={isHov ? 'transparent' : `${w.color}66`}
+                    fill={isHov ? w.color : isDark ? '#1e293b' : '#ffffff'}
+                    stroke={isHov ? 'transparent' : isDark ? '#334155' : `${w.color}66`}
                     strokeWidth="1.5"
                     style={{
                       transition: 'fill 0.18s ease, stroke 0.18s ease',
@@ -208,7 +209,7 @@ function Navbar({
                     dominantBaseline="middle"
                     fontSize={fontSize}
                     fontWeight="700"
-                    fill={isHov ? '#ffffff' : '#64748b'}
+                    fill={isHov ? '#ffffff' : isDark ? '#cbd5e1' : '#64748b'}
                     style={{ pointerEvents: 'none', transition: 'fill 0.18s', userSelect: 'none' }}
                   >
                     {w.label}
@@ -221,7 +222,7 @@ function Navbar({
       </div>
 
       {/* Navbar bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] h-16 flex items-center">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 shadow-[0_-2px_12px_rgba(0,0,0,0.06)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.4)] h-16 flex items-center transition-colors">
         <div className="max-w-md w-full mx-auto flex items-center justify-around px-6 relative">
 
           {/* 게시판 */}
@@ -243,8 +244,8 @@ function Navbar({
               title="학급 메뉴"
               className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ring-4 transition-colors duration-300 text-white ${
                 open
-                  ? 'bg-slate-800 ring-slate-100 shadow-slate-300'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 ring-white hover:from-blue-700 hover:to-indigo-700 shadow-blue-300/80'
+                  ? 'bg-slate-800 dark:bg-slate-700 ring-slate-100 dark:ring-slate-800 shadow-slate-300 dark:shadow-none'
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 ring-white dark:ring-slate-900 hover:from-blue-700 hover:to-indigo-700 shadow-blue-300/80 dark:shadow-none'
               }`}
             >
               <motion.div
@@ -254,7 +255,7 @@ function Navbar({
                 {open ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
               </motion.div>
             </motion.button>
-            <span className={`text-[10px] font-bold mt-0.5 transition-colors ${open ? 'text-slate-800' : 'text-slate-400'}`}>
+            <span className={`text-[10px] font-bold mt-0.5 transition-colors ${open ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400 dark:text-slate-500'}`}>
               {open ? '닫기' : '더보기'}
             </span>
           </div>
@@ -279,10 +280,10 @@ const NavBtn = React.memo(function NavBtn({ active, icon, label, onClick }) {
       type="button"
       onClick={onClick}
       className={`relative flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl transition-colors duration-75 ${
-        active ? 'text-blue-600 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-semibold'
+        active ? 'text-blue-600 dark:text-blue-400 font-extrabold' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 font-semibold'
       }`}
     >
-      <div className={`relative p-1.5 rounded-xl transition-colors duration-75 ${active ? 'bg-blue-50 text-blue-600' : ''}`}>
+      <div className={`relative p-1.5 rounded-xl transition-colors duration-75 ${active ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400' : ''}`}>
         <span className="relative z-10">{icon}</span>
       </div>
       <span className="text-[10px] relative z-10">{label}</span>

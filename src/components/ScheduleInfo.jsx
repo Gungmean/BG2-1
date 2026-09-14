@@ -86,7 +86,7 @@ export default function ScheduleInfo() {
       </div>
 
       {/* Weekday Selector Tabs (월~금) with Sliding White Pill Motion */}
-      <div className="bg-slate-100/90 p-1.5 rounded-full border border-slate-200/90 shadow-inner">
+      <div className="bg-slate-100/90 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200/90 dark:border-slate-700 shadow-inner">
         <div className="grid grid-cols-5 gap-1 relative">
           {weekDays.map((day) => {
             const isSelected = selectedDay.ymd === day.ymd;
@@ -98,15 +98,15 @@ export default function ScheduleInfo() {
                 onClick={() => setSelectedDay(day)}
                 className={`relative py-2.5 px-2 rounded-full flex flex-col items-center justify-center transition-colors z-10 ${
                   isSelected
-                    ? 'text-blue-600 font-extrabold'
-                    : 'text-slate-600 hover:text-slate-900 font-semibold'
+                    ? 'text-blue-600 dark:text-blue-400 font-extrabold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-semibold'
                 }`}
               >
                 {/* 🤍 하얀색이 왔다갔다 슬라이딩하는 Active Pill */}
                 {isSelected && (
                   <motion.div
                     layoutId="weekdayActivePill"
-                    className="absolute inset-0 bg-white rounded-full shadow-md shadow-slate-300/60 border border-slate-200/60"
+                    className="absolute inset-0 bg-white dark:bg-slate-700 rounded-full shadow-md shadow-slate-300/60 dark:shadow-none border border-slate-200/60 dark:border-slate-600"
                     transition={{
                       type: 'spring',
                       stiffness: 480,
@@ -152,10 +152,10 @@ export default function ScheduleInfo() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="py-16 text-center bg-white rounded-3xl border border-slate-200 shadow-sm"
+            className="py-16 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm"
           >
-            <div className="inline-block animate-spin rounded-full h-7 w-7 border-3 border-blue-600 border-t-transparent mb-3"></div>
-            <p className="text-xs font-semibold text-slate-600">
+            <div className="inline-block animate-spin rounded-full h-7 w-7 border-3 border-blue-600 dark:border-blue-400 border-t-transparent mb-3"></div>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               {selectedDay.dayName}요일({selectedDay.displayDate}) 급식 및 시간표 정보를 불러오는 중...
             </p>
           </motion.div>
@@ -165,7 +165,7 @@ export default function ScheduleInfo() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="p-6 bg-red-50 rounded-3xl border border-red-200 text-center text-red-700 space-y-2"
+            className="p-6 bg-red-50 dark:bg-red-950/40 rounded-3xl border border-red-200 dark:border-red-900/60 text-center text-red-700 dark:text-red-300 space-y-2"
           >
             <AlertCircle className="w-7 h-7 mx-auto text-red-500" />
             <p className="font-bold text-sm">{error}</p>
@@ -186,25 +186,25 @@ export default function ScheduleInfo() {
             className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
             {/* 급식 Section */}
-            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col justify-between transition-colors">
               <div>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
-                    <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 shadow-sm">
+                    <div className="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50 shadow-sm">
                       <Utensils className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-slate-900 text-base">
+                      <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                         {selectedDay.dayName}요일 급식
                       </h3>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         부광고 식단 ({selectedDay.displayDate})
                       </p>
                     </div>
                   </div>
 
                   {selectedDay.isToday && (
-                    <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/60 flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-amber-500" /> 오늘 식단
                     </span>
                   )}
@@ -218,48 +218,48 @@ export default function ScheduleInfo() {
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.03 }}
-                        className="flex items-center gap-2 text-slate-700 text-xs sm:text-sm font-medium bg-slate-50/70 px-3 py-2 rounded-xl border border-slate-100"
+                        className="flex items-center gap-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-medium bg-slate-50/70 dark:bg-slate-800/70 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        <span className="font-semibold text-slate-800">{cleanDishName(dish)}</span>
-                        <span className="text-[10px] text-slate-400 font-normal ml-auto">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{cleanDishName(dish)}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal ml-auto">
                           {dish.match(/\([0-9.]+\)/)?.[0] || ''}
                         </span>
                       </motion.li>
                     ))}
                   </ul>
                 ) : (
-                  <div className="py-8 text-center text-slate-400 text-xs font-medium bg-slate-50 rounded-2xl">
+                  <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs font-medium bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                     {selectedDay.dayName}요일({selectedDay.displayDate}) 등록된 급식 정보가 없습니다.
                   </div>
                 )}
               </div>
 
-              <div className="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400">
+              <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500">
                 * 알레르기 유발물질 번호 포함 (NEIS 연동)
               </div>
             </div>
 
             {/* 시간표 Section */}
-            <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col justify-between transition-colors">
               <div>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
-                    <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                    <div className="p-2.5 rounded-2xl bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 shadow-sm">
                       <BookOpen className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-slate-900 text-base">
+                      <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                         {selectedDay.dayName}요일 시간표
                       </h3>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         2학년 1반 ({selectedDay.displayDate})
                       </p>
                     </div>
                   </div>
 
                   {selectedDay.isToday && (
-                    <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                    <span className="text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-900/60">
                       오늘 시간표
                     </span>
                   )}
@@ -267,16 +267,16 @@ export default function ScheduleInfo() {
 
                 {timetable && timetable.length > 0 ? (
                   <div className="space-y-3">
-                    <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                       <table className="w-full text-xs sm:text-sm text-left">
-                        <thead className="bg-slate-50 text-slate-600 text-xs font-semibold">
+                        <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold">
                           <tr>
                             <th className="px-3.5 py-2.5">교시</th>
                             <th className="px-3.5 py-2.5">수업 시간</th>
                             <th className="px-3.5 py-2.5">수업 과목</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 bg-white">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                           {timetable.map((item, idx) => {
                             const timeStr = item.time || PERIOD_SCHEDULE[String(item.period)]?.time || '-';
                             const isCurrent =

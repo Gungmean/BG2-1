@@ -3,10 +3,10 @@ import { Calendar, Pin, Trash2, Edit3, Clock } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
 const CATEGORY_STYLES = {
-  수행평가: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200/80', dot: 'bg-rose-500' },
-  학교행사: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200/80', dot: 'bg-blue-500' },
-  외부활동: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200/80', dot: 'bg-emerald-500' },
-  기타: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200/80', dot: 'bg-slate-400' }
+  수행평가: { bg: 'bg-rose-50 dark:bg-rose-950/50', text: 'text-rose-700 dark:text-rose-300', border: 'border-rose-200/80 dark:border-rose-800/60', dot: 'bg-rose-500' },
+  학교행사: { bg: 'bg-blue-50 dark:bg-blue-950/50', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-200/80 dark:border-blue-800/60', dot: 'bg-blue-500' },
+  외부활동: { bg: 'bg-emerald-50 dark:bg-emerald-950/50', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200/80 dark:border-emerald-800/60', dot: 'bg-emerald-500' },
+  기타: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-700 dark:text-slate-300', border: 'border-slate-200/80 dark:border-slate-700', dot: 'bg-slate-400 dark:text-slate-500' }
 };
 
 const NoticeCard = forwardRef(function NoticeCard({
@@ -43,14 +43,14 @@ const NoticeCard = forwardRef(function NoticeCard({
     <div
       ref={ref}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white rounded-2xl border cursor-pointer overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-[border-color,box-shadow,transform] duration-150 flex flex-row items-stretch h-28 max-h-28 ${
+      className={`group relative bg-white dark:bg-slate-900 rounded-2xl border cursor-pointer overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-[border-color,box-shadow,transform,background-color] duration-150 flex flex-row items-stretch h-28 max-h-28 ${
         notice.pinned
-          ? 'border-blue-400 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 to-white'
-          : 'border-slate-200/90 hover:border-blue-300'
+          ? 'border-blue-400 dark:border-blue-500 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 dark:from-blue-950/30 to-white dark:to-slate-900'
+          : 'border-slate-200/90 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600'
       }`}
     >
       {/* 1. LEFT THUMBNAIL AREA (Strictly aspect-square 112px x 112px) */}
-      <div className="w-28 h-28 aspect-square shrink-0 relative bg-slate-100 overflow-hidden select-none">
+      <div className="w-28 h-28 aspect-square shrink-0 relative bg-slate-100 dark:bg-slate-800 overflow-hidden select-none">
         {notice.imageUrl ? (
           <img
             src={notice.imageUrl}
@@ -58,9 +58,9 @@ const NoticeCard = forwardRef(function NoticeCard({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 block"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200/70 text-slate-400 p-2 text-center">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200/70 dark:from-slate-800 dark:to-slate-850 text-slate-400 dark:text-slate-500 p-2 text-center">
             <span className="text-xl sm:text-2xl mb-0.5">📢</span>
-            <span className="text-[10px] font-bold text-slate-400 truncate max-w-full">
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 truncate max-w-full">
               {notice.category}
             </span>
           </div>
@@ -89,7 +89,7 @@ const NoticeCard = forwardRef(function NoticeCard({
 
             {/* D-Day Badge with '진행 중' support */}
             {dday.isExpired ? (
-              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 shrink-0">
+              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 shrink-0">
                 마감됨
               </span>
             ) : dday.text === '진행 중' ? (
@@ -106,7 +106,7 @@ const NoticeCard = forwardRef(function NoticeCard({
                 D-DAY
               </span>
             ) : dday.text === '기한 없음' ? (
-              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 shrink-0">
                 상시
               </span>
             ) : dday.days <= 3 ? (
@@ -121,15 +121,15 @@ const NoticeCard = forwardRef(function NoticeCard({
           </div>
 
           {/* Title (Max 2 lines, clean size) */}
-          <h3 className="font-bold text-slate-900 text-xs sm:text-[13px] group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug break-keep">
+          <h3 className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-[13px] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug break-keep">
             {notice.title}
           </h3>
         </div>
 
         {/* Bottom Row: Date Indicator & Actions */}
-        <div className="flex items-center justify-between gap-1.5 pt-1.5 mt-1 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500">
+        <div className="flex items-center justify-between gap-1.5 pt-1.5 mt-1 border-t border-slate-100 dark:border-slate-800 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-1 min-w-0 font-medium">
-            <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+            <Calendar className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
             <span className="truncate">{displayDateText}</span>
           </div>
 
@@ -145,8 +145,8 @@ const NoticeCard = forwardRef(function NoticeCard({
                   title={notice.pinned ? '고정 해제' : '상단 고정'}
                   className={`p-1 rounded-md transition-colors ${
                     notice.pinned
-                      ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                      : 'text-slate-400 hover:bg-slate-100'
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 dark:hover:bg-blue-900/60'
+                      : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   <Pin className="w-3 h-3" />
@@ -158,7 +158,7 @@ const NoticeCard = forwardRef(function NoticeCard({
                     onEdit(notice);
                   }}
                   title="수정"
-                  className="p-1 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  className="p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   <Edit3 className="w-3 h-3" />
                 </button>
@@ -170,7 +170,7 @@ const NoticeCard = forwardRef(function NoticeCard({
               type="button"
               onClick={handleDeleteClick}
               title="게시물 삭제"
-              className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+              className="p-1 rounded-md text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 transition-colors"
             >
               <Trash2 className="w-3 h-3" />
             </button>

@@ -28,18 +28,18 @@ function CategoryFilter({
       <div className="flex flex-col sm:flex-row gap-2.5 items-center justify-between">
         {/* Search Input */}
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="공지 제목 또는 내용 검색..."
-            className="w-full pl-10 pr-8 py-2 bg-white border border-slate-200 rounded-full text-xs sm:text-sm font-medium placeholder:text-slate-400 focus:outline-none focus:border-blue-500 transition-all shadow-inner"
+            className="w-full pl-10 pr-8 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-all shadow-inner"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs bg-slate-100 rounded-full w-4 h-4 flex items-center justify-center"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs bg-slate-100 dark:bg-slate-800 rounded-full w-4 h-4 flex items-center justify-center"
             >
               ✕
             </button>
@@ -48,14 +48,14 @@ function CategoryFilter({
 
         {/* Sort Selector */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <div className="flex items-center gap-1 text-xs text-slate-500 font-medium">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
             <span>정렬:</span>
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white border border-slate-200 rounded-full px-3.5 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer shadow-sm"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-3.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 cursor-pointer shadow-sm transition-colors"
           >
             <option value="newest">최신 등록순</option>
             <option value="deadline">마감 임박순</option>
@@ -76,14 +76,16 @@ function CategoryFilter({
               onClick={() => setSelectedCategory(cat.id)}
               className={`relative flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-colors duration-75 ${
                 isSelected
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200'
-                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-blue-50/50'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-200 dark:shadow-none'
+                  : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800'
               }`}
             >
               <span>{cat.label}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.5 rounded-full transition-colors duration-75 ${
-                  isSelected ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500'
+                  isSelected
+                    ? 'bg-blue-700 text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {count}
@@ -94,21 +96,23 @@ function CategoryFilter({
       </div>
 
       {/* Status Tabs: 진행 중인 공지 vs 마감된 공지 */}
-      <div className="bg-blue-50/60 p-1 rounded-full flex items-center gap-1 text-xs font-extrabold border border-blue-100 relative">
+      <div className="bg-blue-50/60 dark:bg-slate-900/90 p-1 rounded-full flex items-center gap-1 text-xs font-extrabold border border-blue-100 dark:border-slate-800 relative transition-colors">
         <button
           type="button"
           onClick={() => setStatusTab('ongoing')}
           className={`relative flex-1 flex items-center justify-center gap-2 py-2 rounded-full transition-colors duration-75 ${
             statusTab === 'ongoing'
-              ? 'bg-white text-blue-700 font-extrabold shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300 font-extrabold shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           }`}
         >
-          <Clock className={`w-3.5 h-3.5 ${statusTab === 'ongoing' ? 'text-blue-600' : 'text-slate-400'}`} />
+          <Clock className={`w-3.5 h-3.5 ${statusTab === 'ongoing' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
           <span>진행 중인 공지</span>
           <span
             className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors duration-75 ${
-              statusTab === 'ongoing' ? 'bg-blue-100 text-blue-700' : 'bg-slate-200/70 text-slate-500'
+              statusTab === 'ongoing'
+                ? 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
+                : 'bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
             }`}
           >
             {counts.ongoing}
@@ -120,15 +124,17 @@ function CategoryFilter({
           onClick={() => setStatusTab('expired')}
           className={`relative flex-1 flex items-center justify-center gap-2 py-2 rounded-full transition-colors duration-75 ${
             statusTab === 'expired'
-              ? 'bg-white text-slate-800 font-extrabold shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
+              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           }`}
         >
-          <CheckCircle2 className={`w-3.5 h-3.5 ${statusTab === 'expired' ? 'text-slate-700' : 'text-slate-400'}`} />
+          <CheckCircle2 className={`w-3.5 h-3.5 ${statusTab === 'expired' ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'}`} />
           <span>마감된 공지</span>
           <span
             className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-colors duration-75 ${
-              statusTab === 'expired' ? 'bg-slate-200 text-slate-700' : 'bg-slate-200/70 text-slate-500'
+              statusTab === 'expired'
+                ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                : 'bg-slate-200/70 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
             }`}
           >
             {counts.expired}

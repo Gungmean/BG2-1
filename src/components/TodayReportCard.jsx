@@ -145,17 +145,17 @@ function TodayReportCard({
     return (
       <div
         onClick={onToggleCollapse}
-        className="mb-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white border border-blue-200/80 p-3 sm:px-4 flex items-center justify-between gap-3 shadow-xs hover:border-blue-300 hover:shadow-sm cursor-pointer transition-all group"
+        className="mb-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border border-blue-200/80 dark:border-slate-800 p-3 sm:px-4 flex items-center justify-between gap-3 shadow-xs hover:border-blue-300 dark:hover:border-slate-700 hover:shadow-sm cursor-pointer transition-all group"
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <span className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
             <Sparkles className="w-3.5 h-3.5" />
           </span>
           <div className="flex items-center gap-2 flex-wrap min-w-0 text-xs">
-            <span className="font-extrabold text-slate-800 shrink-0">
+            <span className="font-extrabold text-slate-800 dark:text-slate-100 shrink-0">
               오늘 하루 리포트 ({today.getMonth() + 1}월 {today.getDate()}일)
             </span>
-            <span className="text-slate-300 hidden sm:inline">|</span>
+            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
             {todaySummaryDish && (
               <span className="text-slate-600 truncate font-medium max-w-[130px] sm:max-w-[200px]">
                 🍱 {todaySummaryDish}
@@ -180,7 +180,7 @@ function TodayReportCard({
             e.stopPropagation();
             onToggleCollapse?.();
           }}
-          className="px-2.5 py-1 rounded-xl bg-white border border-slate-200 hover:border-blue-400 text-slate-700 hover:text-blue-600 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
+          className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
         >
           <span>리포트 펼치기</span>
           <ChevronDown className="w-3.5 h-3.5" />
@@ -191,13 +191,13 @@ function TodayReportCard({
 
   // 2. EXPANDED FULL VIEW
   return (
-    <div className="mb-5 rounded-3xl bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/50 border border-blue-100 shadow-sm p-4 sm:p-6 relative overflow-hidden space-y-4">
+    <div className="mb-5 rounded-3xl bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/50 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-850 border border-blue-100 dark:border-slate-800 shadow-sm p-4 sm:p-6 relative overflow-hidden space-y-4 transition-colors">
       {/* Background soft glow decoration */}
-      <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-blue-200/25 blur-3xl pointer-events-none" />
-      <div className="absolute right-24 -bottom-8 w-36 h-36 rounded-full bg-indigo-200/20 blur-2xl pointer-events-none" />
+      <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-blue-200/25 dark:bg-blue-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute right-24 -bottom-8 w-36 h-36 rounded-full bg-indigo-200/20 dark:bg-indigo-600/10 blur-2xl pointer-events-none" />
 
       {/* HEADER: Title, Today/Tomorrow Tabs & Collapse Button */}
-      <div className="flex flex-wrap items-center justify-between gap-3 relative z-10 border-b border-slate-100 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 relative z-10 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2 mb-0.5">
@@ -205,25 +205,25 @@ function TodayReportCard({
                 <Sparkles className="w-3 h-3" />
                 <span>하루 리포트</span>
               </span>
-              <span className="text-[11px] font-bold text-slate-400">부광고 2학년 1반</span>
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">부광고 2학년 1반</span>
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span>{month}월 {date}일 ({dayName}요일)</span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300">
                 {isWeekend ? '주말 휴일' : '수업일'}
               </span>
             </h2>
           </div>
 
           {/* Today / Tomorrow Toggle Pill */}
-          <div className="inline-flex p-0.5 rounded-xl bg-slate-200/80 border border-slate-300/60 text-xs font-bold shrink-0 ml-1">
+          <div className="inline-flex p-0.5 rounded-xl bg-slate-200/80 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 text-xs font-bold shrink-0 ml-1">
             <button
               type="button"
               onClick={() => setDayTab('today')}
               className={`px-3 py-1 rounded-lg transition-all ${
                 dayTab === 'today'
-                  ? 'bg-white text-blue-700 shadow-xs font-black'
-                  : 'text-slate-600 hover:text-slate-900 font-bold'
+                  ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-bold'
               }`}
             >
               오늘
@@ -233,8 +233,8 @@ function TodayReportCard({
               onClick={() => setDayTab('tomorrow')}
               className={`px-3 py-1 rounded-lg transition-all ${
                 dayTab === 'tomorrow'
-                  ? 'bg-white text-blue-700 shadow-xs font-black'
-                  : 'text-slate-600 hover:text-slate-900 font-bold'
+                  ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-xs font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-bold'
               }`}
             >
               내일
@@ -247,7 +247,7 @@ function TodayReportCard({
           <button
             type="button"
             onClick={() => onNavigate?.('calendar', 'monthCalendar')}
-            className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
           >
             <span>달력</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -255,7 +255,7 @@ function TodayReportCard({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-600 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
             title="리포트 접기"
           >
             <span>접기</span>
@@ -265,13 +265,13 @@ function TodayReportCard({
       </div>
 
       {/* D-7 UPCOMING NOTICES WIDGET (ONLY D-1 to D-7, NO DUPLICATE OF TODAY) */}
-      <div className="relative z-10 bg-white/85 backdrop-blur-xs rounded-2xl border border-blue-100 p-3 flex flex-wrap items-center justify-between gap-2.5">
+      <div className="relative z-10 bg-white/85 dark:bg-slate-850/90 backdrop-blur-xs rounded-2xl border border-blue-100 dark:border-slate-800 p-3 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-black text-xs">
+          <div className="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center font-black text-xs">
             <Clock className="w-3.5 h-3.5" />
           </div>
-          <span className="text-xs font-extrabold text-slate-800">
-            다가오는 수행평가 <span className="text-rose-600 text-[11px] font-bold">(D-7)</span>
+          <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+            다가오는 수행평가 <span className="text-rose-600 dark:text-rose-400 text-[11px] font-bold">(D-7)</span>
           </span>
         </div>
 
@@ -339,7 +339,7 @@ function TodayReportCard({
                 key={notice.id}
                 type="button"
                 onClick={() => onSelectNotice?.(notice)}
-                className="px-2.5 py-1 rounded-lg bg-white hover:bg-rose-100/70 border border-rose-200 text-rose-950 font-bold text-xs flex items-center gap-1 shadow-2xs hover:shadow-xs transition-all text-left group max-w-[160px] sm:max-w-[220px]"
+                className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-rose-100/70 dark:hover:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 text-rose-950 dark:text-rose-200 font-bold text-xs flex items-center gap-1 shadow-2xs hover:shadow-xs transition-all text-left group max-w-[160px] sm:max-w-[220px]"
                 title={notice.title}
               >
                 <span className="truncate">{notice.title}</span>
@@ -355,25 +355,25 @@ function TodayReportCard({
         {/* CARD A: 점심 급식 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
-          className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-amber-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
+          className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-amber-300 dark:hover:border-amber-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-400 flex items-center justify-center">
                 <Utensils className="w-3.5 h-3.5" />
               </div>
-              <span className="font-extrabold text-slate-800 text-xs">
+              <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
                 {dayTab === 'today' ? '오늘의' : '내일의'} 점심 급식
               </span>
             </div>
-            <span className="text-[10px] font-bold text-blue-600 group-hover:underline flex items-center gap-0.5">
+            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 group-hover:underline flex items-center gap-0.5">
               <span>식단표</span>
               <ChevronRight className="w-3 h-3" />
             </span>
           </div>
 
           {isWeekend ? (
-            <div className="py-2 text-center text-slate-400 text-xs flex items-center justify-center gap-1 font-medium">
+            <div className="py-2 text-center text-slate-400 dark:text-slate-500 text-xs flex items-center justify-center gap-1 font-medium">
               <Sun className="w-4 h-4 text-amber-400" />
               <span>주말에는 급식이 제공되지 않습니다.</span>
             </div>
@@ -382,19 +382,19 @@ function TodayReportCard({
               {mealDishes.slice(0, 5).map((dish, i) => (
                 <span
                   key={i}
-                  className="px-2 py-0.8 rounded-lg bg-amber-50/80 border border-amber-200/70 text-slate-800 font-medium text-[11px]"
+                  className="px-2 py-0.8 rounded-lg bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/60 text-slate-800 dark:text-slate-200 font-medium text-[11px]"
                 >
                   {cleanDishName(dish)}
                 </span>
               ))}
               {mealDishes.length > 5 && (
-                <span className="px-1.5 py-0.8 rounded-lg bg-slate-100 text-slate-500 font-bold text-[10px]">
+                <span className="px-1.5 py-0.8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-[10px]">
                   +{mealDishes.length - 5}
                 </span>
               )}
             </div>
           ) : (
-            <div className="py-2 text-center text-slate-400 text-xs font-medium">
+            <div className="py-2 text-center text-slate-400 dark:text-slate-500 text-xs font-medium">
               {loading ? '급식 정보를 불러오는 중...' : '등록된 급식 메뉴가 없습니다.'}
             </div>
           )}
@@ -403,18 +403,18 @@ function TodayReportCard({
         {/* CARD B: 수업 시간표 */}
         <div
           onClick={() => onNavigate?.('calendar', 'schedule')}
-          className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
+          className="p-3.5 rounded-2xl bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group space-y-2"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
                 <BookOpen className="w-3.5 h-3.5" />
               </div>
-              <span className="font-extrabold text-slate-800 text-xs">
+              <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
                 {dayTab === 'today' ? '오늘의' : '내일의'} 수업 시간표
               </span>
             </div>
-            <span className="text-[10px] font-bold text-indigo-600 group-hover:underline flex items-center gap-0.5">
+            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline flex items-center gap-0.5">
               <span>시간표</span>
               <ChevronRight className="w-3 h-3" />
             </span>
@@ -455,8 +455,8 @@ function TodayReportCard({
                     key={idx}
                     className={`flex-1 min-w-[48px] px-1 py-1 rounded-lg text-center transition-all cursor-default relative ${
                       isCurrentPeriod
-                        ? 'bg-white border-indigo-500 ring-2 ring-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.45)] scale-[1.05] z-10'
-                        : 'bg-slate-50 border border-indigo-100/90 hover:bg-indigo-50/50'
+                        ? 'bg-white dark:bg-slate-750 border-indigo-500 dark:border-indigo-400 ring-2 ring-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.45)] scale-[1.05] z-10'
+                        : 'bg-slate-50 dark:bg-slate-800/80 border border-indigo-100/90 dark:border-slate-700 hover:bg-indigo-50/50 dark:hover:bg-slate-750'
                     }`}
                     title={`${periodNum}교시${timeStr ? ` (${timeStr})` : ''} : ${subjectName}${
                       isCurrentPeriod ? ' ★ 현재 진행 중인 수업' : ''
@@ -470,7 +470,7 @@ function TodayReportCard({
                     )}
                     <span
                       className={`block text-[9px] leading-tight ${
-                        isCurrentPeriod ? 'text-indigo-600 font-black' : 'text-indigo-500 font-bold'
+                        isCurrentPeriod ? 'text-indigo-600 dark:text-indigo-300 font-black' : 'text-indigo-500 dark:text-indigo-400 font-bold'
                       }`}
                     >
                       {periodNum}교시
@@ -478,8 +478,8 @@ function TodayReportCard({
                     <span
                       className={`block text-[11px] truncate ${
                         isCurrentPeriod
-                          ? 'font-black text-indigo-950 underline decoration-indigo-400 decoration-2 underline-offset-2'
-                          : 'font-semibold text-slate-800'
+                          ? 'font-black text-indigo-950 dark:text-indigo-100 underline decoration-indigo-400 decoration-2 underline-offset-2'
+                          : 'font-semibold text-slate-800 dark:text-slate-200'
                       }`}
                       title={subjectName}
                     >
@@ -488,7 +488,7 @@ function TodayReportCard({
                     {startTime && (
                       <span
                         className={`block text-[8px] font-mono tracking-tight leading-none mt-0.5 ${
-                          isCurrentPeriod ? 'text-indigo-600 font-bold' : 'text-slate-400 font-medium'
+                          isCurrentPeriod ? 'text-indigo-600 dark:text-indigo-300 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'
                         }`}
                       >
                         {startTime}
@@ -499,7 +499,7 @@ function TodayReportCard({
               })}
             </div>
           ) : (
-            <div className="py-2 text-center text-slate-400 text-xs font-medium">
+            <div className="py-2 text-center text-slate-400 dark:text-slate-500 text-xs font-medium">
               {loading ? '시간표 정보를 불러오는 중...' : '등록된 시간표 정보가 없습니다.'}
             </div>
           )}
@@ -509,26 +509,26 @@ function TodayReportCard({
       {/* D-7 UPCOMING NOTICES MODAL (D-1 to D-7) */}
       {showD7Modal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150"
           onClick={() => setShowD7Modal(false)}
         >
           <div
-            className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-slate-100 space-y-4 max-h-[85vh] flex flex-col"
+            className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-slate-100 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col transition-colors"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                <span className="w-7 h-7 rounded-xl bg-rose-100 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                   <Clock className="w-4 h-4" />
                 </span>
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
                   다가오는 수행평가 (D-7)
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowD7Modal(false)}
-                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+                className="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -544,7 +544,7 @@ function TodayReportCard({
                         setShowD7Modal(false);
                         onSelectNotice?.(notice);
                       }}
-                      className="p-3 rounded-2xl bg-slate-50 hover:bg-rose-50/70 border border-slate-200/80 hover:border-rose-200 transition-all cursor-pointer flex items-center justify-between gap-3 group"
+                      className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 hover:bg-rose-50/70 dark:hover:bg-rose-950/40 border border-slate-200/80 dark:border-slate-700 transition-all cursor-pointer flex items-center justify-between gap-3 group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span
@@ -557,22 +557,22 @@ function TodayReportCard({
                           {`D-${dday.days}`}
                         </span>
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-rose-600 truncate transition-colors">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-rose-600 dark:group-hover:text-rose-400 truncate transition-colors">
                             {notice.title}
                           </h4>
-                          <p className="text-[11px] text-slate-500 font-medium">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                             {notice.dateType === 'range'
                               ? `${notice.startDate} ~ ${notice.endDate}`
                               : notice.date || '마감일 미정'}
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 group-hover:translate-x-0.5 transition-all shrink-0" />
                     </div>
                   );
                 })
               ) : (
-                <div className="py-8 text-center text-slate-400 text-xs font-medium">
+                <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs font-medium">
                   다가오는 수행평가가 없습니다.
                 </div>
               )}

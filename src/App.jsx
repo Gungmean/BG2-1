@@ -269,7 +269,7 @@ export default function App() {
   }, [notices, selectedCategory, sortBy, searchQuery, statusTab]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans pb-24 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans pb-24 selection:bg-indigo-500 selection:text-white transition-colors">
       {/* Header Bar */}
       <Header
         isMonitor={isMonitor}

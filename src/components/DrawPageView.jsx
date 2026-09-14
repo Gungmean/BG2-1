@@ -749,22 +749,22 @@ export default function DrawPageView() {
       {/* ======================================================== */}
       {activeSubTab === 'number' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col items-center justify-between space-y-6">
-            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col items-center justify-between space-y-6">
+            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 font-extrabold text-xs border border-amber-200">
+                <span className="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-extrabold text-xs border border-amber-200 dark:border-amber-800/60">
                   총 25명 등록됨
                 </span>
                 {!allowDuplicate && (
-                  <span className="text-xs text-slate-500 font-medium">
-                    (남은 추첨 대상: <strong className="text-amber-600 font-bold">{remainingPool.length}</strong>명)
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    (남은 추첨 대상: <strong className="text-amber-600 dark:text-amber-400 font-bold">{remainingPool.length}</strong>명)
                   </span>
                 )}
               </div>
 
               <div className="flex items-center gap-4 flex-wrap">
                 {/* 추첨 연출 ON/OFF 토글 */}
-                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 select-none">
+                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 select-none">
                   <input
                     type="checkbox"
                     checked={isNumberAnimEnabled}
@@ -778,7 +778,7 @@ export default function DrawPageView() {
                 </label>
 
                 {/* 중복 추첨 허용 토글 */}
-                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 select-none">
+                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 select-none">
                   <input
                     type="checkbox"
                     checked={allowDuplicate}
@@ -790,13 +790,13 @@ export default function DrawPageView() {
               </div>
             </div>
 
-            <div className="w-full py-10 px-6 rounded-3xl bg-gradient-to-b from-amber-50/70 via-orange-50/40 to-slate-50 border border-amber-200/80 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[290px] shadow-inner">
+            <div className="w-full py-10 px-6 rounded-3xl bg-gradient-to-b from-amber-50/70 via-orange-50/40 to-slate-50 dark:from-amber-950/20 dark:via-orange-950/20 dark:to-slate-950/40 border border-amber-200/80 dark:border-amber-900/40 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[290px] shadow-inner">
               {drawStage === 'idle' ? (
                 <div className="space-y-3 text-slate-400">
-                  <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center mx-auto shadow-inner text-2xl">
+                  <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mx-auto shadow-inner text-2xl">
                     🎲
                   </div>
-                  <p className="font-extrabold text-slate-600 text-base">
+                  <p className="font-extrabold text-slate-600 dark:text-slate-200 text-base">
                     추첨하기 버튼을 눌러주세요
                   </p>
                   <p className="text-xs text-slate-400">
@@ -907,11 +907,11 @@ export default function DrawPageView() {
           </div>
 
           {/* Right Sidebar: Real-time Draw History Log */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <History className="w-4 h-4 text-amber-600" />
-                <h3 className="font-extrabold text-slate-900 text-sm">
+                <History className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
                   실시간 추첨 로그
                 </h3>
               </div>
@@ -938,19 +938,19 @@ export default function DrawPageView() {
                     exit={{ opacity: 0, x: 15 }}
                     className={`p-3 rounded-2xl border flex items-center justify-between text-xs transition-all ${
                       index === 0
-                        ? 'bg-amber-50/70 border-amber-200 shadow-sm'
-                        : 'bg-slate-50/60 border-slate-100 text-slate-600'
+                        ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 shadow-sm'
+                        : 'bg-slate-50/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-700/60 text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500 text-white font-extrabold text-[10px] flex items-center justify-center">
                         {drawLogs.length - index}
                       </span>
-                      <span className="font-extrabold text-slate-900 text-sm">
+                      <span className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
                         {log.number}번 {log.name}
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                       {log.time}
                     </span>
                   </motion.div>
@@ -958,7 +958,7 @@ export default function DrawPageView() {
               </AnimatePresence>
 
               {drawLogs.length === 0 && (
-                <div className="py-16 text-center text-slate-400 text-xs space-y-1">
+                <div className="py-16 text-center text-slate-400 dark:text-slate-500 text-xs space-y-1">
                   <p>아직 추첨 기록이 없습니다.</p>
                   <p className="text-[11px] text-slate-400/80">
                     (새로고침 시 자동으로 초기화됩니다)
@@ -967,7 +967,7 @@ export default function DrawPageView() {
               )}
             </div>
 
-            <div className="pt-2 text-[11px] text-slate-400 text-center border-t border-slate-100">
+            <div className="pt-2 text-[11px] text-slate-400 dark:text-slate-500 text-center border-t border-slate-100 dark:border-slate-800">
               💡 실시간 로그는 창을 닫거나 새로고침하면 삭제됩니다.
             </div>
           </div>
@@ -980,9 +980,9 @@ export default function DrawPageView() {
       {activeSubTab === 'seat' && (
         <div className="space-y-6">
           {/* Controls Bar */}
-          <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 flex-wrap w-full sm:w-auto">
-              <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200">
                 <Calendar className="w-3.5 h-3.5 text-blue-500" />
                 <span>기간 설정:</span>
                 <input
@@ -990,12 +990,12 @@ export default function DrawPageView() {
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value)}
                   placeholder="[8/24-9/18]"
-                  className="bg-white px-2 py-0.5 rounded border border-slate-200 font-mono text-xs focus:outline-none focus:border-blue-500"
+                  className="bg-white dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-600 font-mono text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               {/* 자리뽑기 슬롯 연출 ON/OFF 토글 */}
-              <label className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 cursor-pointer select-none">
+              <label className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={isSeatAnimEnabled}
@@ -1009,7 +1009,7 @@ export default function DrawPageView() {
               </label>
 
               {isGameStarted && !allRevealed && (
-                <span className="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800/60">
                   남은 물음표: {seatList.filter((s) => !s.isRevealed).length}석
                 </span>
               )}
@@ -1056,7 +1056,7 @@ export default function DrawPageView() {
                     type="button"
                     whileTap={{ scale: 0.95 }}
                     onClick={handlePrint}
-                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1"
+                    className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1"
                     title="인쇄하기"
                   >
                     <Printer className="w-4 h-4" />
@@ -1068,7 +1068,7 @@ export default function DrawPageView() {
           </div>
 
           {/* Interactive Classroom Seating View - Clean Spaced Table Architecture */}
-          <div className="bg-white rounded-3xl p-6 sm:p-12 border border-slate-200/90 shadow-sm overflow-x-auto flex flex-col items-center">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-12 border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-x-auto flex flex-col items-center">
             
             <div
               className="bg-white p-4 sm:p-8 text-black select-none w-full max-w-3xl"

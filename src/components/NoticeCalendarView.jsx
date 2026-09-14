@@ -362,7 +362,7 @@ export default function NoticeCalendarView({
   return (
     <div className="space-y-4">
       {/* Calendar Header Card with Motion */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 transition-colors">
         
         {/* Left: Mode Icon & Title */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -373,8 +373,8 @@ export default function NoticeCalendarView({
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
             className={`w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold shadow-sm transition-colors ${
               calendarMode === 'schedule'
-                ? 'bg-blue-600 text-white shadow-blue-200'
-                : 'bg-amber-500 text-white shadow-amber-200'
+                ? 'bg-blue-600 text-white shadow-blue-200 dark:shadow-none'
+                : 'bg-amber-500 text-white shadow-amber-200 dark:shadow-none'
             }`}
           >
             {calendarMode === 'schedule' ? (
@@ -385,20 +385,20 @@ export default function NoticeCalendarView({
           </motion.div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+              <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">
                 {year}년 {month + 1}월
               </h2>
               <span
                 className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-colors ${
                   calendarMode === 'schedule'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
-                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                    ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/60'
+                    : 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/60'
                 }`}
               >
                 {calendarMode === 'schedule' ? '📅 학급 일정 달력' : '🍱 월간 급식 달력'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {calendarMode === 'schedule'
                 ? '기간 지정 일정은 달력에 가로 바로 연결되어 표시됩니다.'
                 : '날짜를 클릭하면 해당 일자의 상세 급식 메뉴와 칼로리를 확인합니다.'}
@@ -410,18 +410,18 @@ export default function NoticeCalendarView({
         <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto flex-wrap">
           
           {/* Mode Switcher Pill with motion.dev layoutId */}
-          <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200/80 relative">
+          <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1 border border-slate-200/80 dark:border-slate-700 relative">
             <button
               type="button"
               onClick={() => setCalendarMode('schedule')}
               className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                calendarMode === 'schedule' ? 'text-blue-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                calendarMode === 'schedule' ? 'text-blue-600 dark:text-blue-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               {calendarMode === 'schedule' && (
                 <motion.div
                   layoutId="calendarModePill"
-                  className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-sm"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
@@ -433,13 +433,13 @@ export default function NoticeCalendarView({
               type="button"
               onClick={() => setCalendarMode('meal')}
               className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                calendarMode === 'meal' ? 'text-amber-600 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                calendarMode === 'meal' ? 'text-amber-600 dark:text-amber-400 font-extrabold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
               }`}
             >
               {calendarMode === 'meal' && (
                 <motion.div
                   layoutId="calendarModePill"
-                  className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-sm"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
@@ -453,26 +453,26 @@ export default function NoticeCalendarView({
             <motion.button
               whileTap={{ scale: 0.94 }}
               onClick={handleToday}
-              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors"
             >
               오늘
             </motion.button>
-            <div className="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200">
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5 border border-slate-200 dark:border-slate-700">
               <motion.button
                 whileTap={{ scale: 0.85 }}
                 onClick={handlePrevMonth}
-                className="p-1.5 rounded-lg text-slate-700 hover:bg-white transition-all"
+                className="p-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition-all"
                 title="이전 달"
               >
                 <ChevronLeft className="w-4 h-4" />
               </motion.button>
-              <span className="px-2 text-xs font-extrabold text-slate-800">
+              <span className="px-2 text-xs font-extrabold text-slate-800 dark:text-slate-200">
                 {month + 1}월
               </span>
               <motion.button
                 whileTap={{ scale: 0.85 }}
                 onClick={handleNextMonth}
-                className="p-1.5 rounded-lg text-slate-700 hover:bg-white transition-all"
+                className="p-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition-all"
                 title="다음 달"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -498,10 +498,10 @@ export default function NoticeCalendarView({
       {/* Main Calendar Grid */}
       <motion.div
         layout
-        className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden p-3 sm:p-4"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden p-3 sm:p-4 transition-colors"
       >
         {/* Day Names Row */}
-        <div className="grid grid-cols-7 text-center font-extrabold text-xs text-slate-500 mb-2 border-b border-slate-100 pb-2">
+        <div className="grid grid-cols-7 text-center font-extrabold text-xs text-slate-500 dark:text-slate-400 mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
           <span className="text-rose-600">일</span>
           <span>월</span>
           <span>화</span>
@@ -552,10 +552,10 @@ export default function NoticeCalendarView({
                             ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-400'
                             : 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-400'
                           : hasHoliday
-                          ? 'bg-rose-50/30 border-rose-100'
+                          ? 'bg-rose-50/30 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/40'
                           : isWeekend
-                          ? 'bg-slate-50/60 border-slate-100'
-                          : 'bg-white border-slate-100 hover:border-slate-300'
+                          ? 'bg-slate-50/60 dark:bg-slate-850/60 border-slate-100 dark:border-slate-800'
+                          : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                       }`}
                     >
                       {/* Cell Header: Date Number & Badges */}
@@ -567,16 +567,16 @@ export default function NoticeCalendarView({
                                 ? 'bg-blue-600 text-white shadow-sm'
                                 : 'bg-amber-500 text-white shadow-sm'
                               : cell.isToday
-                              ? 'bg-slate-800 text-white shadow-sm'
+                              ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-sm'
                               : hasHoliday
                               ? 'text-rose-600 font-black'
                               : isSunday
                               ? 'text-rose-600'
                               : isSaturday
-                              ? 'text-blue-600'
+                              ? 'text-blue-600 dark:text-blue-400'
                               : cell.isCurrentMonth
-                              ? 'text-slate-800'
-                              : 'text-slate-400'
+                              ? 'text-slate-800 dark:text-slate-200'
+                              : 'text-slate-400 dark:text-slate-600'
                           }`}
                         >
                           {cell.dayNum}
@@ -833,26 +833,26 @@ export default function NoticeCalendarView({
       </motion.div>
 
       {/* Selected Day Agenda Section */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-3 transition-colors">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
             <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-sm ${
-                calendarMode === 'schedule' ? 'bg-blue-600 shadow-blue-200' : 'bg-amber-500 shadow-amber-200'
+                calendarMode === 'schedule' ? 'bg-blue-600 shadow-blue-200 dark:shadow-none' : 'bg-amber-500 shadow-amber-200 dark:shadow-none'
               }`}
             >
               {calendarMode === 'schedule' ? <CalendarIcon className="w-4 h-4" /> : <Utensils className="w-4 h-4" />}
             </div>
             <div>
-              <h3 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+              <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
                 <span>{selectedDateFormattedText} 일정</span>
                 {isSameDate(new Date(selectedDateStr + 'T00:00:00'), new Date()) && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
                     오늘
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {calendarMode === 'schedule'
                   ? `총 ${selectedNotices.length}건의 안내 및 행사`
                   : '선택일 급식 안내'}
@@ -938,7 +938,7 @@ export default function NoticeCalendarView({
                     key={n.id}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => onSelectNotice && onSelectNotice(n)}
-                    className="p-3.5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/20 transition-all cursor-pointer space-y-2 group bg-white shadow-xs"
+                    className="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/20 dark:hover:bg-slate-800/80 transition-all cursor-pointer space-y-2 group bg-white dark:bg-slate-850 shadow-xs"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -947,27 +947,27 @@ export default function NoticeCalendarView({
                         >
                           {n.category}
                         </span>
-                        <span className="text-[11px] font-bold text-slate-500">
+                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                           {n.dateType === 'range' ? `${n.startDate} ~ ${n.endDate}` : n.date}
                         </span>
                       </div>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                           dday.text === 'D-DAY'
-                            ? 'bg-rose-100 text-rose-700 font-black animate-pulse'
+                            ? 'bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 font-black animate-pulse'
                             : dday.text === '진행 중'
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-slate-100 text-slate-600'
+                            ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         {dday.text}
                       </span>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">
+                    <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {n.title}
                     </h4>
                     {n.content && (
-                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                         {n.content}
                       </p>
                     )}
@@ -1028,18 +1028,18 @@ export default function NoticeCalendarView({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="relative z-10 bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[85vh] flex flex-col"
+              className="relative z-10 bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col transition-colors"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                     <CalendarIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-slate-900 text-base">
+                    <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                       {selectedDayNotices.dateStr} 일정 및 학사안내
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       총 {selectedDayNotices.notices.length}건의 안내 및 행사
                     </p>
                   </div>
@@ -1227,34 +1227,34 @@ export default function NoticeCalendarView({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="relative z-10 bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-5"
+              className="relative z-10 bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-5 transition-colors"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-200">
+                  <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-200 dark:shadow-none">
                     <Utensils className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-slate-900 text-base">
+                    <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
                       {selectedDayMeal.dateStr} 오늘의 급식
                     </h3>
-                    <span className="text-[11px] font-bold text-amber-600">
+                    <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
                       부광고등학교 {selectedDayMeal.meal.type || '중식'} 식단표
                     </span>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedDayMeal(null)}
-                  className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 transition-colors"
+                  className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Menu List */}
-              <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-100/80 space-y-2.5">
-                <div className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <div className="bg-amber-50/50 dark:bg-amber-950/30 rounded-2xl p-4 border border-amber-100/80 dark:border-amber-900/40 space-y-2.5">
+                <div className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>식단 구성 메뉴</span>
                 </div>
                 <ul className="space-y-1.5 pt-1">
@@ -1264,10 +1264,10 @@ export default function NoticeCalendarView({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-amber-100/60 shadow-sm text-xs font-bold text-slate-800"
+                      className="flex items-center justify-between bg-white dark:bg-slate-800 px-3 py-2 rounded-xl border border-amber-100/60 dark:border-slate-700 shadow-sm text-xs font-bold text-slate-800 dark:text-slate-200"
                     >
                       <span>{cleanDishName(dish)}</span>
-                      <span className="text-[10px] text-slate-400 font-normal">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
                         {dish.match(/\([0-9.]+\)/)?.[0] || ''}
                       </span>
                     </motion.li>
