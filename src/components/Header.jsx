@@ -190,9 +190,6 @@ export default function Header({ isMonitor, onOpenPinModal, onOpenSettings, onRe
               부광이일
             </span>
           </div>
-          <span className="hidden sm:inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/50">
-            인천 부광고 2학년 1반
-          </span>
         </div>
 
         {/* CENTER: 실시간 날짜 · 디지털 시계 · 시험 D-Day · 날씨 위젯 */}
