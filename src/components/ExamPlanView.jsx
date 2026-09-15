@@ -147,22 +147,10 @@ export default function ExamPlanView({ isMonitor, notices = [], onSelectNotice }
     }
   };
 
-  // Helper to find linked notice
-  const getLinkedNotice = (pa, subjectName) => {
-    if (pa.linkedNoticeId) {
-      const found = notices.find((n) => n.id === pa.linkedNoticeId);
-      if (found) return found;
-    }
-    // Fallback automatic search by title match
-    if (subjectName) {
-      const autoMatch = notices.find(
-        (n) =>
-          n.category === '수행평가' &&
-          (n.title.includes(subjectName) || subjectName.includes(n.title.slice(0, 2)))
-      );
-      if (autoMatch) return autoMatch;
-    }
-    return null;
+  // Helper to find linked notice (strictly by explicit linkedNoticeId)
+  const getLinkedNotice = (pa) => {
+    if (!pa || !pa.linkedNoticeId) return null;
+    return notices.find((n) => n.id === pa.linkedNoticeId) || null;
   };
 
   return (
@@ -513,7 +501,7 @@ export default function ExamPlanView({ isMonitor, notices = [], onSelectNotice }
                     {plan.performanceAssessments && plan.performanceAssessments.length > 0 ? (
                       <div className="grid grid-cols-1 gap-3">
                         {plan.performanceAssessments.map((pa, idx) => {
-                          const linkedNotice = getLinkedNotice(pa, plan.subject);
+                          const linkedNotice = getLinkedNotice(pa);
                           const dday = linkedNotice ? calculateDDay(linkedNotice) : null;
 
                           return (
