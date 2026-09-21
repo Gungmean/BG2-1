@@ -1,6 +1,21 @@
-import React from 'react';
-import { X, Calendar, Clock, Pin, Trash2, Edit3, Image as ImageIcon, FileText, Building2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  X,
+  Calendar,
+  Clock,
+  Pin,
+  Trash2,
+  Edit3,
+  Image as ImageIcon,
+  FileText,
+  Building2,
+  ZoomIn,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
+import ImageViewerModal from './ImageViewerModal';
 
 export default function DetailModal({
   notice,
@@ -9,9 +24,60 @@ export default function DetailModal({
   onEdit,
   onDelete,
   onTogglePin,
-  onOpenPinModal
+  onOpenPinModal,
 }) {
   if (!notice) return null;
+
+  // Multi-image list normalization
+  const imageList = Array.isArray(notice.imageUrls) && notice.imageUrls.length > 0
+    ? notice.imageUrls
+    : (notice.imageUrl ? [notice.imageUrl] : []);
+
+  const [selectedImgIndex, setSelectedImgIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+
+  // Reset index when viewing a new notice
+  useEffect(() => {
+    setSelectedImgIndex(0);
+    setIsViewerOpen(false);
+  }, [notice.id]);
+
+  // Single image download helper
+  const handleDownloadCurrent = async () => {
+    const currentImg = imageList[selectedImgIndex];
+    if (!currentImg) return;
+
+    try {
+      const safeTitle = (notice.title || '사진')
+        .replace(/[/\\?%*:|"<>]/g, '_')
+        .slice(0, 30);
+      const fileName = `${safeTitle}_사진${selectedImgIndex + 1}.jpg`;
+
+      if (currentImg.startsWith('data:')) {
+        const link = document.createElement('a');
+        link.href = currentImg;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      const response = await fetch(currentImg, { mode: 'cors' });
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.warn('직접 다운로드 실패, 새 탭 열기로 대체합니다.', err);
+      window.open(currentImg, '_blank');
+    }
+  };
 
   const dday = calculateDDay(notice);
   const displayDateText =
@@ -93,14 +159,106 @@ export default function DetailModal({
             </div>
           </div>
 
-          {/* Image if available */}
-          {notice.imageUrl && (
-            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 max-h-80 flex items-center justify-center">
-              <img
-                src={notice.imageUrl}
-                alt={notice.title}
-                className="w-full h-full object-contain max-h-80"
-              />
+          {/* Image Gallery if available */}
+          {imageList.length > 0 && (
+            <div className="space-y-2">
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-900/5 dark:bg-slate-950 flex items-center justify-center max-h-96 group select-none">
+                {/* 메인 이미지 */}
+                <img
+                  src={imageList[selectedImgIndex]}
+                  alt={`${notice.title} - ${selectedImgIndex + 1}`}
+                  onClick={() => setIsViewerOpen(true)}
+                  className="w-full h-full object-contain max-h-96 cursor-zoom-in transition-transform duration-200 group-hover:scale-[1.01]"
+                />
+
+                {/* 다중 사진일 때 좌/우 넘기기 버튼 */}
+                {imageList.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImgIndex((prev) => (prev > 0 ? prev - 1 : imageList.length - 1));
+                      }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white/90 hover:text-white transition-all backdrop-blur-xs opacity-0 group-hover:opacity-100 cursor-pointer shadow-md"
+                      title="이전 사진"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImgIndex((prev) => (prev < imageList.length - 1 ? prev + 1 : 0));
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white/90 hover:text-white transition-all backdrop-blur-xs opacity-0 group-hover:opacity-100 cursor-pointer shadow-md"
+                      title="다음 사진"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+
+                {/* 상단 오버레이 툴바: 사진 카운터 & 액션 버튼 (확대, 저장) */}
+                <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none">
+                  {imageList.length > 1 ? (
+                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs text-white text-[11px] font-bold shadow-xs pointer-events-auto">
+                      {selectedImgIndex + 1} / {imageList.length}
+                    </span>
+                  ) : <span />}
+
+                  <div className="flex items-center gap-1.5 pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDownloadCurrent();
+                      }}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 hover:bg-blue-600 text-white text-[11px] font-bold transition-all backdrop-blur-xs shadow-xs cursor-pointer"
+                      title="이 사진 기기에 저장"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>저장</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsViewerOpen(true);
+                      }}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/90 text-white text-[11px] font-bold transition-all backdrop-blur-xs shadow-xs cursor-pointer"
+                      title="크게 확대해서 보기"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                      <span>확대</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 사진이 여러 장일 경우 하단 썸네일 스트립 */}
+              {imageList.length > 1 && (
+                <div className="flex items-center gap-2 overflow-x-auto py-1 px-0.5">
+                  {imageList.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedImgIndex(idx)}
+                      className={`w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                        idx === selectedImgIndex
+                          ? 'border-blue-600 ring-2 ring-blue-400/40 scale-105 shadow-sm'
+                          : 'border-slate-200 dark:border-slate-700 opacity-60 hover:opacity-100 hover:border-slate-400'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`썸네일 ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -115,6 +273,15 @@ export default function DetailModal({
             </p>
           </div>
         </div>
+
+        {/* ImageViewerModal for Fullscreen Zoom and Actions */}
+        <ImageViewerModal
+          isOpen={isViewerOpen}
+          images={imageList}
+          initialIndex={selectedImgIndex}
+          title={notice.title}
+          onClose={() => setIsViewerOpen(false)}
+        />
 
         {/* Modal Footer & Actions */}
         <div className="px-5 py-3 bg-slate-50 dark:bg-slate-850 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">

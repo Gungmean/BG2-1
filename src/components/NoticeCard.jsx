@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { Calendar, Pin, Trash2, Edit3, Clock } from 'lucide-react';
+import { Calendar, Pin, Trash2, Edit3, Clock, Images } from 'lucide-react';
 import { calculateDDay } from '../services/storageService';
 
 const CATEGORY_STYLES = {
@@ -16,19 +16,13 @@ const NoticeCard = forwardRef(function NoticeCard({
   onEdit,
   onDelete,
   onTogglePin,
-  onOpenPinModal
+  onOpenPinModal,
+  selected = false
 }, ref) {
   const dday = calculateDDay(notice);
-  const catStyle = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES.기타;
+  const catStyle = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES['기타'];
 
-  const displayDateText =
-    notice.dateType === 'none' || (!notice.date && !notice.startDate && !notice.endDate)
-      ? '기한 없음 (상시)'
-      : notice.dateType === 'range' && notice.startDate && notice.endDate
-      ? `${notice.startDate} ~ ${notice.endDate}`
-      : notice.date || notice.startDate || '기한 없음';
-
-  const handleDeleteClick = (e) => {
+  const handleDelete = (e) => {
     e.stopPropagation();
     if (!isMonitor) {
       if (window.confirm('게시물 삭제는 반장 권한이 필요합니다. 반장 인증 창으로 이동하시겠습니까?')) {
@@ -39,14 +33,44 @@ const NoticeCard = forwardRef(function NoticeCard({
     }
   };
 
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    onEdit(notice);
+  };
+
+  const handlePin = (e) => {
+    e.stopPropagation();
+    onTogglePin(notice.id);
+  };
+
+  const displayDate =
+    notice.dateType === 'none' || (!notice.date && !notice.startDate && !notice.endDate)
+      ? '상시'
+      : notice.dateType === 'range' && notice.startDate && notice.endDate
+      ? `${notice.startDate} ~ ${notice.endDate}`
+      : notice.date || notice.startDate || '';
+
+  const multiImageCount = Array.isArray(notice.imageUrls) ? notice.imageUrls.length : (notice.imageUrl ? 1 : 0);
+
   return (
     <div
       ref={ref}
+      tabIndex={0}
+      role="button"
+      aria-label={`${notice.title} 공지사항 카드`}
       onClick={() => onSelect(notice)}
-      className={`group relative bg-white dark:bg-slate-850 rounded-2xl border cursor-pointer overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-[border-color,box-shadow,transform,background-color] duration-150 flex flex-row items-stretch h-28 max-h-28 ${
-        notice.pinned
-          ? 'border-blue-400 dark:border-blue-500/70 ring-1 ring-blue-500/20 bg-gradient-to-r from-blue-50/20 dark:from-blue-950/30 to-white dark:to-slate-850'
-          : 'border-slate-200/90 dark:border-slate-750 hover:border-blue-300 dark:hover:border-blue-500/60'
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(notice);
+        }
+      }}
+      className={`group relative flex items-stretch rounded-2xl bg-white dark:bg-slate-850 border transition-all duration-200 hover:shadow-md cursor-pointer overflow-hidden ${
+        selected
+          ? 'border-blue-500 ring-2 ring-blue-500/30'
+          : notice.pinned
+          ? 'border-indigo-300/80 dark:border-indigo-700/80 bg-gradient-to-r from-indigo-50/20 via-white to-white dark:from-indigo-950/20 dark:via-slate-850 dark:to-slate-850'
+          : 'border-slate-200/90 dark:border-slate-750 hover:border-blue-300 dark:hover:border-slate-650'
       }`}
     >
       {/* 1. LEFT THUMBNAIL AREA (Strictly aspect-square 112px x 112px) */}
@@ -71,6 +95,14 @@ const NoticeCard = forwardRef(function NoticeCard({
           <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-blue-600 text-white text-[9px] font-black flex items-center gap-0.5 shadow-xs z-10">
             <Pin className="w-2.5 h-2.5 fill-white" />
             <span>고정</span>
+          </div>
+        )}
+
+        {/* Multi-image count badge */}
+        {multiImageCount > 1 && (
+          <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-xs text-white text-[9px] font-black flex items-center gap-1 shadow-xs z-10">
+            <Images className="w-2.5 h-2.5" />
+            <span>{multiImageCount}</span>
           </div>
         )}
       </div>

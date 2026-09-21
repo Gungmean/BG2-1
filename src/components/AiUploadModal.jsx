@@ -1,7 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Upload, Sparkles, AlertCircle, CheckCircle2, RefreshCw, X, Key, Zap, Edit3, Calendar } from 'lucide-react';
+import { Camera, Upload, Sparkles, AlertCircle, CheckCircle2, RefreshCw, X, Key, Zap, Edit3, Calendar, Plus } from 'lucide-react';
 import { analyzeNoticeImage } from '../services/aiService';
 import { getLocalDateString, getStoredApiKey, setStoredApiKey } from '../services/storageService';
+
+// Helper: Client-side image resizing and compression using Canvas to guarantee lightweight localStorage usage
+function resizeImageFile(file, maxWidth = 1280, maxHeight = 1280, quality = 0.8) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function AiUploadModal({
   isOpen,
@@ -14,7 +48,20 @@ export default function AiUploadModal({
   const [step, setStep] = useState(
     isEdit ? 'review' : initialMode === 'manual' ? 'manual' : 'upload'
   );
-  const [selectedImage, setSelectedImage] = useState(editNoticeData?.imageUrl || null);
+
+  // Multi-image state: array of image data URLs
+  const getInitialImages = (data) => {
+    if (!data) return [];
+    if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
+      return [...data.imageUrls];
+    }
+    if (data.imageUrl) {
+      return [data.imageUrl];
+    }
+    return [];
+  };
+
+  const [selectedImages, setSelectedImages] = useState(getInitialImages(editNoticeData));
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysisMode, setAiAnalysisMode] = useState('');
   const [apiErrorMessage, setApiErrorMessage] = useState('');
@@ -54,7 +101,7 @@ export default function AiUploadModal({
         endDate: editNoticeData?.endDate || editNoticeData?.date || getTodayDate(),
         category: editNoticeData?.category || '학사일정'
       });
-      setSelectedImage(editNoticeData?.imageUrl || null);
+      setSelectedImages(getInitialImages(editNoticeData));
       setApiErrorMessage('');
       setAiAnalysisMode('');
     }
@@ -73,19 +120,34 @@ export default function AiUploadModal({
     alert('API Key가 저장되었습니다!');
   };
 
-  // Image Upload and AI Analysis
+  // Image Upload and AI Analysis (supports multi-file selection)
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-    // Convert to Data URL for preview & processing
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = reader.result;
-      setSelectedImage(dataUrl);
-      startAiAnalysis(dataUrl);
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(fileList);
+    const resizedUrls = await Promise.all(files.map((f) => resizeImageFile(f)));
+
+    setSelectedImages((prev) => [...prev, ...resizedUrls]);
+
+    // Analyze first image with AI
+    if (resizedUrls.length > 0) {
+      startAiAnalysis(resizedUrls[0]);
+    }
+  };
+
+  // Append more images in review/manual step
+  const handleAddMoreImages = async (e) => {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+
+    const files = Array.from(fileList);
+    const resizedUrls = await Promise.all(files.map((f) => resizeImageFile(f)));
+    setSelectedImages((prev) => [...prev, ...resizedUrls]);
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    setSelectedImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const startAiAnalysis = async (imageDataUrl) => {
@@ -156,7 +218,8 @@ export default function AiUploadModal({
       date: finalDate,
       startDate: finalStartDate,
       endDate: finalEndDate,
-      imageUrl: selectedImage,
+      imageUrl: selectedImages[0] || '',
+      imageUrls: selectedImages,
       id: editNoticeData?.id || undefined
     });
 
@@ -232,6 +295,7 @@ export default function AiUploadModal({
               <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl p-8 text-center bg-slate-50 dark:bg-slate-850 transition-colors cursor-pointer relative group">
                 <input
                   type="file"
+                  multiple
                   accept="image/*"
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -242,10 +306,10 @@ export default function AiUploadModal({
                   </div>
                   <div>
                     <p className="font-bold text-slate-800 dark:text-slate-200 text-sm">
-                      안내문/포스터 사진을 클릭하여 업로드하세요
+                      안내문/포스터 사진을 클릭하여 업로드하세요 (여러 장 선택 가능)
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      JPG, PNG, GIF 이미지 파일 지원 (스마트폰으로 촬영한 학급 공지 사진)
+                      JPG, PNG, GIF 이미지 파일 다중 지원 (자동 최적화 압축)
                     </p>
                   </div>
                 </div>
@@ -307,44 +371,74 @@ export default function AiUploadModal({
           {/* STEP 3 & MANUAL: Form Editing */}
           {(step === 'review' || step === 'manual') && (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Image Preview & Upload Section */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-200/90 dark:border-slate-800 space-y-2">
+              {/* Image Preview & Upload Section (Multi-Image Support) */}
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-850 rounded-2xl border border-slate-200/90 dark:border-slate-800 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Camera className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    <span>게시물 첨부 사진 (선택)</span>
-                  </label>
-                  {selectedImage && (
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <span>게시물 첨부 사진</span>
+                    </label>
+                    {selectedImages.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[10px] font-black">
+                        총 {selectedImages.length}장
+                      </span>
+                    )}
+                  </div>
+                  {selectedImages.length > 0 && (
                     <button
                       type="button"
-                      onClick={() => setSelectedImage(null)}
-                      className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 hover:underline"
+                      onClick={() => setSelectedImages([])}
+                      className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 flex items-center gap-1 hover:underline cursor-pointer"
                     >
-                      <X className="w-3.5 h-3.5" /> 사진 삭제
+                      <X className="w-3.5 h-3.5" /> 모두 삭제
                     </button>
                   )}
                 </div>
 
-                {selectedImage ? (
-                  <div className="relative rounded-xl overflow-hidden bg-slate-900/5 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 max-h-48 group">
-                    <img
-                      src={selectedImage}
-                      alt="첨부 사진 미리보기"
-                      className="w-full h-48 object-contain bg-slate-100 dark:bg-slate-800"
-                    />
-                    <label className="absolute bottom-2 right-2 px-3 py-1.5 bg-slate-900/80 hover:bg-slate-900 dark:bg-slate-800/90 text-white rounded-lg text-xs font-bold cursor-pointer transition-colors shadow flex items-center gap-1">
-                      <Camera className="w-3.5 h-3.5" />
-                      <span>사진 변경</span>
+                {selectedImages.length > 0 ? (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 pt-1">
+                    {selectedImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="relative rounded-xl overflow-hidden aspect-square border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 group shadow-xs"
+                      >
+                        <img
+                          src={img}
+                          alt={`첨부 이미지 ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* 첫 번째 사진 대표 뱃지 */}
+                        {idx === 0 && (
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-blue-600 text-white text-[9px] font-black shadow-xs pointer-events-none">
+                            대표
+                          </span>
+                        )}
+                        {/* 삭제 버튼 */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="absolute top-1 right-1 p-1 rounded-full bg-black/60 hover:bg-black/90 text-white transition-colors cursor-pointer shadow-xs"
+                          title="이 사진 삭제"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* 추가 사진 첨부 버튼 */}
+                    <label className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/40 dark:hover:bg-slate-800/60 rounded-xl aspect-square flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors group">
+                      <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Plus className="w-4 h-4" />
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                        사진 추가
+                      </span>
                       <input
                         type="file"
+                        multiple
                         accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = () => setSelectedImage(reader.result);
-                          reader.readAsDataURL(file);
-                        }}
+                        onChange={handleAddMoreImages}
                         className="hidden"
                       />
                     </label>
@@ -355,21 +449,16 @@ export default function AiUploadModal({
                       <Upload className="w-4 h-4" />
                     </div>
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      클릭하여 사진/포스터 첨부
+                      클릭하여 사진/포스터 첨부 (여러 장 가능)
                     </span>
                     <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                      JPG, PNG, GIF 이미지 파일 지원
+                      JPG, PNG, GIF 이미지 파일 지원 (자동 압축)
                     </span>
                     <input
                       type="file"
+                      multiple
                       accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        const reader = new FileReader();
-                        reader.onload = () => setSelectedImage(reader.result);
-                        reader.readAsDataURL(file);
-                      }}
+                      onChange={handleAddMoreImages}
                       className="hidden"
                     />
                   </label>

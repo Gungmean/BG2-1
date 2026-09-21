@@ -67,6 +67,15 @@ function deduplicateNotices(list) {
     if (seenIds.has(item.id)) continue;
     seenIds.add(item.id);
     const { author, ...cleanItem } = item;
+
+    // Normalize imageUrl and imageUrls for seamless multi-image support
+    let finalUrls = Array.isArray(cleanItem.imageUrls) ? [...cleanItem.imageUrls] : [];
+    if (finalUrls.length === 0 && cleanItem.imageUrl) {
+      finalUrls = [cleanItem.imageUrl];
+    }
+    cleanItem.imageUrls = finalUrls;
+    cleanItem.imageUrl = finalUrls[0] || cleanItem.imageUrl || '';
+
     result.push(cleanItem);
   }
   return result;
@@ -98,25 +107,34 @@ export function getNotices() {
 export function saveNotices(notices) {
   const clean = deduplicateNotices(notices);
 
-  // Preemptively cap base64 image strings to 300KB in localStorage to guarantee never exceeding 5MB quota
+  // Preemptively cap base64 image strings in localStorage to guarantee never exceeding 5MB quota
   const safeForLocalStorage = clean.map((item) => {
-    if (item.imageUrl && item.imageUrl.startsWith('data:') && item.imageUrl.length > 300000) {
-      return { ...item, imageUrl: '' };
-    }
-    return item;
+    let safeUrls = Array.isArray(item.imageUrls) ? item.imageUrls : (item.imageUrl ? [item.imageUrl] : []);
+    safeUrls = safeUrls.filter((url) => {
+      if (typeof url === 'string' && url.startsWith('data:') && url.length > 500000) {
+        return false;
+      }
+      return Boolean(url);
+    });
+
+    const primaryUrl = safeUrls[0] || '';
+    return {
+      ...item,
+      imageUrls: safeUrls,
+      imageUrl: primaryUrl,
+    };
   });
 
   try {
     localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(safeForLocalStorage));
   } catch (e) {
-    console.warn('LocalStorage QuotaExceeded fallback: stripping all data:image URLs', e);
+    console.warn('LocalStorage QuotaExceeded fallback: stripping large data:image URLs', e);
     try {
-      const minimal = clean.map((item) => {
-        if (item.imageUrl && item.imageUrl.startsWith('data:')) {
-          return { ...item, imageUrl: '' };
-        }
-        return item;
-      });
+      const minimal = clean.map((item) => ({
+        ...item,
+        imageUrl: item.imageUrl && item.imageUrl.startsWith('data:') ? '' : item.imageUrl,
+        imageUrls: (item.imageUrls || []).filter((u) => !u.startsWith('data:')),
+      }));
       localStorage.setItem(STORAGE_KEY_NOTICES, JSON.stringify(minimal));
     } catch (e2) {
       console.error('Failed to save notices to localStorage even with stripped images', e2);
