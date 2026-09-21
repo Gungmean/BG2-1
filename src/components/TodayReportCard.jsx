@@ -52,6 +52,45 @@ function TodayReportCard({
     return () => clearInterval(timer);
   }, []);
 
+  // 알림 클릭(Notification Click / Service Worker / URL 파라미터) 시 내일 리포트 자동 팝업
+  useEffect(() => {
+    const handleOpenTomorrow = () => {
+      setDayTab('tomorrow');
+      setShowBigReportModal(true);
+    };
+
+    // 1. URL 쿼리 파라미터 (?openReport=tomorrow) 체크
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('openReport') === 'tomorrow') {
+        handleOpenTomorrow();
+        // URL 정리
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+
+    // 2. 일반 CustomEvent 수신
+    window.addEventListener('OPEN_TOMORROW_REPORT', handleOpenTomorrow);
+
+    // 3. 서비스 워커 postMessage 수신
+    let swHandler = null;
+    if ('serviceWorker' in navigator) {
+      swHandler = (event) => {
+        if (event.data && event.data.action === 'OPEN_TOMORROW_REPORT') {
+          handleOpenTomorrow();
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', swHandler);
+    }
+
+    return () => {
+      window.removeEventListener('OPEN_TOMORROW_REPORT', handleOpenTomorrow);
+      if (swHandler && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', swHandler);
+      }
+    };
+  }, []);
+
   // Current Target Date calculation
   const today = new Date();
   const targetDate = dayTab === 'today' ? today : addDays(today, 1);

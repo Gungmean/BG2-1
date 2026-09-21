@@ -106,3 +106,29 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
+
+// Notification Click: 알림 클릭 시 앱 창 활성화 및 내일 리포트 열기
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || '/?openReport=tomorrow';
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // 이미 열려있는 창이 있으면 포커스 후 postMessage 전송
+        for (const client of clientList) {
+          if ('focus' in client) {
+            client.postMessage({ action: 'OPEN_TOMORROW_REPORT' });
+            return client.focus();
+          }
+        }
+        // 열려있는 창이 없으면 타겟 URL로 새 창 열기
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+      })
+  );
+});
+

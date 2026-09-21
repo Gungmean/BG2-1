@@ -27,6 +27,7 @@ import {
   getSessionMonitorStatus,
   setSessionMonitorStatus
 } from './services/storageService';
+import { initDailyScheduler } from './services/notificationService';
 
 const AiUploadModal = React.lazy(() => import('./components/AiUploadModal'));
 const DrawPageView = React.lazy(() => import('./components/DrawPageView'));
@@ -103,6 +104,7 @@ export default function App() {
   // Initial load
   useEffect(() => {
     refreshNotices();
+    initDailyScheduler();
     const unsubscribe = subscribeCollection('notices', refreshNotices);
     return unsubscribe;
   }, []);
