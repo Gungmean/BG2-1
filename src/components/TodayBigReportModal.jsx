@@ -362,163 +362,83 @@ export default function TodayBigReportModal({
                   <span className="text-xs">다음 주 월요일 시간표를 미리 확인해보세요.</span>
                 </div>
               ) : timetableList.length > 0 ? (
-                <div className="space-y-4 flex-1">
-                  {/* 오전 수업 (1~4교시) */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                      <span>오전 수업 (1~4교시)</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-                      {timetableList
-                        .filter((item, idx) => {
-                          const p = typeof item === 'object' && item?.period ? Number(item.period) : idx + 1;
-                          return p <= 4;
-                        })
-                        .map((item, idx) => {
-                          const subjectName =
-                            typeof item === 'object' && item !== null
-                              ? item.subject || item.name || ''
-                              : String(item || '');
-                          const periodNum =
-                            typeof item === 'object' && item !== null && item.period
-                              ? item.period
-                              : idx + 1;
-                          const timeInfo = PERIOD_SCHEDULE[String(periodNum)];
-                          const timeStr =
-                            (typeof item === 'object' && item !== null && item.time) ||
-                            timeInfo?.time ||
-                            '';
-                          const isCurrent =
-                            dayTab === 'today' &&
-                            currentPeriod !== null &&
-                            Number(periodNum) === currentPeriod;
+                <div className="flex-1">
+                  <div className="grid grid-cols-7 gap-1.5 sm:gap-2.5">
+                    {timetableList.map((item, idx) => {
+                      const subjectName =
+                        typeof item === 'object' && item !== null
+                          ? item.subject || item.name || ''
+                          : String(item || '');
+                      const periodNum =
+                        typeof item === 'object' && item !== null && item.period
+                          ? item.period
+                          : idx + 1;
+                      const timeInfo = PERIOD_SCHEDULE[String(periodNum)];
+                      const timeStr =
+                        (typeof item === 'object' && item !== null && item.time) ||
+                        timeInfo?.time ||
+                        '';
+                      const startTime =
+                        (typeof item === 'object' && item !== null && item.startTime) ||
+                        timeInfo?.start ||
+                        '';
+                      const endTime =
+                        (typeof item === 'object' && item !== null && item.endTime) ||
+                        timeInfo?.end ||
+                        '';
 
-                          return (
-                            <div
-                              key={`morning-${periodNum}`}
-                              className={`p-3.5 rounded-2xl flex flex-col justify-between transition-all relative ${
+                      const isCurrent =
+                        dayTab === 'today' &&
+                        currentPeriod !== null &&
+                        Number(periodNum) === currentPeriod;
+
+                      return (
+                        <div
+                          key={`period-${periodNum}`}
+                          className={`p-2 sm:p-3 rounded-2xl text-center flex flex-col justify-between transition-all relative ${
+                            isCurrent
+                              ? 'bg-gradient-to-b from-indigo-50 to-blue-100/90 dark:from-indigo-950/90 dark:to-blue-900/60 border-2 border-indigo-500 dark:border-indigo-400 shadow-md ring-2 ring-indigo-400/30'
+                              : 'bg-slate-50 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60'
+                          }`}
+                        >
+                          {isCurrent && (
+                            <span className="absolute -top-1.5 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-black bg-indigo-600 text-white shadow-xs animate-pulse">
+                              수업 중
+                            </span>
+                          )}
+                          <div>
+                            <span
+                              className={`block text-[11px] sm:text-xs font-black ${
                                 isCurrent
-                                  ? 'bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-indigo-950/90 dark:to-blue-900/60 border-2 border-indigo-500 dark:border-indigo-400 shadow-md ring-2 ring-indigo-400/30'
-                                  : 'bg-slate-50 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60'
+                                  ? 'text-indigo-700 dark:text-indigo-300'
+                                  : 'text-slate-500 dark:text-slate-400'
                               }`}
                             >
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span
-                                  className={`px-2 py-0.5 rounded-lg text-xs font-black ${
-                                    isCurrent
-                                      ? 'bg-indigo-600 text-white shadow-xs'
-                                      : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                                  }`}
-                                >
-                                  {periodNum}교시
-                                </span>
-                                {isCurrent && (
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white animate-pulse">
-                                    수업 중
-                                  </span>
-                                )}
-                              </div>
-                              <div className="my-1">
-                                <span
-                                  className={`block text-base sm:text-lg font-black tracking-tight leading-snug break-keep ${
-                                    isCurrent
-                                      ? 'text-indigo-950 dark:text-white'
-                                      : 'text-slate-900 dark:text-slate-100'
-                                  }`}
-                                >
-                                  {subjectName || '수업'}
-                                </span>
-                              </div>
-                              <div className="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-400 pt-1.5 border-t border-slate-200/60 dark:border-slate-800">
-                                {timeStr || `${PERIOD_SCHEDULE[String(periodNum)]?.start} ~ ${PERIOD_SCHEDULE[String(periodNum)]?.end}`}
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-
-                  {/* 오후 수업 (5~7교시) */}
-                  {timetableList.some((item, idx) => {
-                    const p = typeof item === 'object' && item?.period ? Number(item.period) : idx + 1;
-                    return p > 4;
-                  }) && (
-                    <div className="space-y-2 pt-1">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                        <span>오후 수업 (5~7교시)</span>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                        {timetableList
-                          .filter((item, idx) => {
-                            const p = typeof item === 'object' && item?.period ? Number(item.period) : idx + 1;
-                            return p > 4;
-                          })
-                          .map((item, idx) => {
-                            const subjectName =
-                              typeof item === 'object' && item !== null
-                                ? item.subject || item.name || ''
-                                : String(item || '');
-                            const periodNum =
-                              typeof item === 'object' && item !== null && item.period
-                                ? item.period
-                                : idx + 5;
-                            const timeInfo = PERIOD_SCHEDULE[String(periodNum)];
-                            const timeStr =
-                              (typeof item === 'object' && item !== null && item.time) ||
-                              timeInfo?.time ||
-                              '';
-                            const isCurrent =
-                              dayTab === 'today' &&
-                              currentPeriod !== null &&
-                              Number(periodNum) === currentPeriod;
-
-                            return (
-                              <div
-                                key={`afternoon-${periodNum}`}
-                                className={`p-3.5 rounded-2xl flex flex-col justify-between transition-all relative ${
+                              {periodNum}교시
+                            </span>
+                            <div className="my-1.5 min-h-[2.5rem] flex items-center justify-center">
+                              <span
+                                className={`text-xs sm:text-sm md:text-base font-black tracking-tight leading-tight break-keep line-clamp-2 ${
                                   isCurrent
-                                    ? 'bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-indigo-950/90 dark:to-blue-900/60 border-2 border-indigo-500 dark:border-indigo-400 shadow-md ring-2 ring-indigo-400/30'
-                                    : 'bg-slate-50 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60'
+                                    ? 'text-indigo-950 dark:text-white'
+                                    : 'text-slate-900 dark:text-slate-100'
                                 }`}
+                                title={subjectName}
                               >
-                                <div className="flex items-center justify-between mb-1.5">
-                                  <span
-                                    className={`px-2 py-0.5 rounded-lg text-xs font-black ${
-                                      isCurrent
-                                        ? 'bg-indigo-600 text-white shadow-xs'
-                                        : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                                    }`}
-                                  >
-                                    {periodNum}교시
-                                  </span>
-                                  {isCurrent && (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white animate-pulse">
-                                      수업 중
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="my-1">
-                                  <span
-                                    className={`block text-base sm:text-lg font-black tracking-tight leading-snug break-keep ${
-                                      isCurrent
-                                        ? 'text-indigo-950 dark:text-white'
-                                        : 'text-slate-900 dark:text-slate-100'
-                                    }`}
-                                  >
-                                    {subjectName || '수업'}
-                                  </span>
-                                </div>
-                                <div className="text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-400 pt-1.5 border-t border-slate-200/60 dark:border-slate-800">
-                                  {timeStr || `${PERIOD_SCHEDULE[String(periodNum)]?.start} ~ ${PERIOD_SCHEDULE[String(periodNum)]?.end}`}
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </div>
-                  )}
+                                {subjectName || '수업'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-[10px] sm:text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500 pt-1 border-t border-slate-200/60 dark:border-slate-800">
+                            <span className="sm:hidden">{startTime || timeStr.split('~')[0]?.trim()}</span>
+                            <span className="hidden sm:inline">
+                              {startTime && endTime ? `${startTime}~${endTime}` : timeStr}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               ) : (
                 <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-sm font-medium">
