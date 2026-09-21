@@ -183,10 +183,10 @@ export function resetNoticesToDefault() {
 /**
  * Calculates D-Day string based on date (YYYY-MM-DD) or notice object with dateType
  */
-export function calculateDDay(dateOrNotice) {
+export function calculateDDay(dateOrNotice, baseDate = new Date()) {
   if (!dateOrNotice) return { text: '기한 없음', isExpired: false, days: 999 };
 
-  const today = new Date();
+  const today = baseDate ? new Date(baseDate) : new Date();
   today.setHours(0, 0, 0, 0);
 
   let dateStr = '';

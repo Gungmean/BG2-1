@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Sparkles,
   Utensils,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { PERIOD_SCHEDULE, getCurrentPeriod, cleanDishName } from '../services/schoolService';
+import { calculateDDay } from '../services/storageService';
 
 export default function TodayBigReportModal({
   isOpen,
@@ -26,8 +27,7 @@ export default function TodayBigReportModal({
   todayData,
   tomorrowData,
   initialTab = 'today',
-  targetDateDueNotices = [],
-  upcomingD7Notices = [],
+  notices = [],
   onSelectNotice,
   onNavigate
 }) {
@@ -36,6 +36,13 @@ export default function TodayBigReportModal({
   const [currentTime, setCurrentTime] = useState(() => new Date());
   const [currentPeriod, setCurrentPeriod] = useState(() => getCurrentPeriod());
   const modalContainerRef = useRef(null);
+
+  // 모달 열릴 때 탭 동기화
+  useEffect(() => {
+    if (isOpen) {
+      setDayTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   // 1초마다 시계 업데이트
   useEffect(() => {
@@ -89,6 +96,7 @@ export default function TodayBigReportModal({
 
   const today = new Date();
   const targetDate = dayTab === 'today' ? today : addDays(today, 1);
+  const targetDateStr = format(targetDate, 'yyyy-MM-dd');
   const dayIndex = targetDate.getDay();
   const isWeekend = dayIndex === 0 || dayIndex === 6;
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
@@ -100,6 +108,37 @@ export default function TodayBigReportModal({
   const activeData = dayTab === 'today' ? todayData : tomorrowData;
   const mealDishes = activeData?.meal || [];
   const timetableList = activeData?.timetable || [];
+
+  // 선택된 날짜 기준 마감 및 수행평가 계산
+  const targetDateDueNotices = useMemo(() => {
+    return notices
+      .filter((n) => n.category === '수행평가' && n.dateType !== 'none' && Boolean(n.date || n.startDate || n.endDate))
+      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
+      .filter(({ notice, dday }) => {
+        if (dday.isExpired) return false;
+        if (notice.date === targetDateStr) return true;
+        if (notice.dateType === 'range' && notice.startDate && notice.endDate) {
+          return targetDateStr >= notice.startDate && targetDateStr <= notice.endDate;
+        }
+        if (dday.days === 0) return true;
+        return false;
+      });
+  }, [notices, targetDateStr, targetDate]);
+
+  const upcomingD7Notices = useMemo(() => {
+    const dueIds = new Set(targetDateDueNotices.map((item) => item.notice.id));
+    return notices
+      .filter(
+        (n) =>
+          n.category === '수행평가' &&
+          n.dateType !== 'none' &&
+          Boolean(n.date || n.startDate || n.endDate) &&
+          !dueIds.has(n.id)
+      )
+      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
+      .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
+      .sort((a, b) => a.dday.days - b.dday.days);
+  }, [notices, targetDateDueNotices, targetDate]);
 
   // 현재 교시 정보 계산
   const currentPeriodInfo = currentPeriod ? PERIOD_SCHEDULE[String(currentPeriod)] : null;

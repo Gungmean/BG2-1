@@ -103,7 +103,7 @@ function TodayReportCard({
   const targetDateDueNotices = useMemo(() => {
     return notices
       .filter((n) => n.category === '수행평가' && n.dateType !== 'none' && Boolean(n.date || n.startDate || n.endDate))
-      .map((n) => ({ notice: n, dday: calculateDDay(n) }))
+      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
       .filter(({ notice, dday }) => {
         if (dday.isExpired) return false;
         // Exact single date match
@@ -112,14 +112,13 @@ function TodayReportCard({
         if (notice.dateType === 'range' && notice.startDate && notice.endDate) {
           return targetDateStr >= notice.startDate && targetDateStr <= notice.endDate;
         }
-        // D-Day calculation match
-        if (dayTab === 'today' && dday.days === 0) return true;
-        if (dayTab === 'tomorrow' && dday.days === 1) return true;
+        // D-Day calculation match against targetDate (days === 0 means due on targetDate)
+        if (dday.days === 0) return true;
         return false;
       });
-  }, [notices, targetDateStr, dayTab]);
+  }, [notices, targetDateStr, targetDate]);
 
-  // 2. D-7 Upcoming Notices (ONLY D-1 to D-7, strictly EXCLUDING targetDateDueNotices to avoid duplication)
+  // 2. D-7 Upcoming Notices (ONLY D-1 to D-7 based on targetDate, strictly EXCLUDING targetDateDueNotices to avoid duplication)
   const upcomingD7Notices = useMemo(() => {
     const dueIds = new Set(targetDateDueNotices.map((item) => item.notice.id));
     return notices
@@ -130,10 +129,10 @@ function TodayReportCard({
           Boolean(n.date || n.startDate || n.endDate) &&
           !dueIds.has(n.id)
       )
-      .map((n) => ({ notice: n, dday: calculateDDay(n) }))
+      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
       .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
       .sort((a, b) => a.dday.days - b.dday.days);
-  }, [notices, targetDateDueNotices]);
+  }, [notices, targetDateDueNotices, targetDate]);
 
   // 1. COLLAPSED VIEW (Slim single-row summary bar)
   if (isCollapsed) {
@@ -211,8 +210,7 @@ function TodayReportCard({
           todayData={todayData}
           tomorrowData={tomorrowData}
           initialTab={dayTab}
-          targetDateDueNotices={targetDateDueNotices}
-          upcomingD7Notices={upcomingD7Notices}
+          notices={notices}
           onSelectNotice={onSelectNotice}
           onNavigate={onNavigate}
         />
@@ -635,8 +633,7 @@ function TodayReportCard({
         todayData={todayData}
         tomorrowData={tomorrowData}
         initialTab={dayTab}
-        targetDateDueNotices={targetDateDueNotices}
-        upcomingD7Notices={upcomingD7Notices}
+        notices={notices}
         onSelectNotice={onSelectNotice}
         onNavigate={onNavigate}
       />
