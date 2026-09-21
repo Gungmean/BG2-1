@@ -13,7 +13,8 @@ import {
   Coffee,
   ArrowRight,
   X,
-  Clock
+  Clock,
+  Maximize2
 } from 'lucide-react';
 import {
   getSchoolInfoForToday,
@@ -25,6 +26,7 @@ import {
 } from '../services/schoolService';
 import { calculateDDay, getLocalDateString } from '../services/storageService';
 import { addDays, format } from 'date-fns';
+import TodayBigReportModal from './TodayBigReportModal';
 
 function TodayReportCard({
   notices = [],
@@ -38,6 +40,7 @@ function TodayReportCard({
   const [todayData, setTodayData] = useState({ meal: [], timetable: [] });
   const [tomorrowData, setTomorrowData] = useState({ meal: [], timetable: [] });
   const [showD7Modal, setShowD7Modal] = useState(false);
+  const [showBigReportModal, setShowBigReportModal] = useState(false);
   const [currentPeriod, setCurrentPeriod] = useState(() => getCurrentPeriod());
 
   // 30초마다 현재 진행 중인 교시 실시간 업데이트
@@ -174,17 +177,45 @@ function TodayReportCard({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleCollapse?.();
-          }}
-          className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
-        >
-          <span>리포트 펼치기</span>
-          <ChevronDown className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowBigReportModal(true);
+            }}
+            className="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs flex items-center gap-1 transition-all"
+            title="오늘 하루 리포트 크게 띄우기"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">크게 보기</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCollapse?.();
+            }}
+            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
+          >
+            <span>리포트 펼치기</span>
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* BIG REPORT MODAL (COLLAPSED STATE TRIGGER) */}
+        <TodayBigReportModal
+          isOpen={showBigReportModal}
+          onClose={() => setShowBigReportModal(false)}
+          todayData={todayData}
+          tomorrowData={tomorrowData}
+          initialTab={dayTab}
+          targetDateDueNotices={targetDateDueNotices}
+          upcomingD7Notices={upcomingD7Notices}
+          onSelectNotice={onSelectNotice}
+          onNavigate={onNavigate}
+        />
       </div>
     );
   }
@@ -242,12 +273,21 @@ function TodayReportCard({
           </div>
         </div>
 
-        {/* Right Actions: Calendar link & Collapse Toggle */}
-        <div className="flex items-center gap-2">
+        {/* Right Actions: Big View, Calendar link & Collapse Toggle */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <button
+            type="button"
+            onClick={() => setShowBigReportModal(true)}
+            className="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+            title="오늘 하루 리포트 크게 띄우기 (대형 화면/전체화면)"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>크게 보기</span>
+          </button>
           <button
             type="button"
             onClick={() => onNavigate?.('calendar', 'monthCalendar')}
-            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-750 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-750 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all shadow-xs flex items-center gap-1 cursor-pointer"
           >
             <span>달력</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -255,7 +295,7 @@ function TodayReportCard({
           <button
             type="button"
             onClick={onToggleCollapse}
-            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-750 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs transition-all shadow-xs flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-750 hover:bg-blue-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs transition-all shadow-xs flex items-center gap-1 cursor-pointer"
             title="리포트 접기"
           >
             <span>접기</span>
@@ -587,6 +627,19 @@ function TodayReportCard({
           </div>
         </div>
       )}
+
+      {/* BIG REPORT MODAL (EXPANDED STATE TRIGGER) */}
+      <TodayBigReportModal
+        isOpen={showBigReportModal}
+        onClose={() => setShowBigReportModal(false)}
+        todayData={todayData}
+        tomorrowData={tomorrowData}
+        initialTab={dayTab}
+        targetDateDueNotices={targetDateDueNotices}
+        upcomingD7Notices={upcomingD7Notices}
+        onSelectNotice={onSelectNotice}
+        onNavigate={onNavigate}
+      />
     </div>
   );
 }
