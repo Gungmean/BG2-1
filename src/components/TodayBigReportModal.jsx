@@ -339,15 +339,10 @@ export default function TodayBigReportModal({
                     {mealDishes.map((dish, i) => (
                       <div
                         key={i}
-                        className="p-2.5 sm:p-3 rounded-xl bg-amber-50/60 dark:bg-slate-800/80 border border-amber-100/90 dark:border-slate-700 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 shadow-2xs hover:scale-[1.01] transition-transform"
+                        className="p-3 sm:p-3.5 rounded-xl bg-amber-50/60 dark:bg-slate-800/80 border border-amber-100/90 dark:border-slate-700 flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 shadow-2xs hover:scale-[1.01] transition-transform"
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                          <span className="truncate">{cleanDishName(dish)}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal font-mono shrink-0 ml-1">
-                          {dish.match(/\([0-9.]+\)/)?.[0] || ''}
-                        </span>
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                        <span className="truncate">{cleanDishName(dish)}</span>
                       </div>
                     ))}
                   </div>
@@ -355,7 +350,7 @@ export default function TodayBigReportModal({
                   <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-750 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500">
                     <span className="flex items-center gap-1">
                       <Info className="w-3 h-3 text-blue-500" />
-                      <span>괄호 안 번호는 나이스 알레르기 유발 물질 정보입니다.</span>
+                      <span>인천광역시교육청 나이스(NEIS) 연동 식단 정보입니다.</span>
                     </span>
                     <button
                       type="button"

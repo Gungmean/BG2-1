@@ -218,13 +218,10 @@ export default function ScheduleInfo() {
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.03 }}
-                        className="flex items-center gap-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-medium bg-slate-50/70 dark:bg-slate-800/70 px-3 py-2 rounded-xl border border-slate-100 dark:border-slate-800"
+                        className="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-medium bg-slate-50/70 dark:bg-slate-800/70 px-3.5 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
                         <span className="font-semibold text-slate-800 dark:text-slate-200">{cleanDishName(dish)}</span>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal ml-auto">
-                          {dish.match(/\([0-9.]+\)/)?.[0] || ''}
-                        </span>
                       </motion.li>
                     ))}
                   </ul>
@@ -236,7 +233,7 @@ export default function ScheduleInfo() {
               </div>
 
               <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500">
-                * 알레르기 유발물질 번호 포함 (NEIS 연동)
+                * 인천광역시교육청 나이스(NEIS) 연동 급식 정보
               </div>
             </div>
 

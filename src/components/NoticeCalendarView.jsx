@@ -1264,12 +1264,10 @@ export default function NoticeCalendarView({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="flex items-center justify-between bg-white dark:bg-slate-800 px-3 py-2 rounded-xl border border-amber-100/60 dark:border-slate-700 shadow-sm text-xs font-bold text-slate-800 dark:text-slate-200"
+                      className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-xl border border-amber-100/60 dark:border-slate-700 shadow-sm text-xs font-bold text-slate-800 dark:text-slate-200"
                     >
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                       <span>{cleanDishName(dish)}</span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
-                        {dish.match(/\([0-9.]+\)/)?.[0] || ''}
-                      </span>
                     </motion.li>
                   ))}
                 </ul>
@@ -1287,10 +1285,10 @@ export default function NoticeCalendarView({
                 </div>
                 <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-100 dark:border-slate-800">
                   <span className="text-[10px] text-slate-400 dark:text-slate-400 font-semibold flex items-center gap-1">
-                    <Info className="w-3 h-3 text-blue-500" /> 알레르기 안내
+                    <Info className="w-3 h-3 text-blue-500" /> 식단 출처
                   </span>
                   <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 line-clamp-1">
-                    식단 옆 괄호 번호 참고
+                    인천교육청 나이스 연동
                   </span>
                 </div>
               </div>

@@ -202,7 +202,7 @@ async function fetchTimetable(ymd) {
 export function cleanDishName(dish) {
   if (!dish) return '';
   return dish
-    .replace(/\s*\([0-9.]+\)/g, '')
+    .replace(/\s*\([0-9.,\s]+\)/g, '')
     .replace(/[[\];*']/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -228,14 +228,14 @@ export function getMealHighlights(dishes) {
 }
 
 /**
- * Convert raw meal dish strings (with <br/> HTML tags) into formatted list/lines.
+ * Convert raw meal dish strings (with <br/> HTML tags) into clean formatted list/lines without allergy codes.
  */
 export function parseMealDishes(dishes) {
   if (!dishes || dishes.length === 0) return ['급식 정보가 없습니다.'];
   const rawStr = dishes.join('<br/>');
   return rawStr
     .split(/<br\s*\/?>/gi)
-    .map((item) => item.trim())
+    .map((item) => cleanDishName(item))
     .filter(Boolean);
 }
 
