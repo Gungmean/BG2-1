@@ -121,7 +121,7 @@ export default function ScheduleInfo() {
                     className={`relative z-10 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full mb-0.5 transition-colors ${
                       isSelected
                         ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-blue-100 text-blue-700'
+                        : 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
                     }`}
                   >
                     오늘
@@ -289,32 +289,32 @@ export default function ScheduleInfo() {
                                 key={idx}
                                 className={`transition-all ${
                                   isCurrent
-                                    ? 'bg-indigo-50/90 font-bold border-l-4 border-l-indigo-600 shadow-xs ring-1 ring-indigo-200/60'
-                                    : 'hover:bg-blue-50/40'
+                                    ? 'bg-indigo-50/90 dark:bg-indigo-950/60 font-bold border-l-4 border-l-indigo-600 dark:border-l-indigo-400 shadow-xs ring-1 ring-indigo-200/60 dark:ring-indigo-800/40'
+                                    : 'hover:bg-blue-50/40 dark:hover:bg-slate-800/40'
                                 }`}
                               >
-                                <td className="px-3.5 py-2.5 font-bold text-blue-600 whitespace-nowrap">
+                                <td className="px-3.5 py-2.5 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                                   <div className="flex items-center gap-1.5">
                                     {isCurrent && (
-                                      <span className="w-2 h-2 rounded-full bg-indigo-600 animate-ping" />
+                                      <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-ping" />
                                     )}
                                     <span>{item.period}교시</span>
                                   </div>
                                 </td>
                                 <td
                                   className={`px-3.5 py-2.5 text-xs whitespace-nowrap font-mono tabular-nums ${
-                                    isCurrent ? 'font-bold text-indigo-700' : 'font-medium text-slate-500'
+                                    isCurrent ? 'font-bold text-indigo-700 dark:text-indigo-300' : 'font-medium text-slate-500 dark:text-slate-400'
                                   }`}
                                 >
                                   {timeStr}
                                 </td>
-                                <td className="px-3.5 py-2.5 font-semibold text-slate-800">
+                                <td className="px-3.5 py-2.5 font-semibold text-slate-800 dark:text-slate-100">
                                   <div className="flex items-center gap-2">
-                                    <span className={isCurrent ? 'font-black text-indigo-950' : ''}>
+                                    <span className={isCurrent ? 'font-black text-indigo-950 dark:text-indigo-100' : ''}>
                                       {item.subject}
                                     </span>
                                     {isCurrent && (
-                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white shadow-xs animate-pulse">
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 dark:bg-indigo-500 text-white shadow-xs animate-pulse">
                                         현재 수업 중
                                       </span>
                                     )}
@@ -328,29 +328,29 @@ export default function ScheduleInfo() {
                     </div>
 
                     {/* 부광고 주요 일과 시정표 안내 */}
-                    <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                    <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] bg-slate-50 dark:bg-slate-800/70 p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700">
                       <div>
-                        <span className="text-slate-400 block text-[10px] font-semibold">🍱 점심시간</span>
-                        <span className="font-bold text-slate-700 font-mono text-[11px]">12:40 ~ 13:40</span>
+                        <span className="text-slate-400 dark:text-slate-400 block text-[10px] font-semibold">🍱 점심시간</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono text-[11px]">12:40 ~ 13:40</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px] font-semibold">🧹 청소시간</span>
-                        <span className="font-bold text-slate-700 font-mono text-[11px]">15:30 ~ 15:45</span>
+                        <span className="text-slate-400 dark:text-slate-400 block text-[10px] font-semibold">🧹 청소시간</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono text-[11px]">15:30 ~ 15:45</span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px] font-semibold">🔔 종례</span>
-                        <span className="font-bold text-slate-700 font-mono text-[11px]">16:35 ~ 16:40</span>
+                        <span className="text-slate-400 dark:text-slate-400 block text-[10px] font-semibold">🔔 종례</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono text-[11px]">16:35 ~ 16:40</span>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="py-8 text-center text-slate-400 text-xs font-medium bg-slate-50 rounded-2xl">
+                  <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs font-medium bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                     {selectedDay.dayName}요일({selectedDay.displayDate}) 설정된 시간표가 없습니다.
                   </div>
                 )}
               </div>
 
-              <div className="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400">
+              <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 dark:text-slate-500">
                 * 학교 사정에 의해 시간표가 변경될 수 있습니다.
               </div>
             </div>

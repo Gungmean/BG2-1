@@ -479,7 +479,7 @@ function TodayReportCard({
                       className={`block text-[11px] truncate ${
                         isCurrentPeriod
                           ? 'font-black text-indigo-900 dark:text-white'
-                          : 'font-extrabold text-slate-800 dark:text-slate-200'
+                          : 'font-extrabold text-slate-800 dark:text-slate-100'
                       }`}
                     >
                       {subjectName || '수업'}

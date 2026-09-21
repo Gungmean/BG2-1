@@ -542,15 +542,15 @@ export default function NoticeCalendarView({
                       onClick={() => handleCellClick(cell)}
                       className={`min-h-[56px] sm:min-h-[110px] p-1 sm:p-1.5 rounded-xl border transition-all flex flex-col justify-between relative cursor-pointer ${
                         !cell.isCurrentMonth
-                          ? 'bg-slate-50/40 border-slate-100 opacity-30'
+                          ? 'bg-slate-50/40 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800/50 opacity-30'
                           : cell.dateStr === selectedDateStr
                           ? calendarMode === 'schedule'
-                            ? 'bg-blue-50/90 border-blue-500 ring-2 ring-blue-500/40 z-10 shadow-sm'
-                            : 'bg-amber-50/90 border-amber-500 ring-2 ring-amber-500/40 z-10 shadow-sm'
+                            ? 'bg-blue-50/90 dark:bg-blue-950/60 border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/40 dark:ring-blue-500/30 z-10 shadow-sm'
+                            : 'bg-amber-50/90 dark:bg-amber-950/60 border-amber-500 dark:border-amber-400 ring-2 ring-amber-500/40 dark:ring-amber-500/30 z-10 shadow-sm'
                           : cell.isToday
                           ? calendarMode === 'schedule'
-                            ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-400'
-                            : 'bg-amber-50/50 border-amber-300 ring-1 ring-amber-400'
+                            ? 'bg-blue-50/50 dark:bg-blue-950/30 border-blue-300 dark:border-blue-800 ring-1 ring-blue-400 dark:ring-blue-800'
+                            : 'bg-amber-50/50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800 ring-1 ring-amber-400 dark:ring-amber-800'
                           : hasHoliday
                           ? 'bg-rose-50/30 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/40'
                           : isWeekend
@@ -583,13 +583,13 @@ export default function NoticeCalendarView({
                         </span>
 
                         {calendarMode === 'schedule' && hasHoliday && cell.isCurrentMonth && (
-                          <span className="text-[8px] sm:text-[9px] font-extrabold text-rose-600 bg-rose-50 px-1 rounded border border-rose-100">
+                          <span className="text-[8px] sm:text-[9px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/70 px-1 rounded border border-rose-100 dark:border-rose-900/60">
                             휴업
                           </span>
                         )}
 
                         {calendarMode === 'schedule' && dayNotices.length > 0 && !hasHoliday && (
-                          <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 hidden sm:inline">
+                          <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 hidden sm:inline">
                             {dayNotices.length}
                           </span>
                         )}
@@ -602,14 +602,14 @@ export default function NoticeCalendarView({
                               onAddSchedule?.(cell.dateStr);
                             }}
                             title={`${cell.dateStr} 새 일정 등록`}
-                            className="w-4 h-4 rounded hidden sm:flex items-center justify-center text-slate-300 hover:text-blue-600 hover:bg-blue-100/70 transition-colors ml-auto pointer-events-auto"
+                            className="w-4 h-4 rounded hidden sm:flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100/70 dark:hover:bg-slate-800 transition-colors ml-auto pointer-events-auto"
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         )}
 
                         {calendarMode === 'meal' && cell.isCurrentMonth && !isWeekend && dayMeal && (
-                          <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1 rounded hidden sm:inline">
+                          <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/70 px-1 rounded hidden sm:inline">
                             🍱
                           </span>
                         )}
@@ -769,27 +769,27 @@ export default function NoticeCalendarView({
                                   {getMealHighlights(dayMeal.dishes).map((dish, dIdx) => (
                                     <div
                                       key={dIdx}
-                                      className="text-[10px] text-slate-700 font-semibold truncate leading-tight flex items-center gap-1"
+                                      className="text-[10px] text-slate-700 dark:text-slate-200 font-semibold truncate leading-tight flex items-center gap-1"
                                       title={dish}
                                     >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                                       <span className="truncate">{dish}</span>
                                     </div>
                                   ))}
                                   {dayMeal.dishes.length > 2 && (
-                                    <div className="text-[9px] text-amber-700/80 font-bold pl-2.5">
+                                    <div className="text-[9px] text-amber-700/90 dark:text-amber-400 font-bold pl-2.5">
                                       외 {dayMeal.dishes.length - 2}개
                                     </div>
                                   )}
                                 </div>
                               ) : isWeekend && cell.isCurrentMonth ? (
-                                <div className="text-[10px] text-slate-400 italic text-center pt-2">
+                                <div className="text-[10px] text-slate-400 dark:text-slate-500 italic text-center pt-2">
                                   주말
                                 </div>
                               ) : null}
 
                               {dayMeal?.calInfo && cell.isCurrentMonth && !isWeekend && (
-                                <div className="text-[9px] text-slate-400 font-semibold text-right">
+                                <div className="text-[9px] text-slate-400 dark:text-slate-400 font-semibold text-right">
                                   {dayMeal.calInfo.replace('Kcal', 'kcal')}
                                 </div>
                               )}
@@ -806,26 +806,26 @@ export default function NoticeCalendarView({
         </div>
         {/* Calendar Legend for Schedule Mode */}
         {calendarMode === 'schedule' && (
-          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-[11px] text-slate-500">
+          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2 text-[11px] text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-3 flex-wrap font-bold">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600" />
-                <span className="text-purple-700">학교 학사일정 (나이스 연동)</span>
+                <span className="text-purple-700 dark:text-purple-300">학교 학사일정 (나이스 연동)</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                <span className="text-rose-600">수행평가</span>
+                <span className="text-rose-600 dark:text-rose-400">수행평가</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <span className="text-blue-600">학교행사</span>
+                <span className="text-blue-600 dark:text-blue-400">학교행사</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <span className="text-emerald-600">외부활동</span>
+                <span className="text-emerald-600 dark:text-emerald-400">외부활동</span>
               </span>
             </div>
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-slate-400 dark:text-slate-500">
               * 날짜를 클릭하면 해당 일자의 상세 일정을 확인합니다.
             </div>
           </div>
@@ -901,22 +901,22 @@ export default function NoticeCalendarView({
                   return (
                     <div
                       key={n.id}
-                      className="p-3.5 rounded-2xl border border-purple-200 bg-purple-50/40 space-y-2"
+                      className="p-3.5 rounded-2xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/40 dark:bg-purple-950/30 space-y-2"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full border bg-purple-100 text-purple-800 border-purple-200 flex items-center gap-1.5">
+                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full border bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200 border-purple-200 dark:border-purple-800 flex items-center gap-1.5">
                           <span>🏫 부광고 학사일정</span>
                           {n.isHoliday && (
-                            <span className="text-rose-600 font-extrabold bg-rose-50 px-1 rounded border border-rose-200">
+                            <span className="text-rose-600 dark:text-rose-400 font-extrabold bg-rose-50 dark:bg-rose-950/60 px-1 rounded border border-rose-200 dark:border-rose-800">
                               휴업일
                             </span>
                           )}
                         </span>
-                        <span className="text-[10px] font-bold text-purple-700 font-mono">
+                        <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 font-mono">
                           {n.dateType === 'range' ? `${n.startDate} ~ ${n.endDate}` : n.date}
                         </span>
                       </div>
-                      <h4 className="font-extrabold text-purple-950 text-sm flex items-center gap-2">
+                      <h4 className="font-extrabold text-purple-950 dark:text-purple-100 text-sm flex items-center gap-2">
                         <span>{n.title}</span>
                         {n.isExam && (
                           <span className="px-2 py-0.5 rounded text-[10px] bg-indigo-600 text-white font-black shadow-sm">
@@ -925,7 +925,7 @@ export default function NoticeCalendarView({
                         )}
                       </h4>
                       {n.content && (
-                        <p className="text-xs text-purple-900/85 leading-relaxed bg-white/80 p-2.5 rounded-xl border border-purple-100">
+                        <p className="text-xs text-purple-900/85 dark:text-purple-200/90 leading-relaxed bg-white/80 dark:bg-slate-800/80 p-2.5 rounded-xl border border-purple-100 dark:border-purple-900/40">
                           {n.content}
                         </p>
                       )}
@@ -984,28 +984,28 @@ export default function NoticeCalendarView({
         ) : (
           /* Meal View for Selected Date */
           selectedMeal && selectedMeal.dishes && selectedMeal.dishes.length > 0 ? (
-            <div className="p-3.5 rounded-2xl border border-amber-200 bg-amber-50/40 space-y-3">
+            <div className="p-3.5 rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/30 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
                   <span>🍱 점심 급식 식단</span>
                 </span>
                 {selectedMeal.calInfo && (
-                  <span className="text-xs font-bold text-amber-700 font-mono bg-amber-100/80 px-2 py-0.5 rounded-md border border-amber-200">
+                  <span className="text-xs font-bold text-amber-700 dark:text-amber-300 font-mono bg-amber-100/80 dark:bg-amber-900/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
                     🔥 {selectedMeal.calInfo}
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white p-3 rounded-xl border border-amber-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white dark:bg-slate-850 p-3 rounded-xl border border-amber-100 dark:border-amber-900/30">
                 {selectedMeal.dishes.map((dish, i) => (
-                  <div key={i} className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <div key={i} className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
                     <span>{dish}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="py-8 text-center text-xs text-slate-400">
+            <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500">
               해당 일자의 급식 정보가 없거나 주말/휴업일입니다.
             </div>
           )
@@ -1071,14 +1071,14 @@ export default function NoticeCalendarView({
               <div className="space-y-3 overflow-y-auto flex-1 pr-1">
                 {selectedDayNotices.notices.length === 0 ? (
                   <div className="py-10 text-center space-y-3">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto shadow-sm">
                       <CalendarIcon className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-800 text-sm">
+                      <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">
                         {selectedDayNotices.dateStr}에 등록된 일정이 없습니다.
                       </h4>
-                      <p className="text-xs text-slate-400 mt-1">
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                         {isMonitor
                           ? '반장 권한으로 이 날짜에 새 학급 일정이나 안내를 등록할 수 있습니다.'
                           : '새로운 학급 소식이 등록되면 여기에 표시됩니다.'}
@@ -1104,7 +1104,7 @@ export default function NoticeCalendarView({
                           setSelectedDayNotices(null);
                           onOpenPinModal?.();
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all"
                       >
                         <span>반장 인증 후 일정 등록</span>
                       </button>
@@ -1119,22 +1119,22 @@ export default function NoticeCalendarView({
                       return (
                         <div
                           key={n.id}
-                          className="p-4 rounded-2xl border border-purple-200 bg-purple-50/40 space-y-2.5 shadow-sm"
+                          className="p-4 rounded-2xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/40 dark:bg-purple-950/30 space-y-2.5 shadow-sm"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full border bg-purple-100 text-purple-800 border-purple-200 flex items-center gap-1.5">
+                            <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full border bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200 border-purple-200 dark:border-purple-800 flex items-center gap-1.5">
                               <span>🏫 부광고 학사일정</span>
                               {n.isHoliday && (
-                                <span className="text-rose-600 font-extrabold bg-rose-50 px-1 rounded border border-rose-200">
+                                <span className="text-rose-600 dark:text-rose-400 font-extrabold bg-rose-50 dark:bg-rose-950/60 px-1 rounded border border-rose-200 dark:border-rose-800">
                                   휴업일
                                 </span>
                               )}
                             </span>
-                            <span className="text-[10px] font-bold text-purple-700 font-mono">
+                            <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 font-mono">
                               {n.dateType === 'range' ? `${n.startDate} ~ ${n.endDate}` : n.date}
                             </span>
                           </div>
-                          <h4 className="font-extrabold text-purple-950 text-sm flex items-center gap-2">
+                          <h4 className="font-extrabold text-purple-950 dark:text-purple-100 text-sm flex items-center gap-2">
                             <span>{n.title}</span>
                             {n.isExam && (
                               <span className="px-2 py-0.5 rounded text-[10px] bg-indigo-600 text-white font-black shadow-sm">
@@ -1142,12 +1142,12 @@ export default function NoticeCalendarView({
                               </span>
                             )}
                           </h4>
-                          <p className="text-xs text-purple-900/85 leading-relaxed bg-white/80 p-2.5 rounded-xl border border-purple-100">
+                          <p className="text-xs text-purple-900/85 dark:text-purple-200/90 leading-relaxed bg-white/80 dark:bg-slate-800/80 p-2.5 rounded-xl border border-purple-100 dark:border-purple-900/40">
                             {n.content}
                           </p>
-                          <div className="flex items-center justify-between text-[11px] text-purple-500 font-medium pt-0.5">
+                          <div className="flex items-center justify-between text-[11px] text-purple-500 dark:text-purple-400 font-medium pt-0.5">
                             <span>🏛️ 인천광역시교육청 나이스(NEIS) 연동</span>
-                            <span className="font-bold text-purple-700">공식 학사일정</span>
+                            <span className="font-bold text-purple-700 dark:text-purple-300">공식 학사일정</span>
                           </div>
                         </div>
                       );
@@ -1162,7 +1162,7 @@ export default function NoticeCalendarView({
                           setSelectedDayNotices(null);
                           onSelectNotice && onSelectNotice(n);
                         }}
-                        className="p-3.5 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/20 transition-colors cursor-pointer space-y-2 group"
+                        className="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/20 dark:hover:bg-slate-800/70 transition-colors cursor-pointer space-y-2 group bg-white dark:bg-slate-850 shadow-xs"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span
@@ -1170,18 +1170,18 @@ export default function NoticeCalendarView({
                           >
                             {n.category}
                           </span>
-                          <span className="text-[10px] font-bold text-slate-500">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                             {dday.text}
                           </span>
                         </div>
-                        <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {n.title}
                         </h4>
-                        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
                           {n.content}
                         </p>
-                        <div className="flex items-center justify-end text-[11px] text-slate-400 pt-1">
-                          <span className="text-blue-600 font-bold flex items-center gap-1 group-hover:underline">
+                        <div className="flex items-center justify-end text-[11px] text-slate-400 dark:text-slate-500 pt-1">
+                          <span className="text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1 group-hover:underline">
                             <Eye className="w-3 h-3" /> 상세 보기
                           </span>
                         </div>
@@ -1199,7 +1199,7 @@ export default function NoticeCalendarView({
                       setSelectedDayNotices(null);
                       onAddSchedule?.(targetDate);
                     }}
-                    className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors mt-2"
+                    className="w-full py-2.5 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors mt-2"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>이 날짜에 다른 일정 추가 등록</span>
@@ -1277,19 +1277,19 @@ export default function NoticeCalendarView({
 
               {/* Nutritional & Calories Info */}
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[10px] text-slate-400 font-semibold block flex items-center gap-1">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-400 font-semibold flex items-center gap-1">
                     <Flame className="w-3 h-3 text-rose-500" /> 총 칼로리
                   </span>
-                  <span className="font-extrabold text-slate-800 text-sm">
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">
                     {selectedDayMeal.meal.calInfo || '정보 없음'}
                   </span>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-[10px] text-slate-400 font-semibold block flex items-center gap-1">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-400 font-semibold flex items-center gap-1">
                     <Info className="w-3 h-3 text-blue-500" /> 알레르기 안내
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-600 line-clamp-1">
+                  <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 line-clamp-1">
                     식단 옆 괄호 번호 참고
                   </span>
                 </div>
@@ -1298,7 +1298,7 @@ export default function NoticeCalendarView({
               <motion.button
                 whileTap={{ scale: 0.96 }}
                 onClick={() => setSelectedDayMeal(null)}
-                className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors"
+                className="w-full py-2.5 bg-slate-900 dark:bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors"
               >
                 닫기
               </motion.button>
