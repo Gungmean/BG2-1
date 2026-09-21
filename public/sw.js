@@ -8,6 +8,7 @@ const STATIC_PRECACHE = [
   '/symbol.png',
   '/icon-192.png',
   '/icon-512.png',
+  '/badge-72.png',
   '/apple-touch-icon.png'
 ];
 

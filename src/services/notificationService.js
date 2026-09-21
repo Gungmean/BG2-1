@@ -130,7 +130,7 @@ export async function triggerNotification(summary) {
   const notificationOptions = {
     body: summary.body,
     icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    badge: '/badge-72.png',
     data: summary.data,
     tag: 'bg2-1-tomorrow-report',
     renotify: true,
