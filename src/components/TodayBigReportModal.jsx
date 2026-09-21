@@ -362,8 +362,13 @@ export default function TodayBigReportModal({
                   <span className="text-xs">다음 주 월요일 시간표를 미리 확인해보세요.</span>
                 </div>
               ) : timetableList.length > 0 ? (
-                <div className="flex-1">
-                  <div className="grid grid-cols-7 gap-1.5 sm:gap-2.5">
+                <div className="flex-1 flex flex-col justify-center">
+                  <div
+                    className="grid gap-2 sm:gap-2.5 w-full"
+                    style={{
+                      gridTemplateColumns: `repeat(${timetableList.length}, minmax(0, 1fr))`,
+                    }}
+                  >
                     {timetableList.map((item, idx) => {
                       const subjectName =
                         typeof item === 'object' && item !== null
@@ -395,30 +400,30 @@ export default function TodayBigReportModal({
                       return (
                         <div
                           key={`period-${periodNum}`}
-                          className={`p-2 sm:p-3 rounded-2xl text-center flex flex-col justify-between transition-all relative ${
+                          className={`p-3 sm:p-4 rounded-2xl text-center flex flex-col justify-between transition-all relative ${
                             isCurrent
                               ? 'bg-gradient-to-b from-indigo-50 to-blue-100/90 dark:from-indigo-950/90 dark:to-blue-900/60 border-2 border-indigo-500 dark:border-indigo-400 shadow-md ring-2 ring-indigo-400/30'
                               : 'bg-slate-50 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700/60'
                           }`}
                         >
                           {isCurrent && (
-                            <span className="absolute -top-1.5 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-black bg-indigo-600 text-white shadow-xs animate-pulse">
+                            <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-600 text-white shadow-xs animate-pulse whitespace-nowrap">
                               수업 중
                             </span>
                           )}
                           <div>
                             <span
-                              className={`block text-[11px] sm:text-xs font-black ${
+                              className={`inline-block px-2.5 py-0.5 rounded-lg text-xs font-black ${
                                 isCurrent
-                                  ? 'text-indigo-700 dark:text-indigo-300'
-                                  : 'text-slate-500 dark:text-slate-400'
+                                  ? 'bg-indigo-600 text-white shadow-xs'
+                                  : 'bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                               }`}
                             >
                               {periodNum}교시
                             </span>
-                            <div className="my-1.5 min-h-[2.5rem] flex items-center justify-center">
+                            <div className="my-2 min-h-[3rem] flex items-center justify-center px-0.5">
                               <span
-                                className={`text-xs sm:text-sm md:text-base font-black tracking-tight leading-tight break-keep line-clamp-2 ${
+                                className={`text-sm sm:text-base font-black tracking-tight leading-snug break-keep text-center ${
                                   isCurrent
                                     ? 'text-indigo-950 dark:text-white'
                                     : 'text-slate-900 dark:text-slate-100'
@@ -429,9 +434,8 @@ export default function TodayBigReportModal({
                               </span>
                             </div>
                           </div>
-                          <div className="text-[10px] sm:text-[11px] font-mono font-semibold text-slate-400 dark:text-slate-500 pt-1 border-t border-slate-200/60 dark:border-slate-800">
-                            <span className="sm:hidden">{startTime || timeStr.split('~')[0]?.trim()}</span>
-                            <span className="hidden sm:inline">
+                          <div className="text-[11px] sm:text-xs font-mono font-semibold text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-200/60 dark:border-slate-800">
+                            <span>
                               {startTime && endTime ? `${startTime}~${endTime}` : timeStr}
                             </span>
                           </div>
