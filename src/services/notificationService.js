@@ -107,8 +107,8 @@ export async function generateTomorrowSummary() {
   }
 
   return {
-    title: `🔔 [부광고 2-1] ${tomorrowDay} 하루 리포트 도착!`,
-    body: bodyLines.join('\n'),
+    title: '🔔 내일 일정을 확인하세요',
+    body: '터치하여 내일의 시간표와 급식을 확인해보세요.',
     data: {
       url: '/?openReport=tomorrow',
       target: 'tomorrowReport',

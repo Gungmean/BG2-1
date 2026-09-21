@@ -25,7 +25,8 @@ import {
   calculateDDay,
   getLocalDateString,
   getSessionMonitorStatus,
-  setSessionMonitorStatus
+  setSessionMonitorStatus,
+  getNotices as getLocalNotices
 } from './services/storageService';
 import { initDailyScheduler } from './services/notificationService';
 
@@ -59,7 +60,8 @@ function LoadingPanel({ label = '화면을 불러오는 중입니다...' }) {
 }
 
 export default function App() {
-  const [notices, setNotices] = useState([]);
+  // 즉시 로컬 캐시에서 불러와 0초만에 렌더링 (네트워크 딜레이 제거)
+  const [notices, setNotices] = useState(() => getLocalNotices());
   const [isMonitor, setIsMonitorState] = useState(() => getSessionMonitorStatus());
   const setIsMonitor = (val) => {
     setIsMonitorState(val);
