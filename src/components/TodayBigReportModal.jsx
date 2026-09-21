@@ -75,6 +75,65 @@ export default function TodayBigReportModal({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  const today = new Date();
+  const targetDate = dayTab === 'today' ? today : addDays(today, 1);
+  const targetDateStr = format(targetDate, 'yyyy-MM-dd');
+  const dayIndex = targetDate.getDay();
+  const isWeekend = dayIndex === 0 || dayIndex === 6;
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const month = targetDate.getMonth() + 1;
+  const date = targetDate.getDate();
+  const dayName = dayNames[dayIndex];
+  const year = targetDate.getFullYear();
+
+  const activeData = dayTab === 'today' ? todayData : tomorrowData;
+  const mealDishes = activeData?.meal || [];
+  const timetableList = activeData?.timetable || [];
+
+  // 선택된 날짜 기준 마감 및 수행평가 계산 (훅 순서 보장을 위해 early return 이전에 위치)
+  const targetDateDueNotices = useMemo(() => {
+    if (!isOpen) return [];
+    return (notices || [])
+      .filter((n) => n.category === '수행평가' && n.dateType !== 'none' && Boolean(n.date || n.startDate || n.endDate))
+      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
+      .filter(({ notice, dday }) => {
+        if (dday.isExpired) return false;
+        if (notice.date === targetDateStr) return true;
+        if (notice.dateType === 'range' && notice.startDate && notice.endDate) {
+          return targetDateStr >= notice.startDate && targetDateStr <= notice.endDate;
+        }
+        if (dday.days === 0) return true;
+        return false;
+      });
+  }, [isOpen, notices, targetDateStr, targetDate]);
+
+  const upcomingD7Notices = useMemo(() => {
+    if (!isOpen) return [];
+    const dueIds = new Set(targetDateDueNotices.map((item) => item.notice.id));
+    return (notices || [])
+      .filter(
+        (n) =>
+          n.category === '수행평가' &&
+          n.dateType !== 'none' &&
+          Boolean(n.date || n.startDate || n.endDate) &&
+          !dueIds.has(n.id)
+      )
+      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
+      .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
+      .sort((a, b) => a.dday.days - b.dday.days);
+  }, [isOpen, notices, targetDateDueNotices, targetDate]);
+
+  // 현재 교시 정보 계산
+  const currentPeriodInfo = currentPeriod ? PERIOD_SCHEDULE[String(currentPeriod)] : null;
+  const currentSubjectItem = timetableList.find((item, idx) => {
+    const pNum = typeof item === 'object' && item !== null && item.period ? item.period : idx + 1;
+    return Number(pNum) === currentPeriod;
+  });
+  const currentSubjectName =
+    typeof currentSubjectItem === 'object' && currentSubjectItem !== null
+      ? currentSubjectItem.subject || currentSubjectItem.name || ''
+      : String(currentSubjectItem || '');
+
   if (!isOpen) return null;
 
   // 전체화면 토글
@@ -93,63 +152,6 @@ export default function TodayBigReportModal({
       console.warn('전체화면 전환 실패:', err);
     }
   };
-
-  const today = new Date();
-  const targetDate = dayTab === 'today' ? today : addDays(today, 1);
-  const targetDateStr = format(targetDate, 'yyyy-MM-dd');
-  const dayIndex = targetDate.getDay();
-  const isWeekend = dayIndex === 0 || dayIndex === 6;
-  const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-  const month = targetDate.getMonth() + 1;
-  const date = targetDate.getDate();
-  const dayName = dayNames[dayIndex];
-  const year = targetDate.getFullYear();
-
-  const activeData = dayTab === 'today' ? todayData : tomorrowData;
-  const mealDishes = activeData?.meal || [];
-  const timetableList = activeData?.timetable || [];
-
-  // 선택된 날짜 기준 마감 및 수행평가 계산
-  const targetDateDueNotices = useMemo(() => {
-    return notices
-      .filter((n) => n.category === '수행평가' && n.dateType !== 'none' && Boolean(n.date || n.startDate || n.endDate))
-      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
-      .filter(({ notice, dday }) => {
-        if (dday.isExpired) return false;
-        if (notice.date === targetDateStr) return true;
-        if (notice.dateType === 'range' && notice.startDate && notice.endDate) {
-          return targetDateStr >= notice.startDate && targetDateStr <= notice.endDate;
-        }
-        if (dday.days === 0) return true;
-        return false;
-      });
-  }, [notices, targetDateStr, targetDate]);
-
-  const upcomingD7Notices = useMemo(() => {
-    const dueIds = new Set(targetDateDueNotices.map((item) => item.notice.id));
-    return notices
-      .filter(
-        (n) =>
-          n.category === '수행평가' &&
-          n.dateType !== 'none' &&
-          Boolean(n.date || n.startDate || n.endDate) &&
-          !dueIds.has(n.id)
-      )
-      .map((n) => ({ notice: n, dday: calculateDDay(n, targetDate) }))
-      .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
-      .sort((a, b) => a.dday.days - b.dday.days);
-  }, [notices, targetDateDueNotices, targetDate]);
-
-  // 현재 교시 정보 계산
-  const currentPeriodInfo = currentPeriod ? PERIOD_SCHEDULE[String(currentPeriod)] : null;
-  const currentSubjectItem = timetableList.find((item, idx) => {
-    const pNum = typeof item === 'object' && item !== null && item.period ? item.period : idx + 1;
-    return Number(pNum) === currentPeriod;
-  });
-  const currentSubjectName =
-    typeof currentSubjectItem === 'object' && currentSubjectItem !== null
-      ? currentSubjectItem.subject || currentSubjectItem.name || ''
-      : String(currentSubjectItem || '');
 
   return (
     <div

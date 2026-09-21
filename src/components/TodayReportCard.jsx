@@ -145,62 +145,64 @@ function TodayReportCard({
         : '';
 
     return (
-      <div
-        onClick={onToggleCollapse}
-        className="mb-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white dark:from-slate-850 dark:via-slate-850 dark:to-slate-850 border border-blue-200/80 dark:border-slate-750 p-3 sm:px-4 flex items-center justify-between gap-3 shadow-xs hover:border-blue-300 dark:hover:border-slate-700 hover:shadow-sm cursor-pointer transition-all group"
-      >
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <span className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-            <Sparkles className="w-3.5 h-3.5" />
-          </span>
-          <div className="flex items-center gap-2 flex-wrap min-w-0 text-xs">
-            <span className="font-extrabold text-slate-800 dark:text-slate-100 shrink-0">
-              오늘 하루 리포트 ({today.getMonth() + 1}월 {today.getDate()}일)
+      <>
+        <div
+          onClick={onToggleCollapse}
+          className="mb-4 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white dark:from-slate-850 dark:via-slate-850 dark:to-slate-850 border border-blue-200/80 dark:border-slate-750 p-3 sm:px-4 flex items-center justify-between gap-3 shadow-xs hover:border-blue-300 dark:hover:border-slate-700 hover:shadow-sm cursor-pointer transition-all group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <span className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+              <Sparkles className="w-3.5 h-3.5" />
             </span>
-            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
-            {todaySummaryDish && (
-              <span className="text-slate-600 dark:text-slate-300 truncate font-medium max-w-[130px] sm:max-w-[200px]">
-                🍱 {todaySummaryDish}
+            <div className="flex items-center gap-2 flex-wrap min-w-0 text-xs">
+              <span className="font-extrabold text-slate-800 dark:text-slate-100 shrink-0">
+                오늘 하루 리포트 ({today.getMonth() + 1}월 {today.getDate()}일)
               </span>
-            )}
-            {todayFirstSubj && (
-              <span className="text-slate-600 dark:text-slate-300 truncate font-medium hidden md:inline">
-                📚 1교시: {todayFirstSubj}
-              </span>
-            )}
-            {targetDateDueNotices.length > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 font-extrabold text-[10px] shrink-0">
-                {`D-DAY 수행평가 (${targetDateDueNotices.length}개)`}
-              </span>
-            )}
+              <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
+              {todaySummaryDish && (
+                <span className="text-slate-600 dark:text-slate-300 truncate font-medium max-w-[130px] sm:max-w-[200px]">
+                  🍱 {todaySummaryDish}
+                </span>
+              )}
+              {todayFirstSubj && (
+                <span className="text-slate-600 dark:text-slate-300 truncate font-medium hidden md:inline">
+                  📚 1교시: {todayFirstSubj}
+                </span>
+              )}
+              {targetDateDueNotices.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 font-extrabold text-[10px] shrink-0">
+                  {`D-DAY 수행평가 (${targetDateDueNotices.length}개)`}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowBigReportModal(true);
-            }}
-            className="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs flex items-center gap-1 transition-all"
-            title="오늘 하루 리포트 크게 띄우기"
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">크게 보기</span>
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowBigReportModal(true);
+              }}
+              className="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs flex items-center gap-1 transition-all"
+              title="오늘 하루 리포트 크게 띄우기"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">크게 보기</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleCollapse?.();
-            }}
-            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
-          >
-            <span>리포트 펼치기</span>
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleCollapse?.();
+              }}
+              className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-750 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-xs flex items-center gap-1 shrink-0 transition-all"
+            >
+              <span>리포트 펼치기</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* BIG REPORT MODAL (COLLAPSED STATE TRIGGER) */}
@@ -214,7 +216,7 @@ function TodayReportCard({
           onSelectNotice={onSelectNotice}
           onNavigate={onNavigate}
         />
-      </div>
+      </>
     );
   }
 
