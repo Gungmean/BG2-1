@@ -22,7 +22,7 @@ const NoticeCard = forwardRef(function NoticeCard({
   const dday = calculateDDay(notice);
   const catStyle = CATEGORY_STYLES[notice.category] || CATEGORY_STYLES['기타'];
 
-  const handleDelete = (e) => {
+  const handleDeleteClick = (e) => {
     e.stopPropagation();
     if (!isMonitor) {
       if (window.confirm('게시물 삭제는 반장 권한이 필요합니다. 반장 인증 창으로 이동하시겠습니까?')) {
@@ -43,7 +43,7 @@ const NoticeCard = forwardRef(function NoticeCard({
     onTogglePin(notice.id);
   };
 
-  const displayDate =
+  const displayDateText =
     notice.dateType === 'none' || (!notice.date && !notice.startDate && !notice.endDate)
       ? '상시'
       : notice.dateType === 'range' && notice.startDate && notice.endDate
