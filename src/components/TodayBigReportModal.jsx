@@ -14,8 +14,7 @@ import {
   Flame,
   Info,
   Sun,
-  Coffee,
-  Bell
+  Coffee
 } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { PERIOD_SCHEDULE, getCurrentPeriod, cleanDishName } from '../services/schoolService';
@@ -122,17 +121,6 @@ export default function TodayBigReportModal({
       .filter(({ dday }) => !dday.isExpired && dday.days >= 1 && dday.days <= 7)
       .sort((a, b) => a.dday.days - b.dday.days);
   }, [isOpen, notices, targetDateDueNotices, targetDate]);
-
-  // 현재 교시 정보 계산
-  const currentPeriodInfo = currentPeriod ? PERIOD_SCHEDULE[String(currentPeriod)] : null;
-  const currentSubjectItem = timetableList.find((item, idx) => {
-    const pNum = typeof item === 'object' && item !== null && item.period ? item.period : idx + 1;
-    return Number(pNum) === currentPeriod;
-  });
-  const currentSubjectName =
-    typeof currentSubjectItem === 'object' && currentSubjectItem !== null
-      ? currentSubjectItem.subject || currentSubjectItem.name || ''
-      : String(currentSubjectItem || '');
 
   if (!isOpen) return null;
 
@@ -264,43 +252,6 @@ export default function TodayBigReportModal({
 
         {/* BODY: 스크롤 가능한 대형 브리핑 컨텐츠 */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
-          {/* LIVE CURRENT STATUS BANNER (오늘일 때만 표시) */}
-          {dayTab === 'today' && !isWeekend && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 animate-pulse">
-                  <Bell className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-white/25 text-white">
-                      실시간 일과 현황
-                    </span>
-                    <span className="text-xs text-blue-100 font-mono">
-                      {format(currentTime, 'a h:mm')} 기준
-                    </span>
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-black mt-0.5">
-                    {currentPeriod ? (
-                      <span>
-                        현재 <strong className="text-amber-300 font-black">{currentPeriod}교시</strong>{' '}
-                        {currentSubjectName ? `[${currentSubjectName}]` : ''} 수업이 진행 중입니다
-                      </span>
-                    ) : (
-                      <span>지금은 정규 수업 시간이 아닙니다 (일과 전/후 또는 쉬는 시간/점심)</span>
-                    )}
-                  </h2>
-                </div>
-              </div>
-
-              {currentPeriodInfo && (
-                <div className="bg-white/15 px-3 py-1.5 rounded-xl text-xs font-mono font-bold text-blue-50 shrink-0">
-                  수업 시간: {currentPeriodInfo.time}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* 3-COLUMN MAIN DASHBOARD GRID */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
             {/* COLUMN 1 (5 cols): 🍱 오늘의 점심 급식 식단표 */}
