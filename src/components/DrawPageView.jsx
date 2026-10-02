@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
+import SpecialSpoonDrawModal from './SpecialSpoonDrawModal';
 import {
   Sparkles,
   Dices,
@@ -172,6 +173,9 @@ export default function DrawPageView() {
   // 연출 효과 ON/OFF 상태
   const [isNumberAnimEnabled, setIsNumberAnimEnabled] = useState(true);
   const [isSeatAnimEnabled, setIsSeatAnimEnabled] = useState(true);
+  // 🥄 특별 연출 (숟가락 뽑기) 상태
+  const [isSpecialAnimEnabled, setIsSpecialAnimEnabled] = useState(false);
+  const [isSpecialModalOpen, setIsSpecialModalOpen] = useState(false);
 
   // ----------------------------------------------------
   // 1. 번호 뽑기 상태 (한글자씩 따다다다닫 모션)
@@ -189,6 +193,32 @@ export default function DrawPageView() {
 
   const animIntervalRef = useRef(null);
   const timeoutsRef = useRef([]);
+
+  // 특별 연출 (숟가락 뽑기) 완료 시 당첨자 동기화 처리
+  const handleSpecialDrawWinner = (winner) => {
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    setDrawLogs((prev) => [
+      {
+        id: Date.now(),
+        number: winner.number,
+        name: winner.name,
+        time: timeStr
+      },
+      ...prev
+    ]);
+
+    if (!allowDuplicate) {
+      setRemainingPool((prev) => prev.filter((s) => s.number !== winner.number));
+    }
+
+    setSlotNumber(winner.number);
+    setIsNumberLocked(true);
+    setSlotChars(winner.name.split(''));
+    setLockedChars(new Array(winner.name.length).fill(true));
+    setSelectedWinner(winner);
+    setDrawStage('done');
+  };
 
   const handleStartNumberDraw = () => {
     if (isSpinning) return;
@@ -732,20 +762,41 @@ export default function DrawPageView() {
                 )}
               </div>
 
-              <div className="flex items-center gap-4 flex-wrap">
-                {/* 추첨 연출 ON/OFF 토글 */}
-                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 select-none">
+              <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                {/* 🥄 특별연출 켜기 토글 */}
+                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold select-none bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 shadow-2xs hover:bg-indigo-100/70 transition-colors">
                   <input
                     type="checkbox"
-                    checked={isNumberAnimEnabled}
-                    onChange={(e) => setIsNumberAnimEnabled(e.target.checked)}
-                    className="rounded text-amber-500 focus:ring-amber-400 w-4 h-4 cursor-pointer"
+                    checked={isSpecialAnimEnabled}
+                    onChange={(e) => {
+                      setIsSpecialAnimEnabled(e.target.checked);
+                      if (e.target.checked) {
+                        setIsSpecialModalOpen(true);
+                      }
+                    }}
+                    className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
                   />
                   <span className="flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    추첨 연출 {isNumberAnimEnabled ? 'ON' : 'OFF (즉시)'}
+                    <span>🥄</span>
+                    <span>특별연출 켜기</span>
                   </span>
                 </label>
+
+                {/* 추첨 연출 ON/OFF 토글 */}
+                {!isSpecialAnimEnabled && (
+                  <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 select-none">
+                    <input
+                      type="checkbox"
+                      checked={isNumberAnimEnabled}
+                      onChange={(e) => setIsNumberAnimEnabled(e.target.checked)}
+                      className="rounded text-amber-500 focus:ring-amber-400 w-4 h-4 cursor-pointer"
+                    />
+                    <span className="flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      일반 연출 {isNumberAnimEnabled ? 'ON' : 'OFF (즉시)'}
+                    </span>
+                  </label>
+                )}
 
                 {/* 중복 추첨 허용 토글 */}
                 <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300 select-none">
@@ -866,12 +917,31 @@ export default function DrawPageView() {
                 type="button"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleStartNumberDraw}
-                disabled={isSpinning}
-                className="flex-1 max-w-xs py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-orange-200/80 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                onClick={() => {
+                  if (isSpecialAnimEnabled) {
+                    setIsSpecialModalOpen(true);
+                  } else {
+                    handleStartNumberDraw();
+                  }
+                }}
+                disabled={!isSpecialAnimEnabled && isSpinning}
+                className={`flex-1 max-w-xs py-3.5 px-6 rounded-2xl font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  isSpecialAnimEnabled
+                    ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-700 text-white shadow-indigo-300 dark:shadow-indigo-950/60 ring-2 ring-indigo-400/40 active:scale-98'
+                    : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-orange-200/80 disabled:opacity-50'
+                }`}
               >
-                <Shuffle className={`w-5 h-5 ${isSpinning ? 'animate-spin' : ''}`} />
-                <span>{isSpinning ? '추첨 중...' : '번호 추첨하기'}</span>
+                {isSpecialAnimEnabled ? (
+                  <>
+                    <span className="text-lg">🥄</span>
+                    <span>숟가락 특별 추첨 시작!</span>
+                  </>
+                ) : (
+                  <>
+                    <Shuffle className={`w-5 h-5 ${isSpinning ? 'animate-spin' : ''}`} />
+                    <span>{isSpinning ? '추첨 중...' : '번호 추첨하기'}</span>
+                  </>
+                )}
               </motion.button>
             </div>
           </div>
@@ -1210,6 +1280,16 @@ export default function DrawPageView() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 4. 숟가락 뽑기 특별 연출 모달 (전체화면) */}
+      <SpecialSpoonDrawModal
+        isOpen={isSpecialModalOpen}
+        onClose={() => setIsSpecialModalOpen(false)}
+        remainingPool={remainingPool}
+        allowDuplicate={allowDuplicate}
+        onDrawWinner={handleSpecialDrawWinner}
+        onResetPool={() => setRemainingPool([...CLASS_STUDENTS])}
+      />
     </div>
   );
 }
