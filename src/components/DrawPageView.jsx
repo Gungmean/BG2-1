@@ -768,12 +768,7 @@ export default function DrawPageView() {
                   <input
                     type="checkbox"
                     checked={isSpecialAnimEnabled}
-                    onChange={(e) => {
-                      setIsSpecialAnimEnabled(e.target.checked);
-                      if (e.target.checked) {
-                        setIsSpecialModalOpen(true);
-                      }
-                    }}
+                    onChange={(e) => setIsSpecialAnimEnabled(e.target.checked)}
                     className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
                   />
                   <span className="flex items-center gap-1">
@@ -925,16 +920,12 @@ export default function DrawPageView() {
                   }
                 }}
                 disabled={!isSpecialAnimEnabled && isSpinning}
-                className={`flex-1 max-w-xs py-3.5 px-6 rounded-2xl font-extrabold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  isSpecialAnimEnabled
-                    ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-700 text-white shadow-indigo-300 dark:shadow-indigo-950/60 ring-2 ring-indigo-400/40 active:scale-98'
-                    : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-orange-200/80 disabled:opacity-50'
-                }`}
+                className="flex-1 max-w-xs py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-orange-200/80 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {isSpecialAnimEnabled ? (
                   <>
                     <span className="text-lg">🥄</span>
-                    <span>숟가락 특별 추첨 시작!</span>
+                    <span>번호 추첨하기</span>
                   </>
                 ) : (
                   <>

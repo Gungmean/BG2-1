@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
-import { X, RotateCcw, Sparkles, Trophy, CheckCircle2, ChevronRight, Volume2, VolumeX } from 'lucide-react';
+import { X, RotateCcw, Sparkles, Trophy } from 'lucide-react';
 import { CLASS_STUDENTS } from './DrawPageView';
 
-// Audio Context for spoon drawing sounds
+// Web Audio API for interactive sound effects
 let audioCtx = null;
 const getAudio = () => {
   if (typeof window === 'undefined') return null;
@@ -21,40 +21,38 @@ const getAudio = () => {
   }
 };
 
-const playSpoonSound = (type = 'pull') => {
+const playSound = (type = 'pull') => {
   try {
     const ctx = getAudio();
     if (!ctx) return;
     const now = ctx.currentTime;
 
     if (type === 'hover') {
-      // Light metallic tick
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, now);
-      gain.gain.setValueAtTime(0.02, now);
+      osc.frequency.setValueAtTime(880, now);
+      gain.gain.setValueAtTime(0.015, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.04);
     } else if (type === 'pull') {
-      // Metallic swoosh & clink
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc1.type = 'triangle';
-      osc1.frequency.setValueAtTime(450, now);
-      osc1.frequency.exponentialRampToValueAtTime(1100, now + 0.15);
+      osc1.frequency.setValueAtTime(380, now);
+      osc1.frequency.exponentialRampToValueAtTime(950, now + 0.18);
 
       osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(1200, now);
-      osc2.frequency.exponentialRampToValueAtTime(2400, now + 0.2);
+      osc2.frequency.setValueAtTime(1100, now);
+      osc2.frequency.exponentialRampToValueAtTime(2200, now + 0.22);
 
       gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
 
       osc1.connect(gain);
       osc2.connect(gain);
@@ -62,22 +60,21 @@ const playSpoonSound = (type = 'pull') => {
 
       osc1.start(now);
       osc2.start(now);
-      osc1.stop(now + 0.3);
-      osc2.stop(now + 0.3);
+      osc1.stop(now + 0.28);
+      osc2.stop(now + 0.28);
     } else if (type === 'reveal') {
-      // Suspense fanfare chord
       const freqs = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
       freqs.forEach((f, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(f, now + i * 0.08);
-        gain.gain.setValueAtTime(0.1, now + i * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.6);
+        osc.frequency.setValueAtTime(f, now + i * 0.09);
+        gain.gain.setValueAtTime(0.12, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.55);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(now + i * 0.08);
-        osc.stop(now + i * 0.08 + 0.6);
+        osc.start(now + i * 0.09);
+        osc.stop(now + i * 0.09 + 0.55);
       });
     }
   } catch (e) {
@@ -85,24 +82,24 @@ const playSpoonSound = (type = 'pull') => {
   }
 };
 
-// Spoons configuration for Can 1 (Tens digit)
-const TENS_SPOONS_CONFIG = [
-  { id: 0, angle: -18, height: 110, offsetLeft: '18%' },
-  { id: 1, angle: -9, height: 125, offsetLeft: '34%' },
-  { id: 2, angle: 0, height: 132, offsetLeft: '50%' },
-  { id: 3, angle: 9, height: 124, offsetLeft: '66%' },
-  { id: 4, angle: 18, height: 112, offsetLeft: '82%' },
+// Spoons in Can 1 (Tens digit)
+const TENS_SPOONS = [
+  { id: 0, angle: -18, height: 140, left: '16%' },
+  { id: 1, angle: -9, height: 160, left: '33%' },
+  { id: 2, angle: 0, height: 170, left: '50%' },
+  { id: 3, angle: 9, height: 160, left: '67%' },
+  { id: 4, angle: 18, height: 140, left: '84%' },
 ];
 
-// Spoons configuration for Can 2 (Ones digit)
-const ONES_SPOONS_CONFIG = [
-  { id: 0, angle: -24, height: 112, offsetLeft: '14%' },
-  { id: 1, angle: -16, height: 120, offsetLeft: '26%' },
-  { id: 2, angle: -8, height: 128, offsetLeft: '38%' },
-  { id: 3, angle: 0, height: 134, offsetLeft: '50%' },
-  { id: 4, angle: 8, height: 128, offsetLeft: '62%' },
-  { id: 5, angle: 16, height: 120, offsetLeft: '74%' },
-  { id: 6, angle: 24, height: 112, offsetLeft: '86%' },
+// Spoons in Can 2 (Ones digit)
+const ONES_SPOONS = [
+  { id: 0, angle: -24, height: 140, left: '14%' },
+  { id: 1, angle: -16, height: 155, left: '26%' },
+  { id: 2, angle: -8, height: 165, left: '38%' },
+  { id: 3, angle: 0, height: 172, left: '50%' },
+  { id: 4, angle: 8, height: 165, left: '62%' },
+  { id: 5, angle: 16, height: 155, left: '74%' },
+  { id: 6, angle: 24, height: 140, left: '86%' },
 ];
 
 export default function SpecialSpoonDrawModal({
@@ -117,15 +114,12 @@ export default function SpecialSpoonDrawModal({
   const [tensDigit, setTensDigit] = useState('0');
   const [onesDigit, setOnesDigit] = useState('0');
 
-  // Spoon pick states
   const [pickedTensId, setPickedTensId] = useState(null);
   const [pickedOnesId, setPickedOnesId] = useState(null);
   const [isTensRevealed, setIsTensRevealed] = useState(false);
   const [isOnesRevealed, setIsOnesRevealed] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [roundCount, setRoundCount] = useState(1);
 
-  // Initialize or reset a round
   const startNewRound = () => {
     let pool = allowDuplicate ? CLASS_STUDENTS : remainingPool;
     if (pool.length === 0) {
@@ -137,7 +131,6 @@ export default function SpecialSpoonDrawModal({
       }
     }
 
-    // Pick random target winner for this round
     const winner = pool[Math.floor(Math.random() * pool.length)];
     const numStr = String(winner.number).padStart(2, '0');
 
@@ -145,7 +138,6 @@ export default function SpecialSpoonDrawModal({
     setTensDigit(numStr[0]);
     setOnesDigit(numStr[1]);
 
-    // Reset interaction states
     setPickedTensId(null);
     setPickedOnesId(null);
     setIsTensRevealed(false);
@@ -159,50 +151,45 @@ export default function SpecialSpoonDrawModal({
     }
   }, [isOpen]);
 
-  // Handle picking a spoon from Can 1 (Tens digit)
-  const handlePickTensSpoon = (spoonId) => {
+  const handlePickTens = (spoonId) => {
     if (isTensRevealed || pickedTensId !== null) return;
-    playSpoonSound('pull');
+    playSound('pull');
     setPickedTensId(spoonId);
 
     setTimeout(() => {
       setIsTensRevealed(true);
-      checkCompletion(true, isOnesRevealed);
-    }, 450);
+      checkDone(true, isOnesRevealed);
+    }, 400);
   };
 
-  // Handle picking a spoon from Can 2 (Ones digit)
-  const handlePickOnesSpoon = (spoonId) => {
+  const handlePickOnes = (spoonId) => {
     if (isOnesRevealed || pickedOnesId !== null) return;
-    playSpoonSound('pull');
+    playSound('pull');
     setPickedOnesId(spoonId);
 
     setTimeout(() => {
       setIsOnesRevealed(true);
-      checkCompletion(isTensRevealed, true);
-    }, 450);
+      checkDone(isTensRevealed, true);
+    }, 400);
   };
 
-  // Check if both spoons are revealed
-  const checkCompletion = (tensDone, onesDone) => {
+  const checkDone = (tensDone, onesDone) => {
     if (tensDone && onesDone) {
       setTimeout(() => {
         setIsCompleted(true);
-        playSpoonSound('reveal');
+        playSound('reveal');
 
-        // Confetti celebration
         confetti({
-          particleCount: 100,
-          spread: 80,
-          origin: { y: 0.55 },
+          particleCount: 110,
+          spread: 85,
+          origin: { y: 0.45 },
           zIndex: 9999
         });
 
-        // Trigger log recording & pool removal in parent
         if (currentWinner && onDrawWinner) {
           onDrawWinner(currentWinner);
         }
-      }, 500);
+      }, 450);
     }
   };
 
@@ -214,394 +201,363 @@ export default function SpecialSpoonDrawModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex flex-col justify-between bg-slate-950/95 backdrop-blur-xl text-white select-none overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8"
+        className="fixed inset-0 z-50 overflow-hidden bg-slate-950/80 backdrop-blur-md select-none flex flex-col justify-between"
       >
-        {/* Ambient Stage Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-b from-indigo-600/20 via-purple-600/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+        {/* Soft Ambient Spotlight Glow */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-b from-indigo-500/20 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-        {/* Top Header Row */}
-        <div className="relative z-10 w-full flex items-center justify-between gap-4 max-w-5xl mx-auto">
-          <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center text-xl shadow-lg shadow-amber-500/20">
+        {/* Minimal Top Control Bar */}
+        <div className="relative z-30 w-full p-4 sm:p-6 flex items-center justify-between max-w-6xl mx-auto">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-md">
               🥄
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                <h3 className="text-base sm:text-lg font-black text-white">
                   추억의 숟가락 뽑기
-                </h2>
-                <span className="px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 text-[11px] font-bold">
+                </h3>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 text-[10px] font-bold border border-indigo-400/30">
                   특별 연출
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                부광고 2-1 • 십의 자리 깡통과 일의 자리 깡통에서 숟가락을 하나씩 뽑으세요!
+              <p className="text-[11px] text-slate-400">
+                아래 깡통에 꽂힌 숟가락을 클릭하여 십의 자리와 일의 자리를 뽑아보세요!
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-semibold text-slate-400">
-              <span>남은 대상:</span>
-              <strong className="text-amber-400 font-bold">{remainingPool.length}명</strong>
-            </div>
-
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-slate-300 hover:text-white transition-all cursor-pointer border border-white/10"
-              title="닫기"
+              className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 border border-white/10 cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
+              <span>닫기</span>
             </button>
           </div>
         </div>
 
-        {/* Main Stage: Results Rack & Tin Cans */}
-        <div className="relative z-10 my-auto py-6 flex flex-col items-center justify-center max-w-4xl mx-auto w-full space-y-8 sm:space-y-12">
-          {/* Top Display: Selected Spoons Dock */}
-          <div className="flex flex-col items-center justify-center space-y-3">
-            <div className="text-xs sm:text-sm font-extrabold tracking-wide uppercase text-slate-400 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-              <span>
-                {isCompleted
-                  ? '🎉 당첨 번호가 완성되었습니다!'
-                  : isTensRevealed || isOnesRevealed
-                  ? '나머지 숟가락도 뽑아주세요!'
-                  : '원하는 숟가락을 클릭하여 뽑아보세요!'}
+        {/* UPPER STAGE: Giant Revealed Spoons ("뽑으면 숫가락을 각각 크게 표시") */}
+        <div className="relative z-30 flex-1 flex flex-col items-center justify-start pt-2 sm:pt-4 max-w-4xl mx-auto w-full px-4">
+          {/* Status Instruction */}
+          <div className="mb-4 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-xs sm:text-sm font-extrabold text-amber-300 shadow-md">
+            <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+            <span>
+              {isCompleted
+                ? '🎉 축하합니다! 번호가 완성되었습니다!'
+                : isTensRevealed || isOnesRevealed
+                ? '나머지 깡통에서도 숟가락을 뽑아주세요!'
+                : '아래 두 깡통에서 숟가락을 하나씩 눌러 뽑으세요!'}
+            </span>
+          </div>
+
+          {/* TWO GIANT REVEALED SPOONS */}
+          <div className="flex items-center justify-center gap-6 sm:gap-12 md:gap-16 my-2">
+            {/* GIANT SPOON 1: 십의 자리 */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xs sm:text-sm font-black text-indigo-300 tracking-wider">
+                [ 십의 자리 ]
               </span>
+
+              {isTensRevealed ? (
+                <motion.div
+                  initial={{ scale: 0.3, y: 80, rotate: -15, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, rotate: 0, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                  className="flex flex-col items-center select-none"
+                >
+                  {/* Giant Spoon Bowl Head */}
+                  <div className="w-24 h-34 sm:w-32 sm:h-44 md:w-38 md:h-52 rounded-t-[50%] rounded-b-[40%] bg-gradient-to-b from-slate-100 via-slate-200 to-slate-400 border-4 border-white shadow-[0_10px_35px_rgba(99,102,241,0.5)] flex flex-col items-center justify-center relative overflow-hidden ring-4 ring-indigo-400/40">
+                    {/* Metallic Gloss Highlights */}
+                    <div className="absolute top-2 left-3 w-3 h-16 bg-white/80 rounded-full blur-[1px]" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-white/20 to-transparent pointer-events-none" />
+
+                    {/* Huge Number */}
+                    <span className="text-5xl sm:text-7xl md:text-8xl font-black font-mono text-slate-900 drop-shadow-md z-10">
+                      {tensDigit}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-black text-indigo-700 uppercase tracking-widest mt-1 z-10">
+                      TENS
+                    </span>
+                  </div>
+
+                  {/* Giant Spoon Handle */}
+                  <div className="w-5 h-20 sm:w-6 sm:h-28 bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 rounded-b-xl shadow-lg border-x-2 border-slate-300/80 -mt-2" />
+                </motion.div>
+              ) : (
+                /* Unrevealed Placeholder Outline */
+                <div className="w-24 h-48 sm:w-32 sm:h-64 rounded-3xl border-3 border-dashed border-indigo-400/40 bg-indigo-950/30 flex flex-col items-center justify-center text-indigo-300/50">
+                  <span className="text-4xl sm:text-5xl mb-2 opacity-50">🥄</span>
+                  <span className="text-xs font-black">십의 자리</span>
+                  <span className="text-[10px] text-slate-400 mt-1">아래 깡통 1 클릭</span>
+                </div>
+              )}
             </div>
 
-            {/* Revealed Spoon Heads Pair */}
-            <div className="flex items-center gap-4 sm:gap-6">
-              {/* Tens Digit Slot */}
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-[11px] font-bold text-indigo-300">십의 자리</span>
-                <motion.div
-                  animate={
-                    isTensRevealed
-                      ? { scale: [0.8, 1.15, 1], y: [10, -5, 0] }
-                      : { scale: 1, y: 0 }
-                  }
-                  transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-                  className={`w-20 h-28 sm:w-24 sm:h-32 rounded-3xl flex flex-col items-center justify-center border-2 transition-all shadow-xl relative overflow-hidden ${
-                    isTensRevealed
-                      ? 'bg-gradient-to-b from-indigo-500 via-indigo-600 to-indigo-700 border-indigo-300 text-white shadow-indigo-500/40 ring-4 ring-indigo-400/30'
-                      : 'bg-slate-900/80 border-dashed border-indigo-400/40 text-indigo-300/40'
-                  }`}
-                >
-                  {isTensRevealed ? (
-                    <>
-                      {/* Metallic Spoon Texture Lines */}
-                      <div className="absolute top-2 w-10 h-1 bg-white/30 rounded-full" />
-                      <span className="text-4xl sm:text-5xl font-black font-mono tracking-tighter drop-shadow-md">
-                        {tensDigit}
-                      </span>
-                      <span className="text-[10px] font-extrabold text-indigo-200 mt-1 uppercase">
-                        SPOON
-                      </span>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-2xl opacity-60">🥄</span>
-                      <span className="text-[10px] font-bold">미선택</span>
-                    </div>
-                  )}
-                </motion.div>
-              </div>
+            <span className="text-3xl sm:text-5xl font-black text-slate-600 mb-14 sm:mb-20">
+              +
+            </span>
 
-              <span className="text-2xl sm:text-3xl font-black text-slate-600 mb-6">+</span>
+            {/* GIANT SPOON 2: 일의 자리 */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xs sm:text-sm font-black text-amber-300 tracking-wider">
+                [ 일의 자리 ]
+              </span>
 
-              {/* Ones Digit Slot */}
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-[11px] font-bold text-amber-300">일의 자리</span>
+              {isOnesRevealed ? (
                 <motion.div
-                  animate={
-                    isOnesRevealed
-                      ? { scale: [0.8, 1.15, 1], y: [10, -5, 0] }
-                      : { scale: 1, y: 0 }
-                  }
-                  transition={{ type: 'spring', stiffness: 450, damping: 20 }}
-                  className={`w-20 h-28 sm:w-24 sm:h-32 rounded-3xl flex flex-col items-center justify-center border-2 transition-all shadow-xl relative overflow-hidden ${
-                    isOnesRevealed
-                      ? 'bg-gradient-to-b from-amber-500 via-orange-500 to-amber-600 border-amber-200 text-white shadow-amber-500/40 ring-4 ring-amber-400/30'
-                      : 'bg-slate-900/80 border-dashed border-amber-400/40 text-amber-300/40'
-                  }`}
+                  initial={{ scale: 0.3, y: 80, rotate: 15, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, rotate: 0, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                  className="flex flex-col items-center select-none"
                 >
-                  {isOnesRevealed ? (
-                    <>
-                      {/* Metallic Spoon Texture Lines */}
-                      <div className="absolute top-2 w-10 h-1 bg-white/30 rounded-full" />
-                      <span className="text-4xl sm:text-5xl font-black font-mono tracking-tighter drop-shadow-md">
-                        {onesDigit}
-                      </span>
-                      <span className="text-[10px] font-extrabold text-amber-100 mt-1 uppercase">
-                        SPOON
-                      </span>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-2xl opacity-60">🥄</span>
-                      <span className="text-[10px] font-bold">미선택</span>
-                    </div>
-                  )}
+                  {/* Giant Spoon Bowl Head */}
+                  <div className="w-24 h-34 sm:w-32 sm:h-44 md:w-38 md:h-52 rounded-t-[50%] rounded-b-[40%] bg-gradient-to-b from-amber-50 via-amber-100 to-orange-300 border-4 border-amber-100 shadow-[0_10px_35px_rgba(245,158,11,0.5)] flex flex-col items-center justify-center relative overflow-hidden ring-4 ring-amber-400/40">
+                    {/* Metallic Gloss Highlights */}
+                    <div className="absolute top-2 left-3 w-3 h-16 bg-white/90 rounded-full blur-[1px]" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-white/20 to-transparent pointer-events-none" />
+
+                    {/* Huge Number */}
+                    <span className="text-5xl sm:text-7xl md:text-8xl font-black font-mono text-slate-900 drop-shadow-md z-10">
+                      {onesDigit}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-black text-amber-800 uppercase tracking-widest mt-1 z-10">
+                      ONES
+                    </span>
+                  </div>
+
+                  {/* Giant Spoon Handle */}
+                  <div className="w-5 h-20 sm:w-6 sm:h-28 bg-gradient-to-b from-orange-300 via-amber-400 to-amber-500 rounded-b-xl shadow-lg border-x-2 border-amber-200/80 -mt-2" />
                 </motion.div>
-              </div>
+              ) : (
+                /* Unrevealed Placeholder Outline */
+                <div className="w-24 h-48 sm:w-32 sm:h-64 rounded-3xl border-3 border-dashed border-amber-400/40 bg-amber-950/30 flex flex-col items-center justify-center text-amber-300/50">
+                  <span className="text-4xl sm:text-5xl mb-2 opacity-50">🥄</span>
+                  <span className="text-xs font-black">일의 자리</span>
+                  <span className="text-[10px] text-slate-400 mt-1">아래 깡통 2 클릭</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Celebration Winner Banner (Appears when both are revealed) */}
+          {/* Winner Celebration Card (When both are revealed) */}
           <AnimatePresence>
             {isCompleted && currentWinner && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                initial={{ opacity: 0, scale: 0.7, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                transition={{ type: 'spring', stiffness: 450, damping: 22 }}
-                className="w-full max-w-lg p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-2xl shadow-orange-500/40 border-2 border-amber-300 text-center relative overflow-hidden"
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 20 }}
+                className="w-full max-w-md p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-2xl shadow-orange-500/40 border-2 border-amber-300 text-center relative overflow-hidden my-2 z-40"
               >
-                {/* Shiny diagonal overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col items-center space-y-2">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/25 backdrop-blur-sm text-xs font-black text-amber-200">
-                    <Trophy className="w-4 h-4 text-amber-300" />
+                <div className="relative z-10 flex flex-col items-center space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-black/30 backdrop-blur-sm text-[11px] font-black text-amber-200">
+                    <Trophy className="w-3.5 h-3.5 text-amber-300" />
                     <span>부광고 2학년 1반 당첨!</span>
                   </div>
 
-                  <div className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight drop-shadow-lg py-1">
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight drop-shadow-md py-0.5">
                     <span className="font-mono">{currentWinner.number}번</span>{' '}
                     <span>{currentWinner.name}</span>
                   </div>
 
-                  <p className="text-xs text-amber-100 font-medium">
-                    축하합니다! 숟가락 뽑기에서 행운의 번호로 선정되었습니다.
-                  </p>
+                  <div className="flex items-center gap-2 pt-2 w-full">
+                    <button
+                      type="button"
+                      onClick={startNewRound}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-white text-slate-900 font-extrabold text-xs sm:text-sm hover:bg-amber-100 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                    >
+                      <RotateCcw className="w-4 h-4 text-amber-600" />
+                      <span>다시 뽑기</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="py-2.5 px-4 rounded-xl bg-black/30 hover:bg-black/40 text-white font-extrabold text-xs sm:text-sm active:scale-95 transition-all cursor-pointer"
+                    >
+                      닫기
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
 
-          {/* Bottom Cans Area (Two Tin Cans with Spoons) */}
-          <div className="grid grid-cols-2 gap-6 sm:gap-14 w-full max-w-2xl px-2">
-            {/* CAN 1: 십의 자리 깡통 */}
-            <div className="flex flex-col items-center">
-              <div className="text-center mb-2">
-                <span className="px-3 py-1 rounded-xl bg-indigo-950/80 border border-indigo-700/60 text-indigo-300 font-black text-xs sm:text-sm">
-                  깡통 1: 십의 자리
-                </span>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  {isTensRevealed ? '✅ 뽑기 완료' : '숟가락을 클릭해 뽑으세요'}
-                </p>
+        {/* ======================================================== */}
+        {/* LOWER AREA: TWO GIANT TIN CANS ANCHORED TO BOTTOM        */}
+        {/* "깡통의 아래쪽이 화면 아래쪽 밖으로 나가도록"                 */}
+        {/* ======================================================== */}
+        <div className="relative w-full h-44 sm:h-56 md:h-64 pointer-events-none">
+          <div className="absolute -bottom-24 sm:-bottom-32 md:-bottom-40 left-0 right-0 flex items-end justify-center gap-8 sm:gap-16 md:gap-24 z-20 pointer-events-auto">
+            {/* GIANT CAN 1: 십의 자리 깡통 */}
+            <div className="relative w-48 sm:w-64 md:w-80 h-72 sm:h-96 md:h-[420px] flex flex-col items-center justify-end">
+              {/* Spoons protruding from the giant can rim */}
+              <div className="absolute top-0 inset-x-0 h-44 sm:h-56 pointer-events-auto z-10">
+                {TENS_SPOONS.map((spoon) => {
+                  const isPicked = pickedTensId === spoon.id;
+                  const isLocked = isTensRevealed || pickedTensId !== null;
+
+                  return (
+                    <motion.div
+                      key={spoon.id}
+                      initial={false}
+                      animate={
+                        isPicked
+                          ? { y: -260, scale: 1.3, opacity: [1, 1, 0] }
+                          : isLocked
+                          ? { opacity: 0.3 }
+                          : { y: 0, opacity: 1 }
+                      }
+                      whileHover={
+                        !isLocked
+                          ? {
+                              y: -24,
+                              scale: 1.12,
+                              transition: { duration: 0.15 }
+                            }
+                          : {}
+                      }
+                      onClick={() => handlePickTens(spoon.id)}
+                      onMouseEnter={() => !isLocked && playSound('hover')}
+                      style={{
+                        position: 'absolute',
+                        left: spoon.left,
+                        bottom: 0,
+                        transformOrigin: 'bottom center',
+                        rotate: isPicked ? '0deg' : `${spoon.angle}deg`,
+                        cursor: isLocked ? 'default' : 'pointer'
+                      }}
+                      className="group flex flex-col items-center select-none"
+                    >
+                      {/* Spoon Oval Head / Handle */}
+                      <div className="w-8 h-14 sm:w-11 sm:h-18 md:w-13 md:h-22 rounded-t-full rounded-b-2xl bg-gradient-to-b from-slate-100 via-slate-300 to-slate-400 border-2 border-slate-100 shadow-xl group-hover:shadow-indigo-400/80 flex flex-col items-center justify-center relative overflow-hidden transition-all">
+                        <div className="absolute top-1 left-1.5 w-1.5 h-8 bg-white/80 rounded-full blur-[0.5px]" />
+                        <span className="text-xs sm:text-sm font-black text-slate-700 font-mono">
+                          {isPicked && isTensRevealed ? tensDigit : '?'}
+                        </span>
+                      </div>
+                      {/* Spoon Neck */}
+                      <div className="w-3.5 h-20 sm:w-4 sm:h-28 md:w-5 md:h-36 bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 rounded-b-sm shadow-inner" />
+                    </motion.div>
+                  );
+                })}
               </div>
 
-              {/* Can Container with Spoons */}
-              <div className="relative w-36 h-48 sm:w-48 sm:h-56 flex flex-col items-center justify-end">
-                {/* Spoons protruding from the can */}
-                <div className="absolute top-0 inset-x-0 h-32 pointer-events-auto">
-                  {TENS_SPOONS_CONFIG.map((spoon) => {
-                    const isPicked = pickedTensId === spoon.id;
-                    const isAnyPicked = isTensRevealed || pickedTensId !== null;
-
-                    return (
-                      <motion.div
-                        key={spoon.id}
-                        initial={false}
-                        animate={
-                          isPicked
-                            ? {
-                                y: -160,
-                                scale: 1.25,
-                                rotate: 0,
-                                opacity: [1, 1, 0.4]
-                              }
-                            : isAnyPicked
-                            ? { opacity: 0.35 }
-                            : { y: 0, opacity: 1 }
-                        }
-                        whileHover={
-                          !isAnyPicked
-                            ? {
-                                y: -16,
-                                scale: 1.08,
-                                transition: { duration: 0.15 }
-                              }
-                            : {}
-                        }
-                        onClick={() => handlePickTensSpoon(spoon.id)}
-                        onMouseEnter={() => !isAnyPicked && playSpoonSound('hover')}
-                        style={{
-                          position: 'absolute',
-                          left: spoon.offsetLeft,
-                          bottom: 0,
-                          transformOrigin: 'bottom center',
-                          rotate: isPicked ? '0deg' : `${spoon.angle}deg`,
-                          cursor: isAnyPicked ? 'default' : 'pointer'
-                        }}
-                        className="group flex flex-col items-center select-none"
-                      >
-                        {/* Spoon Oval Head / Handle sticking out */}
-                        <div className="w-7 h-10 sm:w-9 sm:h-13 rounded-t-full rounded-b-2xl bg-gradient-to-b from-slate-100 via-slate-300 to-slate-400 border border-slate-100 shadow-md group-hover:shadow-indigo-400/50 flex flex-col items-center justify-center relative overflow-hidden transition-all">
-                          {/* Chrome shine effect */}
-                          <div className="absolute top-1 left-1.5 w-1.5 h-6 bg-white/70 rounded-full blur-[0.5px]" />
-                          <span className="text-[10px] sm:text-xs font-black text-slate-700 font-mono">
-                            {isPicked && isTensRevealed ? tensDigit : '?'}
-                          </span>
-                        </div>
-                        {/* Spoon Neck */}
-                        <div className="w-2.5 h-16 sm:w-3.5 sm:h-20 bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 rounded-b-sm shadow-inner" />
-                      </motion.div>
-                    );
-                  })}
+              {/* Giant Tin Can Body (Bottom extends off-screen) */}
+              <div className="relative z-20 w-full h-56 sm:h-76 md:h-92 rounded-t-3xl bg-gradient-to-r from-slate-700 via-slate-400 to-slate-800 border-t-4 border-x-4 border-slate-300 shadow-[0_-15px_40px_rgba(0,0,0,0.8)] flex flex-col items-center justify-between p-4 overflow-hidden">
+                {/* Can Top Opening Oval Rim */}
+                <div className="w-full h-9 sm:h-12 rounded-[50%] bg-gradient-to-b from-slate-950 to-slate-900 border-2 border-slate-400 shadow-inner flex items-center justify-center shrink-0">
+                  <div className="w-[88%] h-4 sm:h-6 rounded-[50%] bg-black/90 blur-[1px]" />
                 </div>
 
-                {/* 3D Realistic Tin Can Body */}
-                <div className="relative z-20 w-full h-32 sm:h-38 rounded-3xl bg-gradient-to-r from-slate-600 via-slate-400 to-slate-700 border-2 border-slate-300 shadow-2xl flex flex-col items-center justify-between p-3 overflow-hidden">
-                  {/* Can Top Opening Oval Rim */}
-                  <div className="w-full h-7 rounded-[50%] bg-gradient-to-b from-slate-900 to-slate-800 border-2 border-slate-400 shadow-inner flex items-center justify-center">
-                    <div className="w-[85%] h-3 rounded-[50%] bg-black/80 blur-[1px]" />
-                  </div>
-
-                  {/* Can Vintage Label */}
-                  <div className="my-auto px-3 py-1.5 rounded-xl bg-indigo-700 text-white border border-indigo-400/60 shadow-md text-center">
-                    <span className="block text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase text-indigo-200">
-                      TENS DIGIT
-                    </span>
-                    <span className="text-xs sm:text-sm font-black font-mono">
-                      십의 자리
-                    </span>
-                  </div>
-
-                  {/* Can Ribbed Ridges (Metallic texture lines) */}
-                  <div className="w-full space-y-1 opacity-40">
-                    <div className="w-full h-0.5 bg-slate-200" />
-                    <div className="w-full h-0.5 bg-slate-900" />
-                  </div>
+                {/* Big Vintage Front Can Label */}
+                <div className="my-auto px-4 py-2 sm:py-3 rounded-2xl bg-indigo-700/90 text-white border-2 border-indigo-300 shadow-xl text-center">
+                  <span className="block text-[10px] sm:text-xs font-black tracking-widest uppercase text-indigo-200">
+                    TENS DIGIT CAN
+                  </span>
+                  <span className="text-sm sm:text-lg md:text-xl font-black font-mono">
+                    깡통 1: 십의 자리
+                  </span>
+                  <span className="block text-[10px] text-indigo-200/80 font-bold mt-0.5">
+                    {isTensRevealed ? '✅ 뽑기 완료' : '숟가락을 눌러 뽑으세요'}
+                  </span>
                 </div>
 
-                {/* Ground Shadow */}
-                <div className="absolute -bottom-2 w-32 sm:w-40 h-4 bg-black/60 rounded-full blur-md" />
+                {/* Embossed Can Ribs (3D metallic lines) */}
+                <div className="w-full space-y-2 opacity-50 pb-6">
+                  <div className="w-full h-1 bg-slate-200" />
+                  <div className="w-full h-1 bg-slate-950" />
+                  <div className="w-full h-1 bg-slate-200" />
+                </div>
               </div>
             </div>
 
-            {/* CAN 2: 일의 자리 깡통 */}
-            <div className="flex flex-col items-center">
-              <div className="text-center mb-2">
-                <span className="px-3 py-1 rounded-xl bg-amber-950/80 border border-amber-700/60 text-amber-300 font-black text-xs sm:text-sm">
-                  깡통 2: 일의 자리
-                </span>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  {isOnesRevealed ? '✅ 뽑기 완료' : '숟가락을 클릭해 뽑으세요'}
-                </p>
+            {/* GIANT CAN 2: 일의 자리 깡통 */}
+            <div className="relative w-48 sm:w-64 md:w-80 h-72 sm:h-96 md:h-[420px] flex flex-col items-center justify-end">
+              {/* Spoons protruding from the giant can rim */}
+              <div className="absolute top-0 inset-x-0 h-44 sm:h-56 pointer-events-auto z-10">
+                {ONES_SPOONS.map((spoon) => {
+                  const isPicked = pickedOnesId === spoon.id;
+                  const isLocked = isOnesRevealed || pickedOnesId !== null;
+
+                  return (
+                    <motion.div
+                      key={spoon.id}
+                      initial={false}
+                      animate={
+                        isPicked
+                          ? { y: -260, scale: 1.3, opacity: [1, 1, 0] }
+                          : isLocked
+                          ? { opacity: 0.3 }
+                          : { y: 0, opacity: 1 }
+                      }
+                      whileHover={
+                        !isLocked
+                          ? {
+                              y: -24,
+                              scale: 1.12,
+                              transition: { duration: 0.15 }
+                            }
+                          : {}
+                      }
+                      onClick={() => handlePickOnes(spoon.id)}
+                      onMouseEnter={() => !isLocked && playSound('hover')}
+                      style={{
+                        position: 'absolute',
+                        left: spoon.left,
+                        bottom: 0,
+                        transformOrigin: 'bottom center',
+                        rotate: isPicked ? '0deg' : `${spoon.angle}deg`,
+                        cursor: isLocked ? 'default' : 'pointer'
+                      }}
+                      className="group flex flex-col items-center select-none"
+                    >
+                      {/* Spoon Oval Head / Handle */}
+                      <div className="w-8 h-14 sm:w-11 sm:h-18 md:w-13 md:h-22 rounded-t-full rounded-b-2xl bg-gradient-to-b from-slate-100 via-slate-300 to-slate-400 border-2 border-slate-100 shadow-xl group-hover:shadow-amber-400/80 flex flex-col items-center justify-center relative overflow-hidden transition-all">
+                        <div className="absolute top-1 left-1.5 w-1.5 h-8 bg-white/80 rounded-full blur-[0.5px]" />
+                        <span className="text-xs sm:text-sm font-black text-slate-700 font-mono">
+                          {isPicked && isOnesRevealed ? onesDigit : '?'}
+                        </span>
+                      </div>
+                      {/* Spoon Neck */}
+                      <div className="w-3.5 h-20 sm:w-4 sm:h-28 md:w-5 md:h-36 bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 rounded-b-sm shadow-inner" />
+                    </motion.div>
+                  );
+                })}
               </div>
 
-              {/* Can Container with Spoons */}
-              <div className="relative w-36 h-48 sm:w-48 sm:h-56 flex flex-col items-center justify-end">
-                {/* Spoons protruding from the can */}
-                <div className="absolute top-0 inset-x-0 h-32 pointer-events-auto">
-                  {ONES_SPOONS_CONFIG.map((spoon) => {
-                    const isPicked = pickedOnesId === spoon.id;
-                    const isAnyPicked = isOnesRevealed || pickedOnesId !== null;
-
-                    return (
-                      <motion.div
-                        key={spoon.id}
-                        initial={false}
-                        animate={
-                          isPicked
-                            ? {
-                                y: -160,
-                                scale: 1.25,
-                                rotate: 0,
-                                opacity: [1, 1, 0.4]
-                              }
-                            : isAnyPicked
-                            ? { opacity: 0.35 }
-                            : { y: 0, opacity: 1 }
-                        }
-                        whileHover={
-                          !isAnyPicked
-                            ? {
-                                y: -16,
-                                scale: 1.08,
-                                transition: { duration: 0.15 }
-                              }
-                            : {}
-                        }
-                        onClick={() => handlePickOnesSpoon(spoon.id)}
-                        onMouseEnter={() => !isAnyPicked && playSpoonSound('hover')}
-                        style={{
-                          position: 'absolute',
-                          left: spoon.offsetLeft,
-                          bottom: 0,
-                          transformOrigin: 'bottom center',
-                          rotate: isPicked ? '0deg' : `${spoon.angle}deg`,
-                          cursor: isAnyPicked ? 'default' : 'pointer'
-                        }}
-                        className="group flex flex-col items-center select-none"
-                      >
-                        {/* Spoon Oval Head / Handle sticking out */}
-                        <div className="w-7 h-10 sm:w-9 sm:h-13 rounded-t-full rounded-b-2xl bg-gradient-to-b from-slate-100 via-slate-300 to-slate-400 border border-slate-100 shadow-md group-hover:shadow-amber-400/50 flex flex-col items-center justify-center relative overflow-hidden transition-all">
-                          {/* Chrome shine effect */}
-                          <div className="absolute top-1 left-1.5 w-1.5 h-6 bg-white/70 rounded-full blur-[0.5px]" />
-                          <span className="text-[10px] sm:text-xs font-black text-slate-700 font-mono">
-                            {isPicked && isOnesRevealed ? onesDigit : '?'}
-                          </span>
-                        </div>
-                        {/* Spoon Neck */}
-                        <div className="w-2.5 h-16 sm:w-3.5 sm:h-20 bg-gradient-to-b from-slate-300 via-slate-400 to-slate-500 rounded-b-sm shadow-inner" />
-                      </motion.div>
-                    );
-                  })}
+              {/* Giant Tin Can Body (Bottom extends off-screen) */}
+              <div className="relative z-20 w-full h-56 sm:h-76 md:h-92 rounded-t-3xl bg-gradient-to-r from-slate-700 via-slate-400 to-slate-800 border-t-4 border-x-4 border-slate-300 shadow-[0_-15px_40px_rgba(0,0,0,0.8)] flex flex-col items-center justify-between p-4 overflow-hidden">
+                {/* Can Top Opening Oval Rim */}
+                <div className="w-full h-9 sm:h-12 rounded-[50%] bg-gradient-to-b from-slate-950 to-slate-900 border-2 border-slate-400 shadow-inner flex items-center justify-center shrink-0">
+                  <div className="w-[88%] h-4 sm:h-6 rounded-[50%] bg-black/90 blur-[1px]" />
                 </div>
 
-                {/* 3D Realistic Tin Can Body */}
-                <div className="relative z-20 w-full h-32 sm:h-38 rounded-3xl bg-gradient-to-r from-slate-600 via-slate-400 to-slate-700 border-2 border-slate-300 shadow-2xl flex flex-col items-center justify-between p-3 overflow-hidden">
-                  {/* Can Top Opening Oval Rim */}
-                  <div className="w-full h-7 rounded-[50%] bg-gradient-to-b from-slate-900 to-slate-800 border-2 border-slate-400 shadow-inner flex items-center justify-center">
-                    <div className="w-[85%] h-3 rounded-[50%] bg-black/80 blur-[1px]" />
-                  </div>
-
-                  {/* Can Vintage Label */}
-                  <div className="my-auto px-3 py-1.5 rounded-xl bg-amber-600 text-white border border-amber-300/60 shadow-md text-center">
-                    <span className="block text-[9px] sm:text-[10px] font-extrabold tracking-widest uppercase text-amber-100">
-                      ONES DIGIT
-                    </span>
-                    <span className="text-xs sm:text-sm font-black font-mono">
-                      일의 자리
-                    </span>
-                  </div>
-
-                  {/* Can Ribbed Ridges (Metallic texture lines) */}
-                  <div className="w-full space-y-1 opacity-40">
-                    <div className="w-full h-0.5 bg-slate-200" />
-                    <div className="w-full h-0.5 bg-slate-900" />
-                  </div>
+                {/* Big Vintage Front Can Label */}
+                <div className="my-auto px-4 py-2 sm:py-3 rounded-2xl bg-amber-600/90 text-white border-2 border-amber-300 shadow-xl text-center">
+                  <span className="block text-[10px] sm:text-xs font-black tracking-widest uppercase text-amber-100">
+                    ONES DIGIT CAN
+                  </span>
+                  <span className="text-sm sm:text-lg md:text-xl font-black font-mono">
+                    깡통 2: 일의 자리
+                  </span>
+                  <span className="block text-[10px] text-amber-100/80 font-bold mt-0.5">
+                    {isOnesRevealed ? '✅ 뽑기 완료' : '숟가락을 눌러 뽑으세요'}
+                  </span>
                 </div>
 
-                {/* Ground Shadow */}
-                <div className="absolute -bottom-2 w-32 sm:w-40 h-4 bg-black/60 rounded-full blur-md" />
+                {/* Embossed Can Ribs (3D metallic lines) */}
+                <div className="w-full space-y-2 opacity-50 pb-6">
+                  <div className="w-full h-1 bg-slate-200" />
+                  <div className="w-full h-1 bg-slate-950" />
+                  <div className="w-full h-1 bg-slate-200" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Bottom Control Bar */}
-        <div className="relative z-10 w-full max-w-xl mx-auto flex items-center justify-center gap-3 pt-2">
-          {isCompleted ? (
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={startNewRound}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-sm sm:text-base shadow-lg shadow-orange-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-            >
-              <RotateCcw className="w-5 h-5" />
-              <span>다음 학생 뽑기 (새 숟가락)</span>
-            </motion.button>
-          ) : (
-            <p className="text-xs text-slate-400 text-center font-medium">
-              💡 깡통에 꽂힌 숟가락 중 마음에 드는 것을 하나씩 눌러보세요!
-            </p>
-          )}
         </div>
       </motion.div>
     </AnimatePresence>
