@@ -323,22 +323,6 @@ export default function ScheduleInfo() {
                         </tbody>
                       </table>
                     </div>
-
-                    {/* 부광고 주요 일과 시정표 안내 */}
-                    <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] bg-slate-50 dark:bg-slate-800/70 p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700">
-                      <div>
-                        <span className="text-slate-400 dark:text-slate-400 block text-[10px] font-semibold">🍱 점심시간</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono text-[11px]">12:40 ~ 13:40</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 dark:text-slate-400 block text-[10px] font-semibold">🧹 청소시간</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono text-[11px]">15:30 ~ 15:45</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 dark:text-slate-400 block text-[10px] font-semibold">🔔 종례</span>
-                        <span className="font-bold text-slate-700 dark:text-slate-200 font-mono text-[11px]">16:35 ~ 16:40</span>
-                      </div>
-                    </div>
                   </div>
                 ) : (
                   <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs font-medium bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
