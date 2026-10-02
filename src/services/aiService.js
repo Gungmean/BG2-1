@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createWorker } from 'tesseract.js';
 import { getLocalDateString } from './storageService';
 
-const GEMINI_MODEL = 'gemini-3.6-flash';
+const CANDIDATE_MODELS = ['gemini-3.6-flash', 'gemini-3.8-flash'];
 
 /**
  * Analyzes an image of a classroom notice using Gemini API or Tesseract OCR + Smart Date & Text Summarizer.
@@ -12,15 +12,11 @@ export async function analyzeNoticeImage(imageBase64, apiKey = '', mimeType = 'i
   const activeKey = apiKey?.trim() || import.meta.env.VITE_GEMINI_API_KEY?.trim() || '';
   const currentYear = new Date().getFullYear();
 
-  // 1. Primary Option: Google Gemini Vision AI
+  // 1. Primary Option: Google Gemini Vision AI (with multi-model fallback)
   if (activeKey && activeKey.trim() !== '') {
-    try {
-      const genAI = new GoogleGenerativeAI(activeKey.trim());
-      const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+    const pureBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-      const pureBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-
-      const prompt = `
+    const prompt = `
 너는 대한민국 학급 게시판 관리 AI야.
 이 이미지(수행평가 지침서, 안내문, 공지사항, 포스터 등)를 분석해서 아래 항목들을 정확히 추출 및 요약해줘.
 
@@ -40,36 +36,46 @@ export async function analyzeNoticeImage(imageBase64, apiKey = '', mimeType = 'i
 응답은 오직 순수한 JSON 형식으로만 보내줘. 설명이나 마크다운 코드블럭은 포함하지 마.
 `;
 
-      const imagePart = {
-        inlineData: {
-          data: pureBase64,
-          mimeType: mimeType || 'image/jpeg'
-        }
-      };
+    const imagePart = {
+      inlineData: {
+        data: pureBase64,
+        mimeType: mimeType || 'image/jpeg'
+      }
+    };
 
-      const result = await model.generateContent([prompt, imagePart]);
-      const responseText = result.response.text().trim();
-      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsedData = JSON.parse(cleanJson);
+    const genAI = new GoogleGenerativeAI(activeKey.trim());
+    let lastError = null;
 
-      return {
-        success: true,
-        data: {
-          title: parsedData.title || '학급 안내사항',
-          content: parsedData.content || '주요 안내사항을 확인하세요.',
-          date: parsedData.date || getFutureDate(7),
-          category: isValidCategory(parsedData.category) ? parsedData.category : '기타'
-        },
-        mode: 'gemini-ai'
-      };
-    } catch (error) {
-      console.warn('Gemini API call failed, falling back to Tesseract OCR:', error);
-      const fallbackResult = await runTesseractFallback(imageBase64);
-      return {
-        ...fallbackResult,
-        errorMsg: 'Gemini API 호출에 실패하였습니다: ' + (error.message || 'API 오류')
-      };
+    for (const modelName of CANDIDATE_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent([prompt, imagePart]);
+        const responseText = result.response.text().trim();
+        const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsedData = JSON.parse(cleanJson);
+
+        return {
+          success: true,
+          data: {
+            title: parsedData.title || '학급 안내사항',
+            content: parsedData.content || '주요 안내사항을 확인하세요.',
+            date: parsedData.date || getFutureDate(7),
+            category: isValidCategory(parsedData.category) ? parsedData.category : '기타'
+          },
+          mode: 'gemini-ai'
+        };
+      } catch (err) {
+        lastError = err;
+        console.warn(`[Gemini ${modelName}] 호출 실패, 다음 모델로 재시도:`, err.message);
+      }
     }
+
+    console.warn('모든 Gemini 모델 호출 실패, Tesseract OCR로 대체합니다:', lastError);
+    const fallbackResult = await runTesseractFallback(imageBase64);
+    return {
+      ...fallbackResult,
+      errorMsg: 'Gemini API 호출에 실패하였습니다: ' + (lastError?.message || 'API 오류')
+    };
   }
 
   // 2. Fallback Option: 2x High-DPI Canvas + Tesseract OCR

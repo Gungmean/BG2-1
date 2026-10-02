@@ -41,9 +41,36 @@ function normalizeRecord(item) {
   };
 }
 
-async function listCollection(collection, fallback) {
+async function listCollection(collection, fallback, forceRefresh = false) {
   if (!isSupabaseEnabled) return fallback();
 
+  const syncKey = `classboard_last_sync_${collection}`;
+  const lastSync = localStorage.getItem(syncKey);
+  const localList = fallback();
+
+  // 1. 강제 새로고침이 아니고 로컬 캐시가 존재하는 경우, 가장 최근 updated_at만 50바이트 초경량 조회
+  if (!forceRefresh && lastSync && Array.isArray(localList) && localList.length > 0) {
+    try {
+      const { data: latestRows, error: checkError } = await supabase
+        .from(TABLE_NAME)
+        .select('updated_at')
+        .eq('collection', collection)
+        .order('updated_at', { ascending: false })
+        .limit(1);
+
+      if (!checkError && latestRows && latestRows.length > 0) {
+        const remoteLatest = latestRows[0].updated_at;
+        // 서버의 최신 수정일과 로컬 동기화 시점이 일치하거나 이전이면 전체 다운로드 생략 (Egress 0B 달성)
+        if (new Date(lastSync).getTime() >= new Date(remoteLatest).getTime()) {
+          return localList;
+        }
+      }
+    } catch (e) {
+      console.warn('Egress 최적화 체크 실패, 전체 동기화로 진행합니다.', e);
+    }
+  }
+
+  // 2. 변경 사항이 있을 때만 전체 데이터 조회
   const { data, error } = await supabase
     .from(TABLE_NAME)
     .select('id, data, updated_at')
@@ -55,7 +82,16 @@ async function listCollection(collection, fallback) {
     return fallback();
   }
 
-  return data.map((row) => ({ id: row.id, ...row.data, updatedAt: row.updated_at }));
+  const items = data.map((row) => ({ id: row.id, ...row.data, updatedAt: row.updated_at }));
+
+  // 최신 동기화 시점 갱신
+  if (items.length > 0 && items[0].updatedAt) {
+    localStorage.setItem(syncKey, items[0].updatedAt);
+  } else {
+    localStorage.setItem(syncKey, new Date().toISOString());
+  }
+
+  return items;
 }
 
 async function upsertItem(collection, item) {
@@ -74,6 +110,9 @@ async function upsertItem(collection, item) {
 
     if (error) {
       console.error(`[Supabase Error] ${collection} upsert failed:`, error);
+    } else {
+      // 로컬 동기화 타임스탬프 동기 갱신
+      localStorage.setItem(`classboard_last_sync_${collection}`, record.updatedAt);
     }
   } catch (err) {
     console.error(`[Supabase Error] ${collection} upsert exception:`, err);
@@ -93,6 +132,8 @@ async function deleteItem(collection, id) {
 
     if (error) {
       console.error(`[Supabase Error] ${collection} delete failed:`, error);
+    } else {
+      localStorage.setItem(`classboard_last_sync_${collection}`, new Date().toISOString());
     }
   } catch (err) {
     console.error(`[Supabase Error] ${collection} delete exception:`, err);
@@ -112,7 +153,11 @@ export function subscribeCollection(collection, onChange) {
         table: TABLE_NAME,
         filter: `collection=eq.${collection}`
       },
-      () => onChange()
+      () => {
+        // 실시간 변경 발생 시 캐시 만료 후 갱신 트리거
+        localStorage.removeItem(`classboard_last_sync_${collection}`);
+        onChange();
+      }
     )
     .subscribe();
 
@@ -121,8 +166,8 @@ export function subscribeCollection(collection, onChange) {
   };
 }
 
-export async function getNotices() {
-  const notices = await listCollection('notices', getLocalNotices);
+export async function getNotices(forceRefresh = false) {
+  const notices = await listCollection('notices', getLocalNotices, forceRefresh);
   if (isSupabaseEnabled && notices.length === 0) {
     const localNotices = getLocalNotices();
     await Promise.all(localNotices.map((notice) => upsertItem('notices', notice)));
@@ -139,47 +184,42 @@ export async function addNotice(notice) {
 
   const item = localList.find((n) => n.id === notice.id) || localList[0];
   await upsertItem('notices', item);
-  return getNotices();
+  return localList;
 }
 
 export async function updateNotice(id, updatedFields) {
   const localList = updateLocalNotice(id, updatedFields);
   if (!isSupabaseEnabled) return localList;
 
-  const current = await getNotices();
-  const existing = current.find((item) => item.id === id);
-  const item = {
-    ...(existing || {}),
-    ...updatedFields,
-    id,
-    updatedAt: new Date().toISOString()
-  };
-
-  await upsertItem('notices', item);
-  return getNotices();
+  const item = localList.find((n) => n.id === id);
+  if (item) {
+    await upsertItem('notices', {
+      ...item,
+      updatedAt: new Date().toISOString()
+    });
+  }
+  return localList;
 }
 
 export async function deleteNotice(id) {
   const localList = deleteLocalNotice(id);
   if (!isSupabaseEnabled) return localList;
   await deleteItem('notices', id);
-  return getNotices();
+  return localList;
 }
 
 export async function togglePinNotice(id) {
   const localList = toggleLocalPinNotice(id);
   if (!isSupabaseEnabled) return localList;
 
-  const current = await getNotices();
-  const item = current.find((notice) => notice.id === id);
-  if (!item) return current;
-
-  await upsertItem('notices', {
-    ...item,
-    pinned: !item.pinned,
-    updatedAt: new Date().toISOString()
-  });
-  return getNotices();
+  const item = localList.find((notice) => notice.id === id);
+  if (item) {
+    await upsertItem('notices', {
+      ...item,
+      updatedAt: new Date().toISOString()
+    });
+  }
+  return localList;
 }
 
 export async function getSuggestions() {
@@ -322,4 +362,44 @@ export async function deleteExamPlan(id) {
   if (!isSupabaseEnabled) return deleteLocalExamPlan(id);
   await deleteItem('exam_plans', id);
   return getExamPlans();
+}
+
+// --- PUSH NOTIFICATIONS SUBSCRIPTIONS ---
+export async function savePushSubscription(sub) {
+  if (!sub || !sub.endpoint) return null;
+  const subJson = typeof sub.toJSON === 'function' ? sub.toJSON() : sub;
+  const safeId = 'sub_' + btoa(sub.endpoint).replace(/[^a-zA-Z0-9]/g, '').slice(-32);
+  const record = {
+    id: safeId,
+    endpoint: sub.endpoint,
+    keys: subJson.keys || {},
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+    updatedAt: new Date().toISOString()
+  };
+
+  if (!isSupabaseEnabled) {
+    try {
+      const localSubs = JSON.parse(localStorage.getItem('classboard_push_subs_v1') || '[]');
+      const filtered = localSubs.filter((s) => s.endpoint !== sub.endpoint);
+      filtered.push(record);
+      localStorage.setItem('classboard_push_subs_v1', JSON.stringify(filtered));
+    } catch (e) {}
+    return record;
+  }
+
+  await upsertItem('push_subscriptions', record);
+  return record;
+}
+
+export async function deletePushSubscription(endpoint) {
+  if (!endpoint) return;
+  const safeId = 'sub_' + btoa(endpoint).replace(/[^a-zA-Z0-9]/g, '').slice(-32);
+  if (!isSupabaseEnabled) {
+    try {
+      const localSubs = JSON.parse(localStorage.getItem('classboard_push_subs_v1') || '[]');
+      localStorage.setItem('classboard_push_subs_v1', JSON.stringify(localSubs.filter((s) => s.endpoint !== endpoint)));
+    } catch (e) {}
+    return;
+  }
+  await deleteItem('push_subscriptions', safeId);
 }

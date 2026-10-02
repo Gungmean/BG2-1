@@ -154,51 +154,33 @@ export default function ExamPlanView({ isMonitor, notices = [], onSelectNotice }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 dark:from-purple-950/40 dark:via-indigo-950/40 dark:to-blue-950/40 border border-purple-100 dark:border-purple-900/40 shadow-sm relative overflow-hidden">
-        <div className="max-w-xl relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-600 text-white text-[11px] font-extrabold shadow-sm">
-            <BookOpenCheck className="w-3.5 h-3.5" />
-            <span>부광고 2학년 평가 관리 (가정통신문 공식 기준)</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
-            2학년 2학기 <span className="text-purple-600 dark:text-purple-400">시험 범위</span> & <span className="text-indigo-600 dark:text-indigo-400">평가계획서</span>
-          </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pt-0.5">
-            독서와 작문, 영어2, 미적분1, 기하, 역학과 에너지, 세포와 물질대사, 물질과 에너지, 스포츠생활2, 일본어 등
-            9개 과목의 정기시험 비율 및 공식 수행평가 목록과 평가 시기를 확인하세요.
-          </p>
-        </div>
-        <div className="absolute -right-6 -bottom-6 w-36 h-36 rounded-full bg-purple-200/40 dark:bg-purple-900/20 blur-2xl pointer-events-none" />
-      </div>
-
-      {/* Main 2-Way Tab Switcher: [시험 범위] vs [평가계획서] */}
-      <div className="flex items-center justify-center">
-        <div className="bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl flex items-center gap-1.5 border border-slate-200 dark:border-slate-800 shadow-inner w-full max-w-md">
-          <button
-            onClick={() => setActiveMainTab('scope')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-              activeMainTab === 'scope'
-                ? 'bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 shadow-md'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <Bookmark className="w-4 h-4" />
-            <span>📝 시험 범위 한눈에</span>
-          </button>
-          <button
-            onClick={() => setActiveMainTab('plan')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-              activeMainTab === 'plan'
-                ? 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 shadow-md'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>📊 수행 & 평가계획서</span>
-          </button>
-        </div>
+    <div className="space-y-4">
+      {/* Full-width Main 2-Way Tab Switcher */}
+      <div className="bg-slate-100 dark:bg-slate-850 p-1.5 rounded-2xl flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800 shadow-inner w-full">
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('scope')}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            activeMainTab === 'scope'
+              ? 'bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <Bookmark className="w-4 h-4" />
+          <span>📝 시험 범위 한눈에</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('plan')}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            activeMainTab === 'plan'
+              ? 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>📊 수행 & 평가계획서</span>
+        </button>
       </div>
 
       {/* ========================================================================= */}

@@ -111,8 +111,8 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  const refreshNotices = async () => {
-    const data = await getNotices();
+  const refreshNotices = async (force = false) => {
+    const data = await getNotices(force);
     setNotices(data);
   };
 
@@ -279,7 +279,7 @@ export default function App() {
         isMonitor={isMonitor}
         onOpenPinModal={handleOpenPinModal}
         onOpenSettings={handleOpenSettings}
-        onRefresh={refreshNotices}
+        onRefresh={() => refreshNotices(true)}
         onGoHome={handleGoHome}
       />
 

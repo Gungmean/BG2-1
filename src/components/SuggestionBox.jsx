@@ -114,28 +114,15 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
 
   return (
     <div className="space-y-4">
-      {/* Top Banner Card (Compact & Sleek) */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-blue-100 text-[11px] font-semibold mb-0.5">
-            <MessageSquare className="w-3.5 h-3.5 text-blue-200" />
-            <span>익명 소통함</span>
-          </div>
-          <h2 className="text-lg sm:text-xl font-black">학급 익명 건의함</h2>
-          <p className="text-[11px] sm:text-xs text-blue-100 mt-0.5">
-            학급 생활 개선 및 아이디어를 남겨보세요. 학생들의 찬반 투표를 거쳐 학급회의 안건으로 채택됩니다.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 bg-white text-blue-700 rounded-xl font-extrabold text-xs shadow-xs hover:bg-blue-50 active:scale-95 transition-all whitespace-nowrap shrink-0"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>건의 작성하기</span>
-        </button>
-      </div>
+      {/* Full-width elongated action button */}
+      <button
+        type="button"
+        onClick={() => setIsModalOpen(true)}
+        className="w-full py-3 sm:py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-black text-sm shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+      >
+        <Plus className="w-4 h-4" />
+        <span>새로운 건의사항 작성하기</span>
+      </button>
 
       {/* Category Pills & Sort Selector (Compact) */}
       <div className="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center justify-between">

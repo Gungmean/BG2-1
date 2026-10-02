@@ -1,5 +1,5 @@
 // Bugwang High School 2-1 PWA Service Worker
-const CACHE_NAME = 'bg2-1-pwa-v1';
+const CACHE_NAME = 'bg2-1-pwa-v2';
 
 const STATIC_PRECACHE = [
   '/',
@@ -105,6 +105,38 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         return caches.match(request);
       })
+  );
+});
+
+// Push: 앱이 닫혀 있어도 서버에서 웹 푸시가 도착하면 스마트폰 화면에 시스템 알림 표시
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: '🔔 내일 일정을 확인하세요',
+    body: '터치하여 내일의 시간표와 급식을 확인해보세요.',
+    data: { url: '/?openReport=tomorrow' }
+  };
+
+  if (event.data) {
+    try {
+      payload = event.data.json();
+    } catch (e) {
+      const text = event.data.text();
+      if (text) payload.body = text;
+    }
+  }
+
+  const options = {
+    body: payload.body || '터치하여 내일의 시간표와 급식을 확인해보세요.',
+    icon: payload.icon || '/icon-192.png',
+    badge: payload.badge || '/badge-72.png',
+    data: payload.data || { url: '/?openReport=tomorrow' },
+    tag: payload.tag || 'bg2-1-tomorrow-report',
+    renotify: true,
+    requireInteraction: false,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || '🔔 내일 일정을 확인하세요', options)
   );
 });
 

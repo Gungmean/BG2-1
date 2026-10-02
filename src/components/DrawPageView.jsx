@@ -684,64 +684,34 @@ export default function DrawPageView() {
   };
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in">
-      {/* Top Banner Card */}
-      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-3xl p-6 sm:p-7 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-amber-100 text-xs font-semibold mb-1">
-            <Trophy className="w-4 h-4 text-amber-200" />
-            <span>부광고 2학년 1반 전용 도구</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-            학급 스마트 뽑기 & 자리배치
-          </h2>
-          <p className="text-xs text-amber-100 mt-1">
-            발표자/당번을 무작위 추첨하고, 교실 공식 좌석배치도를 원클릭으로 섞고 원본 서식 그대로 PDF로 출력하세요.
-          </p>
-        </div>
+    <div className="space-y-4 pb-12 animate-fade-in">
+      {/* Full-width SubTab Toggle Switcher */}
+      <div className="bg-slate-100 dark:bg-slate-850 p-1.5 rounded-2xl flex items-center gap-1.5 border border-slate-200/90 dark:border-slate-800 shadow-inner w-full">
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('number')}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            activeSubTab === 'number'
+              ? 'bg-white dark:bg-slate-800 text-amber-700 dark:text-amber-400 shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <Dices className="w-4 h-4" />
+          <span>🎲 번호 뽑기</span>
+        </button>
 
-        {/* SubTab Toggle Switcher */}
-        <div className="bg-black/20 p-1.5 rounded-2xl flex items-center gap-1 border border-white/20 backdrop-blur-sm self-stretch sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('number')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
-              activeSubTab === 'number'
-                ? 'text-amber-900 font-extrabold shadow-sm'
-                : 'text-white/90 hover:text-white'
-            }`}
-          >
-            {activeSubTab === 'number' && (
-              <motion.div
-                layoutId="drawSubTabPill"
-                className="absolute inset-0 bg-white rounded-xl shadow-md"
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              />
-            )}
-            <Dices className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">번호 뽑기</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveSubTab('seat')}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
-              activeSubTab === 'seat'
-                ? 'text-amber-900 font-extrabold shadow-sm'
-                : 'text-white/90 hover:text-white'
-            }`}
-          >
-            {activeSubTab === 'seat' && (
-              <motion.div
-                layoutId="drawSubTabPill"
-                className="absolute inset-0 bg-white rounded-xl shadow-md"
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              />
-            )}
-            <Users className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">자리 뽑기</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveSubTab('seat')}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            activeSubTab === 'seat'
+              ? 'bg-white dark:bg-slate-800 text-amber-700 dark:text-amber-400 shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>🪑 자리 뽑기</span>
+        </button>
       </div>
 
       {/* ======================================================== */}

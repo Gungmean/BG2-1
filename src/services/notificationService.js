@@ -5,9 +5,53 @@
 
 import { getNotices, calculateDDay, getLocalDateString } from './storageService';
 import { getSchoolInfoForTomorrow } from './schoolService';
+import { savePushSubscription, deletePushSubscription } from './syncService';
 
 const STORAGE_KEY_NOTIFICATION_ENABLED = 'bg2_1_daily_notification_enabled';
 const STORAGE_KEY_LAST_NOTIFIED_DATE = 'bg2_1_last_notified_date';
+
+// VAPID 공개키 (Web Push 표준)
+const DEFAULT_VAPID_PUBLIC_KEY = 'BJcWKihtkSAC2R3R-9FtvmOCfMkXotgaV_8idbZPMG7CKuOnJHqcBYM_5rpcYILpy8to8cd5iRjuSNnD2Ce2yRQ';
+export const VAPID_PUBLIC_KEY =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_VAPID_PUBLIC_KEY) ||
+  DEFAULT_VAPID_PUBLIC_KEY;
+
+// Base64 URL 문자열을 Uint8Array로 변환 (PushManager 필수 규격)
+export function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+// 아이폰(iOS) 기기 여부 확인
+export function isIOS() {
+  if (typeof navigator === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// 홈 화면에 추가된 PWA(Standalone) 모드로 실행 중인지 확인
+export function isStandalonePWA() {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  );
+}
+
+// 웹 푸시 지원 여부 (Service Worker + PushManager)
+export function isPushSupported() {
+  return (
+    typeof window !== 'undefined' &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window &&
+    'Notification' in window
+  );
+}
 
 // 알림 활성화 여부 조회 (기본값: true)
 export function isNotificationEnabled() {
@@ -40,6 +84,85 @@ export async function requestNotificationPermission() {
   } catch (err) {
     console.error('알림 권한 요청 중 오류 발생:', err);
     return Notification.permission;
+  }
+}
+
+/**
+ * 현재 브라우저의 웹 푸시 구독 상태 조회
+ */
+export async function getPushSubscription() {
+  if (!isPushSupported()) return null;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    return await registration.pushManager.getSubscription();
+  } catch (e) {
+    console.warn('푸시 구독 상태 조회 실패:', e);
+    return null;
+  }
+}
+
+/**
+ * 웹 푸시(Web Push) 구독 등록 및 서버 저장
+ */
+export async function subscribeToWebPush() {
+  if (!isPushSupported()) {
+    return { success: false, reason: 'unsupported' };
+  }
+
+  // 아이폰의 경우 PWA로 설치되어 있지 않으면 푸시 알림 불가 안내
+  if (isIOS() && !isStandalonePWA()) {
+    return { success: false, reason: 'ios_needs_pwa' };
+  }
+
+  try {
+    // 1. 알림 권한 획득
+    const permission = await requestNotificationPermission();
+    if (permission !== 'granted') {
+      return { success: false, reason: 'permission_denied' };
+    }
+
+    // 2. 서비스 워커 등록 대기
+    const registration = await navigator.serviceWorker.ready;
+
+    // 3. 기존 구독 확인 또는 새로 생성
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+    }
+
+    // 4. Supabase에 푸시 토큰 저장
+    await savePushSubscription(subscription);
+    setNotificationEnabled(true);
+
+    return { success: true, subscription };
+  } catch (err) {
+    console.error('웹 푸시 구독 생성 중 오류:', err);
+    return { success: false, reason: err.message || 'unknown_error' };
+  }
+}
+
+/**
+ * 웹 푸시(Web Push) 구독 해제
+ */
+export async function unsubscribeFromWebPush() {
+  if (!isPushSupported()) return false;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (subscription) {
+      await deletePushSubscription(subscription.endpoint);
+      await subscription.unsubscribe();
+    }
+    setNotificationEnabled(false);
+    return true;
+  } catch (err) {
+    console.error('웹 푸시 구독 해제 실패:', err);
+    setNotificationEnabled(false);
+    return false;
   }
 }
 
@@ -177,13 +300,22 @@ export async function sendTestNotification() {
 }
 
 /**
- * 매일 저녁 8시(20:00) 정기 스케줄러 가동
+ * 매일 저녁 8시(20:00) 정기 스케줄러 가동 및 푸시 상태 동기화
  */
 let schedulerInterval = null;
 
 export function initDailyScheduler() {
   if (typeof window === 'undefined') return;
   if (schedulerInterval) clearInterval(schedulerInterval);
+
+  // 권한이 이미 허용되어 있고 알림 켜짐 상태라면 백그라운드 푸시 구독 자동 동기화
+  if (isNotificationEnabled() && Notification.permission === 'granted' && isPushSupported()) {
+    getPushSubscription().then((existing) => {
+      if (!existing && (!isIOS() || isStandalonePWA())) {
+        subscribeToWebPush().catch((err) => console.warn('푸시 자동 구독 시도 실패:', err));
+      }
+    });
+  }
 
   const checkAndNotify = async () => {
     if (!isNotificationEnabled()) return;
@@ -207,7 +339,7 @@ export function initDailyScheduler() {
     }
   };
 
-  // 즉시 1회 체크 후 매 1분마다 주기적 체크
+  // 즉시 1회 체크 후 매 1분마다 주기적 체크 (앱 실행 중일 때 보조 타이머 역할)
   checkAndNotify();
   schedulerInterval = setInterval(checkAndNotify, 60 * 1000);
 }

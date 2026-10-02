@@ -8,7 +8,12 @@ import {
   isNotificationSupported,
   getNotificationPermission,
   requestNotificationPermission,
-  sendTestNotification
+  sendTestNotification,
+  subscribeToWebPush,
+  unsubscribeFromWebPush,
+  isIOS,
+  isStandalonePWA,
+  getPushSubscription
 } from '../services/notificationService';
 
 export default function SettingsModal({ isOpen, onClose }) {
@@ -21,6 +26,7 @@ export default function SettingsModal({ isOpen, onClose }) {
   // Notification states
   const [notifEnabled, setNotifEnabled] = useState(isNotificationEnabled());
   const [notifPermission, setNotifPermission] = useState(getNotificationPermission());
+  const [isPushSubscribed, setIsPushSubscribed] = useState(false);
   const [testSending, setTestSending] = useState(false);
   const [testMessage, setTestMessage] = useState('');
 
@@ -29,6 +35,7 @@ export default function SettingsModal({ isOpen, onClose }) {
       setApiKey(getStoredApiKey());
       setNotifEnabled(isNotificationEnabled());
       setNotifPermission(getNotificationPermission());
+      getPushSubscription().then((sub) => setIsPushSubscribed(Boolean(sub)));
     }
 
     const handleBeforeInstallPrompt = (e) => {
@@ -79,21 +86,46 @@ export default function SettingsModal({ isOpen, onClose }) {
       return;
     }
 
+    // 아이폰의 경우 PWA(홈 화면 추가) 모드가 아니면 안내
+    if (isIOS() && !isStandalonePWA()) {
+      alert(
+        '📱 아이폰(iOS) 알림 설정 안내:\n\n' +
+        '아이폰에서는 Safari 하단의 [공유] 버튼(네모+화살표)을 눌러 [홈 화면에 추가]한 후, 홈 화면에 생성된 앱 아이콘으로 접속해야 백그라운드 알림을 받을 수 있습니다.'
+      );
+      return;
+    }
+
     if (!notifEnabled) {
-      if (notifPermission !== 'granted') {
-        const perm = await requestNotificationPermission();
-        setNotifPermission(perm);
-        if (perm !== 'granted') {
-          alert('알림을 받으시려면 브라우저 주소창의 자물쇠 아이콘에서 알림 권한을 [허용]해주세요.');
-          return;
+      setTestSending(true);
+      setTestMessage('웹 푸시 알림 등록 중...');
+      const res = await subscribeToWebPush();
+      setTestSending(false);
+
+      if (res.success) {
+        setNotifEnabled(true);
+        setIsPushSubscribed(true);
+        setNotifPermission(getNotificationPermission());
+        setTestMessage('✅ 웹 푸시가 등록되었습니다! 앱이 꺼져 있어도 매일 저녁 8시에 알림이 도착합니다.');
+      } else {
+        if (res.reason === 'permission_denied') {
+          setNotifPermission('denied');
+          alert('알림 권한이 차단되었습니다. 브라우저 사이트 설정에서 알림을 [허용]으로 변경해주세요.');
+        } else if (res.reason === 'ios_needs_pwa') {
+          alert('아이폰에서는 Safari 공유 버튼을 눌러 [홈 화면에 추가]한 후 실행해주세요.');
+        } else {
+          // 로컬 알림 활성화 폴백
+          setNotificationEnabled(true);
+          setNotifEnabled(true);
+          setTestMessage('로컬 알림이 활성화되었습니다.');
         }
       }
-      setNotificationEnabled(true);
-      setNotifEnabled(true);
     } else {
-      setNotificationEnabled(false);
+      await unsubscribeFromWebPush();
       setNotifEnabled(false);
+      setIsPushSubscribed(false);
+      setTestMessage('🔕 알림이 비활성화되었습니다.');
     }
+    setTimeout(() => setTestMessage(''), 4500);
   };
 
   const handleTestNotification = async () => {
@@ -237,17 +269,35 @@ export default function SettingsModal({ isOpen, onClose }) {
             매일 저녁 8시에 내일의 점심 급식, 1교시 수업, 마감 예정 수행평가를 정리해 알려드립니다. <strong>알림을 누르면 즉시 내일의 하루 리포트가 열립니다.</strong>
           </p>
 
+          {/* iOS Safari PWA Installation notice */}
+          {isIOS() && !isStandalonePWA() && (
+            <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-900 dark:text-amber-200 space-y-1">
+              <span className="font-bold flex items-center gap-1">
+                <span>📱 아이폰(iOS) 알림 안내</span>
+              </span>
+              <p className="text-[10px] text-amber-800 dark:text-amber-300 leading-tight">
+                아이폰에서는 사파리(Safari) 브라우저 하단의 <strong>[공유]</strong> 버튼을 누르고 <strong>[홈 화면에 추가]</strong>를 진행해야 앱이 꺼져 있어도 알림을 받을 수 있습니다.
+              </p>
+            </div>
+          )}
+
           <div className="pt-1 flex flex-wrap items-center justify-between gap-2 border-t border-indigo-100/80 dark:border-indigo-900/40">
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-              권한 상태:{' '}
-              {notifPermission === 'granted' ? (
-                <strong className="text-emerald-600 dark:text-emerald-400">허용됨 ✅</strong>
-              ) : notifPermission === 'denied' ? (
-                <strong className="text-rose-600 dark:text-rose-400">차단됨 (브라우저 설정 필요)</strong>
-              ) : (
-                <strong className="text-amber-600 dark:text-amber-400">권한 필요</strong>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                권한: {notifPermission === 'granted' ? (
+                  <strong className="text-emerald-600 dark:text-emerald-400">허용됨</strong>
+                ) : notifPermission === 'denied' ? (
+                  <strong className="text-rose-600 dark:text-rose-400">차단됨</strong>
+                ) : (
+                  <strong className="text-amber-600 dark:text-amber-400">미설정</strong>
+                )}
+              </span>
+              {isPushSubscribed && (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300">
+                  📡 웹 푸시 활성
+                </span>
               )}
-            </span>
+            </div>
 
             <button
               type="button"

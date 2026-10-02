@@ -3,8 +3,8 @@ import { Camera, Upload, Sparkles, AlertCircle, CheckCircle2, RefreshCw, X, Key,
 import { analyzeNoticeImage } from '../services/aiService';
 import { getLocalDateString, getStoredApiKey, setStoredApiKey } from '../services/storageService';
 
-// Helper: Client-side image resizing and compression using Canvas to guarantee lightweight localStorage usage
-function resizeImageFile(file, maxWidth = 1280, maxHeight = 1280, quality = 0.8) {
+// Helper: Client-side image resizing and compression using Canvas to guarantee lightweight network & DB usage
+function resizeImageFile(file, maxWidth = 960, maxHeight = 960, quality = 0.68) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -157,26 +157,27 @@ export default function AiUploadModal({
 
     try {
       const analysisResult = await analyzeNoticeImage(imageDataUrl);
+      const data = analysisResult.data || analysisResult;
       
       const inferredDateType =
-        analysisResult.dateType ||
-        (analysisResult.startDate && analysisResult.endDate && analysisResult.startDate !== analysisResult.endDate
+        data.dateType ||
+        (data.startDate && data.endDate && data.startDate !== data.endDate
           ? 'range'
-          : !analysisResult.date && !analysisResult.startDate && !analysisResult.endDate
+          : !data.date && !data.startDate && !data.endDate
           ? 'none'
           : 'single');
 
       setFormData({
-        title: analysisResult.title || '',
-        content: analysisResult.content || '',
+        title: data.title || '',
+        content: data.content || '',
         dateType: inferredDateType,
-        date: analysisResult.date || getTodayDate(),
-        startDate: analysisResult.startDate || analysisResult.date || getTodayDate(),
-        endDate: analysisResult.endDate || analysisResult.date || getTodayDate(),
-        category: analysisResult.category || '학사일정'
+        date: data.date || getTodayDate(),
+        startDate: data.startDate || data.date || getTodayDate(),
+        endDate: data.endDate || data.date || getTodayDate(),
+        category: data.category || '학사일정'
       });
 
-      setAiAnalysisMode(analysisResult.ocrMode || 'ai');
+      setAiAnalysisMode(analysisResult.mode || 'gemini-ai');
       setStep('review');
     } catch (err) {
       console.error(err);

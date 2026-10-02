@@ -1,0 +1,32 @@
+name: Daily 8PM Web Push Notification
+
+on:
+  schedule:
+    # 매일 저녁 8시 KST (UTC 기준 11:00)
+    - cron: '0 11 * * *'
+  workflow_dispatch: # GitHub 웹 UI에서 수동 실행 버튼 지원
+
+jobs:
+  send-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Send Daily Push Notification
+        env:
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY || 'BJcWKihtkSAC2R3R-9FtvmOCfMkXotgaV_8idbZPMG7CKuOnJHqcBYM_5rpcYILpy8to8cd5iRjuSNnD2Ce2yRQ' }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY || 'RT5_Wl9n3jKz2ry5vFInij8co7pwGlkQ-1MdtCkSnYU' }}
+          VAPID_SUBJECT: 'mailto:admin@bugwang.hs.kr'
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/send_daily_push.mjs
