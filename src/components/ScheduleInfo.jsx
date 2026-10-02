@@ -1,7 +1,7 @@
 // src/components/ScheduleInfo.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Utensils, Calendar, BookOpen, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
+import { Utensils, BookOpen, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
 import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName, getCurrentPeriod } from '../services/schoolService';
 
 export default function ScheduleInfo() {
@@ -62,85 +62,75 @@ export default function ScheduleInfo() {
 
   return (
     <div className="space-y-6">
-      {/* Title Card */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white rounded-3xl p-6 shadow-md flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-blue-100 text-xs font-semibold mb-1">
-            <Calendar className="w-4 h-4 text-blue-200" />
-            <span>부광고등학교 2학년 1반</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold">주간 시간표 및 급식 식단표</h2>
-          <p className="text-xs text-blue-100 mt-1">
-            월요일부터 금요일까지 요일을 선택하여 해당 일자의 급식과 수업 시간표를 확인하세요.
-          </p>
-        </div>
-        <motion.button
-          whileTap={{ scale: 0.9, rotate: 180 }}
-          onClick={() => loadDataForDay(selectedDay, true)}
-          disabled={loading}
-          className="p-2.5 rounded-full bg-white/20 hover:bg-white/30 transition-all text-white active:scale-95 border border-white/20"
-          title="새로고침"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-        </motion.button>
-      </div>
-
-      {/* Weekday Selector Tabs (월~금) with Sliding White Pill Motion */}
-      <div className="bg-slate-100/90 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200/90 dark:border-slate-700 shadow-inner">
-        <div className="grid grid-cols-5 gap-1 relative">
-          {weekDays.map((day) => {
-            const isSelected = selectedDay.ymd === day.ymd;
-            return (
-              <motion.button
-                key={day.ymd}
-                type="button"
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setSelectedDay(day)}
-                className={`relative py-2.5 px-2 rounded-full flex flex-col items-center justify-center transition-colors z-10 ${
-                  isSelected
-                    ? 'text-blue-600 dark:text-blue-400 font-extrabold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-semibold'
-                }`}
-              >
-                {/* 🤍 하얀색이 왔다갔다 슬라이딩하는 Active Pill */}
-                {isSelected && (
-                  <motion.div
-                    layoutId="weekdayActivePill"
-                    className="absolute inset-0 bg-white dark:bg-slate-700 rounded-full shadow-md shadow-slate-300/60 dark:shadow-none border border-slate-200/60 dark:border-slate-600"
-                    transition={{
-                      type: 'spring',
-                      stiffness: 480,
-                      damping: 32
-                    }}
-                  />
-                )}
-
-                {/* Today Badge */}
-                {day.isToday && (
-                  <span
-                    className={`relative z-10 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full mb-0.5 transition-colors ${
-                      isSelected
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
-                    }`}
-                  >
-                    오늘
-                  </span>
-                )}
-                <span className="relative z-10 text-xs sm:text-sm font-extrabold">
-                  {day.dayName}요일
-                </span>
-                <span
-                  className={`relative z-10 text-[10px] mt-0.5 transition-colors ${
-                    isSelected ? 'text-blue-500 font-bold' : 'text-slate-400'
+      {/* Weekday Selector Tabs (월~금) & Refresh Button */}
+      <div className="flex items-center gap-2">
+        <div className="flex-1 bg-slate-100/90 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200/90 dark:border-slate-700 shadow-inner">
+          <div className="grid grid-cols-5 gap-1 relative">
+            {weekDays.map((day) => {
+              const isSelected = selectedDay.ymd === day.ymd;
+              return (
+                <motion.button
+                  key={day.ymd}
+                  type="button"
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setSelectedDay(day)}
+                  className={`relative py-2.5 px-2 rounded-full flex flex-col items-center justify-center transition-colors z-10 ${
+                    isSelected
+                      ? 'text-blue-600 dark:text-blue-400 font-extrabold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-semibold'
                   }`}
                 >
-                  {day.displayDate}
-                </span>
-              </motion.button>
-            );
-          })}
+                  {/* 🤍 하얀색이 왔다갔다 슬라이딩하는 Active Pill */}
+                  {isSelected && (
+                    <motion.div
+                      layoutId="weekdayActivePill"
+                      className="absolute inset-0 bg-white dark:bg-slate-700 rounded-full shadow-md shadow-slate-300/60 dark:shadow-none border border-slate-200/60 dark:border-slate-600"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 480,
+                        damping: 32
+                      }}
+                    />
+                  )}
+
+                  {/* Today Badge */}
+                  {day.isToday && (
+                    <span
+                      className={`relative z-10 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full mb-0.5 transition-colors ${
+                        isSelected
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
+                      }`}
+                    >
+                      오늘
+                    </span>
+                  )}
+                  <span className="relative z-10 text-xs sm:text-sm font-extrabold">
+                    {day.dayName}요일
+                  </span>
+                  <span
+                    className={`relative z-10 text-[10px] mt-0.5 transition-colors ${
+                      isSelected ? 'text-blue-500 font-bold' : 'text-slate-400'
+                    }`}
+                  >
+                    {day.displayDate}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Compact Refresh Button */}
+        <motion.button
+          whileTap={{ scale: 0.92, rotate: 180 }}
+          onClick={() => loadDataForDay(selectedDay, true)}
+          disabled={loading}
+          className="p-3 sm:p-3.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-blue-300 transition-all text-slate-600 dark:text-slate-300 shadow-xs shrink-0 cursor-pointer active:scale-95"
+          title="시간표/급식 새로고침"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
+        </motion.button>
       </div>
 
       {/* Data Section with Smooth Animated Content Transition */}
