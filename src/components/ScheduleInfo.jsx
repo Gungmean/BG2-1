@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Utensils, Calendar, BookOpen, AlertCircle, RefreshCw, Sparkles } from 'lucide-react';
-import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName, PERIOD_SCHEDULE, SCHOOL_ROUTINE_TIMES, getCurrentPeriod } from '../services/schoolService';
+import { getWeekDays, getSchoolInfoForDate, parseMealDishes, cleanDishName, getCurrentPeriod } from '../services/schoolService';
 
 export default function ScheduleInfo() {
   const weekDays = useState(() => getWeekDays())[0];
@@ -268,14 +268,12 @@ export default function ScheduleInfo() {
                       <table className="w-full text-xs sm:text-sm text-left">
                         <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold">
                           <tr>
-                            <th className="px-3.5 py-2.5">교시</th>
-                            <th className="px-3.5 py-2.5">수업 시간</th>
+                            <th className="px-3.5 py-2.5 w-24 sm:w-28">교시</th>
                             <th className="px-3.5 py-2.5">수업 과목</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
                           {timetable.map((item, idx) => {
-                            const timeStr = item.time || PERIOD_SCHEDULE[String(item.period)]?.time || '-';
                             const isCurrent =
                               Boolean(selectedDay.isToday) &&
                               currentPeriod !== null &&
@@ -297,13 +295,6 @@ export default function ScheduleInfo() {
                                     )}
                                     <span>{item.period}교시</span>
                                   </div>
-                                </td>
-                                <td
-                                  className={`px-3.5 py-2.5 text-xs whitespace-nowrap font-mono tabular-nums ${
-                                    isCurrent ? 'font-bold text-indigo-700 dark:text-indigo-300' : 'font-medium text-slate-500 dark:text-slate-400'
-                                  }`}
-                                >
-                                  {timeStr}
                                 </td>
                                 <td className="px-3.5 py-2.5 font-semibold text-slate-800 dark:text-slate-100">
                                   <div className="flex items-center gap-2">
