@@ -464,19 +464,12 @@ export default function ExamPlanView({ isMonitor, notices = [], onSelectNotice }
                           )}
                         </div>
 
-                        {/* Official Exam method & essay ratio from PDF */}
-                        {(plan.examMethod || plan.essayRatio) && (
+                        {/* Official Exam method from PDF */}
+                        {plan.examMethod && (
                           <div className="flex items-center gap-2 mt-1.5 text-[10px] font-semibold text-slate-600 dark:text-slate-400 flex-wrap">
-                            {plan.examMethod && (
-                              <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                📝 정기시험: <strong className="text-slate-800 dark:text-slate-200">{plan.examMethod}</strong>
-                              </span>
-                            )}
-                            {plan.essayRatio && plan.essayRatio !== '해당없음' && (
-                              <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
-                                ✍️ 서·논술형: <strong className="text-amber-900 dark:text-amber-200">{plan.essayRatio}</strong>
-                              </span>
-                            )}
+                            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                              📝 정기시험: <strong className="text-slate-800 dark:text-slate-200">{plan.examMethod}</strong>
+                            </span>
                           </div>
                         )}
                       </div>
