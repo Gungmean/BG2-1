@@ -481,7 +481,17 @@ const INITIAL_SUGGESTIONS = [
     upvotes: 14,
     downvotes: 1,
     status: 'accepted', // 'pending' | 'accepted' | 'completed' | 'rejected'
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+    comments: [
+      {
+        id: 'cmt_s1_1',
+        author: '반장',
+        authorName: '오정민',
+        content: '건의 확인했습니다! 담임 선생님께 말씀드려 오후 5~6교시에는 24도로 고정 가동하기로 협의 완료했습니다.',
+        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        isMonitor: true
+      }
+    ]
   },
   {
     id: 's2',
@@ -492,7 +502,8 @@ const INITIAL_SUGGESTIONS = [
     upvotes: 9,
     downvotes: 2,
     status: 'pending',
-    createdAt: new Date(Date.now() - 3600000 * 18).toISOString()
+    createdAt: new Date(Date.now() - 3600000 * 18).toISOString(),
+    comments: []
   },
   {
     id: 's3',
@@ -503,7 +514,17 @@ const INITIAL_SUGGESTIONS = [
     upvotes: 6,
     downvotes: 0,
     status: 'completed',
-    createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
+    createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+    comments: [
+      {
+        id: 'cmt_s3_1',
+        author: '반장',
+        authorName: '오정민',
+        content: '행정실에 교체 요청 접수 완료하였으며 내일 새 뚜껑으로 교체될 예정입니다. 건의 감사합니다!',
+        createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+        isMonitor: true
+      }
+    ]
   }
 ];
 
@@ -538,9 +559,48 @@ export function addSuggestion(suggestion) {
     status: 'pending',
     createdAt: new Date().toISOString(),
     author: '익명',
+    comments: [],
     ...suggestion
   };
   const updated = [newSug, ...current];
+  saveSuggestions(updated);
+  return updated;
+}
+
+export function addSuggestionComment(suggestionId, comment) {
+  const current = getSuggestions();
+  const authorName = comment.authorName || getSessionMonitorName() || '반장';
+  const newComment = {
+    id: 'cmt_' + Date.now(),
+    author: '반장',
+    authorName,
+    content: comment.content,
+    createdAt: new Date().toISOString(),
+    isMonitor: true
+  };
+  const updated = current.map((item) => {
+    if (item.id !== suggestionId) return item;
+    const comments = Array.isArray(item.comments) ? item.comments : [];
+    return {
+      ...item,
+      comments: [...comments, newComment],
+      status: comment.status || (item.status === 'pending' ? 'accepted' : item.status)
+    };
+  });
+  saveSuggestions(updated);
+  return { updated, newComment };
+}
+
+export function deleteSuggestionComment(suggestionId, commentId) {
+  const current = getSuggestions();
+  const updated = current.map((item) => {
+    if (item.id !== suggestionId) return item;
+    const comments = Array.isArray(item.comments) ? item.comments : [];
+    return {
+      ...item,
+      comments: comments.filter((c) => c.id !== commentId)
+    };
+  });
   saveSuggestions(updated);
   return updated;
 }

@@ -3,9 +3,11 @@ import {
   addExamPlan as addLocalExamPlan,
   addNotice as addLocalNotice,
   addSuggestion as addLocalSuggestion,
+  addSuggestionComment as addLocalSuggestionComment,
   deleteExamPlan as deleteLocalExamPlan,
   deleteNotice as deleteLocalNotice,
   deleteSuggestion as deleteLocalSuggestion,
+  deleteSuggestionComment as deleteLocalSuggestionComment,
   getExamPlans as getLocalExamPlans,
   getNotices as getLocalNotices,
   getSuggestions as getLocalSuggestions,
@@ -313,6 +315,34 @@ export async function deleteSuggestion(id) {
   const fresh = (await listCollection('suggestions', () => localList)).filter((s) => s.id !== id);
   saveSuggestions(fresh);
   return sortByCreatedAtDesc(fresh);
+}
+
+export async function addSuggestionComment(suggestionId, comment) {
+  const { updated: localList } = addLocalSuggestionComment(suggestionId, comment);
+  if (!isSupabaseEnabled) return localList;
+
+  const target = localList.find((item) => item.id === suggestionId);
+  if (target) {
+    await upsertItem('suggestions', {
+      ...target,
+      updatedAt: new Date().toISOString()
+    });
+  }
+  return getSuggestions();
+}
+
+export async function deleteSuggestionComment(suggestionId, commentId) {
+  const localList = deleteLocalSuggestionComment(suggestionId, commentId);
+  if (!isSupabaseEnabled) return localList;
+
+  const target = localList.find((item) => item.id === suggestionId);
+  if (target) {
+    await upsertItem('suggestions', {
+      ...target,
+      updatedAt: new Date().toISOString()
+    });
+  }
+  return getSuggestions();
 }
 
 export { getUserVoteStatus };
