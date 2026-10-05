@@ -135,7 +135,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
 
     const text = (replyInputs[suggestionId] || '').trim();
     if (!text) {
-      alert('반장 답변 내용을 입력해 주세요.');
+      alert('답변 내용을 입력해 주세요.');
       return;
     }
 
@@ -168,7 +168,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
       return;
     }
 
-    if (window.confirm('등록된 반장 공식 답변을 삭제하시겠습니까?')) {
+    if (window.confirm('답변을 삭제하시겠습니까?')) {
       try {
         const updated = await deleteSuggestionComment(suggestionId, commentId);
         setSuggestions(updated);
@@ -251,7 +251,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
           >
             <option value="upvotes">좋아요 많은 순</option>
             <option value="newest">최신 등록순</option>
-            <option value="unanswered">답변 대기순 (Q&A)</option>
+            <option value="unanswered">답변 대기순</option>
           </select>
         </div>
       </div>
@@ -357,7 +357,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                     className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors py-1 px-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
-                    <span>반장 답변 {hasComments ? `(${comments.length})` : ''}</span>
+                    <span>답변 {hasComments ? `(${comments.length})` : ''}</span>
                     {isExpanded ? (
                       <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
                     ) : (
@@ -411,12 +411,11 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                           >
                             <div className="flex items-center justify-between gap-2 flex-wrap">
                               <div className="flex items-center gap-1.5">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-gradient-to-r from-amber-500/15 to-orange-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                                  <Crown className="w-3 h-3 text-amber-500 fill-amber-500" />
-                                  <span>반장 공식 답변</span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                  반장
                                 </span>
-                                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                  {comment.authorName ? `${comment.authorName} 반장` : '2-1 반장'}
+                                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                  {comment.authorName || '반장'}
                                 </span>
                               </div>
 
@@ -442,8 +441,8 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                             </div>
 
                             {/* Answer Text in Shopping Mall Q&A Style */}
-                            <div className="flex items-start gap-2 pt-0.5">
-                              <span className="text-xs font-black text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                            <div className="flex items-start gap-1.5 pt-0.5">
+                              <span className="text-xs font-black text-blue-600 dark:text-blue-400 shrink-0 mt-0.5">
                                 A.
                               </span>
                               <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap flex-1">
@@ -455,10 +454,10 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                       </div>
                     ) : (
                       !isMonitor && (
-                        <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
                           <span className="flex items-center gap-1.5 text-[11px]">
                             <Clock className="w-3.5 h-3.5 text-amber-500" />
-                            <span>아직 등록된 반장 공식 답변이 없습니다.</span>
+                            <span>아직 답변이 없습니다.</span>
                           </span>
                           <button
                             type="button"
@@ -470,7 +469,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                             className="inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-bold hover:underline shrink-0 cursor-pointer"
                           >
                             <Lock className="w-3 h-3" />
-                            <span>반장 인증 후 답변 달기</span>
+                            <span>반장 답변 등록</span>
                           </button>
                         </div>
                       )
@@ -480,13 +479,13 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                     {isMonitor ? (
                       <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-800/40 rounded-xl p-3 space-y-2">
                         <div className="flex items-center justify-between flex-wrap gap-2">
-                          <span className="flex items-center gap-1.5 text-xs font-bold text-amber-900 dark:text-amber-300">
-                            <Crown className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
-                            <span>반장 공식 답변 작성</span>
+                          <span className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300">
+                            <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                            <span>답변 작성</span>
                           </span>
 
                           <div className="flex items-center gap-1.5 text-[11px]">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">안건 상태 변경:</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">안건 상태:</span>
                             <select
                               value={replyStatuses[item.id] || (item.status === 'pending' ? 'accepted' : item.status)}
                               onChange={(e) => setReplyStatuses({ ...replyStatuses, [item.id]: e.target.value })}
@@ -505,7 +504,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                             rows={2}
                             value={replyInputs[item.id] || ''}
                             onChange={(e) => setReplyInputs({ ...replyInputs, [item.id]: e.target.value })}
-                            placeholder="쇼핑몰 Q&A 판매자 답변처럼 건의에 대한 반장 공식 답변을 작성해주세요..."
+                            placeholder="답변을 입력해 주세요..."
                             className="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-amber-200/90 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none transition-colors"
                           />
                           <button
@@ -532,7 +531,7 @@ export default function SuggestionBox({ isMonitor, onOpenPinModal }) {
                             className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
                           >
                             <Lock className="w-3 h-3" />
-                            <span>반장 인증 후 추가 답변 달기</span>
+                            <span>답변 추가 (반장)</span>
                           </button>
                         </div>
                       )
