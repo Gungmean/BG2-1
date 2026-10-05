@@ -3,6 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- KakaoTalk In-App Browser Auto-Escape to Chrome / Safari -->
+    <script>
+      (function() {
+        var ua = navigator.userAgent || '';
+        if (/KAKAOTALK/i.test(ua)) {
+          var url = window.location.href;
+          if (/iPhone|iPad|iPod/i.test(ua)) {
+            // iOS: Open in Safari via Kakao's external browser scheme
+            window.location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(url);
+          } else if (/Android/i.test(ua)) {
+            // Android: Open in Chrome via Android Intent
+            var cleanUrl = url.replace(/^https?:\/\//i, '');
+            window.location.href = 'intent://' + cleanUrl + '#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.android.chrome;end';
+          }
+        }
+      })();
+    </script>
     <link rel="icon" type="image/png" href="/symbol.png" />
     <!-- PWA Manifest & Theme -->
     <link rel="manifest" href="/manifest.json" />

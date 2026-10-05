@@ -72,18 +72,21 @@ export function isNotificationSupported() {
 // 브라우저 알림 권한 상태 조회
 export function getNotificationPermission() {
   if (!isNotificationSupported()) return 'unsupported';
-  return Notification.permission; // 'default' | 'granted' | 'denied'
+  return typeof window !== 'undefined' && window.Notification ? window.Notification.permission : 'unsupported';
 }
 
 // 브라우저 알림 권한 요청
 export async function requestNotificationPermission() {
   if (!isNotificationSupported()) return 'unsupported';
   try {
-    const permission = await Notification.requestPermission();
-    return permission;
+    if (typeof window !== 'undefined' && window.Notification?.requestPermission) {
+      const permission = await window.Notification.requestPermission();
+      return permission;
+    }
+    return 'unsupported';
   } catch (err) {
     console.error('알림 권한 요청 중 오류 발생:', err);
-    return Notification.permission;
+    return typeof window !== 'undefined' && window.Notification ? window.Notification.permission : 'unsupported';
   }
 }
 
@@ -245,7 +248,7 @@ export async function generateTomorrowSummary() {
  */
 export async function triggerNotification(summary) {
   if (!isNotificationSupported()) return false;
-  if (Notification.permission !== 'granted') {
+  if (!window.Notification || window.Notification.permission !== 'granted') {
     const perm = await requestNotificationPermission();
     if (perm !== 'granted') return false;
   }
@@ -274,18 +277,21 @@ export async function triggerNotification(summary) {
   }
 
   // 일반 Notification 인스턴스 대체
-  try {
-    const notif = new Notification(summary.title, notificationOptions);
-    notif.onclick = () => {
-      window.focus();
-      window.dispatchEvent(new CustomEvent('OPEN_TOMORROW_REPORT'));
-      notif.close();
-    };
-    return true;
-  } catch (err) {
-    console.error('Notification 인스턴스 생성 실패:', err);
-    return false;
+  if (typeof window !== 'undefined' && typeof window.Notification === 'function') {
+    try {
+      const notif = new window.Notification(summary.title, notificationOptions);
+      notif.onclick = () => {
+        window.focus();
+        window.dispatchEvent(new CustomEvent('OPEN_TOMORROW_REPORT'));
+        notif.close();
+      };
+      return true;
+    } catch (err) {
+      console.error('Notification 인스턴스 생성 실패:', err);
+      return false;
+    }
   }
+  return false;
 }
 
 /**
@@ -309,7 +315,12 @@ export function initDailyScheduler() {
   if (schedulerInterval) clearInterval(schedulerInterval);
 
   // 권한이 이미 허용되어 있고 알림 켜짐 상태라면 백그라운드 푸시 구독 자동 동기화
-  if (isNotificationEnabled() && Notification.permission === 'granted' && isPushSupported()) {
+  if (
+    isNotificationEnabled() &&
+    isNotificationSupported() &&
+    window.Notification?.permission === 'granted' &&
+    isPushSupported()
+  ) {
     getPushSubscription().then((existing) => {
       if (!existing && (!isIOS() || isStandalonePWA())) {
         subscribeToWebPush().catch((err) => console.warn('푸시 자동 구독 시도 실패:', err));
@@ -319,7 +330,7 @@ export function initDailyScheduler() {
 
   const checkAndNotify = async () => {
     if (!isNotificationEnabled()) return;
-    if (Notification.permission !== 'granted') return;
+    if (!isNotificationSupported() || window.Notification?.permission !== 'granted') return;
 
     const now = new Date();
     const currentHour = now.getHours();
